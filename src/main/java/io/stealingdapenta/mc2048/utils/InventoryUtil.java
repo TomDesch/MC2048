@@ -6,6 +6,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 
 public class InventoryUtil {
@@ -51,5 +52,9 @@ public class InventoryUtil {
 
         // Check if the slot is within the middle 4x6 spots
         return row >= (INVENTORY_ROWS / 2 - 2) && row < (INVENTORY_ROWS / 2 + 2) && col >= 2 && col < 6;
+    }
+
+    public boolean isGameWindow(InventoryView inventoryView) {
+        return inventoryView.getTitle().equals(GAME_TITLE);
     }
 }
