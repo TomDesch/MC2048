@@ -1,5 +1,7 @@
 package io.stealingdapenta.mc2048;
 
+import io.stealingdapenta.mc2048.commands.GameCommand;
+import java.util.Objects;
 import java.util.logging.Logger;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -11,13 +13,15 @@ public class MC2048 extends JavaPlugin {
     public static Logger logger;
     private static MC2048 instance = null;
 
+    private final GameCommand gameCommand = new GameCommand();
+
     @Override
     public void onEnable() {
         instance = this;
         logger = this.getLogger();
 
-//        Objects.requireNonNull(this.getCommand("consoleclear"))
-//               .setExecutor(consoleClearCommand);
+        Objects.requireNonNull(this.getCommand("2048"))
+               .setExecutor(gameCommand);
 
         logger.info(ChatColor.GOLD + PLUGIN_ENABLED);
     }
