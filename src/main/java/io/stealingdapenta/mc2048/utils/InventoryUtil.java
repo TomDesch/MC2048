@@ -102,7 +102,7 @@ public class InventoryUtil {
         int col = slot % INVENTORY_COLUMNS;
 
         // Check if the slot is within the middle 4x6 spots
-        return row >= (INVENTORY_ROWS / 2 - 2) && row < (INVENTORY_ROWS / 2 + 2) && col >= 2 && col < 6;
+        return row >= (INVENTORY_ROWS / 2 - 2) && row < (INVENTORY_ROWS / 2 + 2) && col >= 1 && col < 5;
     }
 
     public boolean isGameWindow(InventoryView inventoryView) {
