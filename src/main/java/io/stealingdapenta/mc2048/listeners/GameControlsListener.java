@@ -30,8 +30,8 @@ public class GameControlsListener implements Listener {
             return;
         }
 
-        event.getWhoClicked()
-             .sendMessage("game window!!");
+        event.setCancelled(true);
+
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
