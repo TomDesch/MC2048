@@ -20,7 +20,7 @@ public class GameCommand implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player player) {
             player.sendMessage(ChatColor.RED + "Good luck!");
-            inventoryUtil.openChestInventory(player);
+            player.openInventory(inventoryUtil.getGameInventory(player));
             return true;
         }
 
