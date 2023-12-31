@@ -2,15 +2,13 @@ package io.stealingdapenta.mc2048.utils;
 
 import static io.stealingdapenta.mc2048.MC2048.logger;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 public class InventoryUtil {
 
@@ -18,7 +16,7 @@ public class InventoryUtil {
     private static final int INVENTORY_COLUMNS = 9;
     private static final int REQUIRED_SIZE = INVENTORY_ROWS * INVENTORY_COLUMNS;
     private static final String WRONG_SIZE = "Error filling sides of inventory: wrong size!";
-    private static final String GAME_TITLE = "                MC 2048";
+    private static final String GAME_TITLE = "               &4&lMC 2048";
     private static final int SLOT_UP = 16;
     private static final int SLOT_LEFT = 24;
     private static final int SLOT_RIGHT = 26;
@@ -33,7 +31,7 @@ public class InventoryUtil {
     }
 
     private Inventory createChestInventory(Player player) {
-        return Bukkit.createInventory(player, REQUIRED_SIZE, GAME_TITLE);
+        return Bukkit.createInventory(player, REQUIRED_SIZE, ChatColor.translateAlternateColorCodes('&', GAME_TITLE));
     }
 
     private void fillSides(Inventory inventory) {
@@ -44,47 +42,36 @@ public class InventoryUtil {
 
         for (int i = 0; i < REQUIRED_SIZE; i++) {
             if (isWithinBorder(i) || !isWithinMiddle(i)) {
-                inventory.setItem(i, new ItemStack(Material.WHITE_STAINED_GLASS_PANE));
+                inventory.setItem(i, getStainedGlassPaneItem());
             }
         }
     }
 
+    private ItemStack getStainedGlassPaneItem() {
+        return new ItemBuilder(new ItemStack(Material.WHITE_STAINED_GLASS_PANE, 1)).setDisplayName(" ")
+                                                                                   .create();
+    }
+
     private void setButtonsAndStats(Inventory inventory, Player player) {
-        setItemInSlot(inventory, SLOT_UP, createButton("UP"));
-        setItemInSlot(inventory, SLOT_LEFT, createButton("LEFT"));
-        setItemInSlot(inventory, SLOT_RIGHT, createButton("RIGHT"));
-        setItemInSlot(inventory, SLOT_DOWN, createButton("DOWN"));
+        setItemInSlot(inventory, SLOT_UP, createButton("&2&lUP"));
+        setItemInSlot(inventory, SLOT_LEFT, createButton("&2&lLEFT"));
+        setItemInSlot(inventory, SLOT_RIGHT, createButton("&2&lRIGHT"));
+        setItemInSlot(inventory, SLOT_DOWN, createButton("&2&lDOWN"));
         setItemInSlot(inventory, SLOT_STATS, createStatsItem(player));
     }
 
     private ItemStack createButton(String buttonName) {
-        ItemStack statsItem = new ItemStack(Material.LIGHTNING_ROD);
-
-        ItemMeta itemMeta = statsItem.getItemMeta();
-        assert itemMeta != null;
-        itemMeta.setDisplayName(buttonName);
-
-        List<String> lore = new ArrayList<>();
-        lore.add("Click to move everything!");
-        itemMeta.setLore(lore);
-        statsItem.setItemMeta(itemMeta);
-        return statsItem;
+        return new ItemBuilder(Material.LIGHTNING_ROD).setDisplayName(buttonName)
+                                                      .addLore("&aClick to move everything!")
+                                                      .create();
     }
 
     private ItemStack createStatsItem(Player player) {
-        ItemStack statsItem = new ItemStack(Material.RECOVERY_COMPASS);
-
-        ItemMeta itemMeta = statsItem.getItemMeta();
-        assert itemMeta != null;
-        itemMeta.setDisplayName(player.getName() + "s stats");
-
-        List<String> lore = new ArrayList<>();
-        lore.add(">> Playtime: 11:12:13s");
-        lore.add(">> HiScore: 2048");
-        lore.add(">> Current score: 1024");
-        itemMeta.setLore(lore);
-        statsItem.setItemMeta(itemMeta);
-        return statsItem;
+        return new ItemBuilder(Material.RECOVERY_COMPASS).setDisplayName("&6&l" + player.getName() + "s stats")
+                                                         .addLore("&e>> Playtime: 11:12:13s")
+                                                         .addLore("&e>> HiScore: 2048")
+                                                         .addLore("&e>> Current score: 1024")
+                                                         .create();
     }
 
     private void setItemInSlot(Inventory inventory, int slot, ItemStack itemStack) {
