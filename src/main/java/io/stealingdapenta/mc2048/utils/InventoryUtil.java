@@ -94,6 +94,6 @@ public class InventoryUtil {
 
     public boolean isGameWindow(InventoryView inventoryView) {
         return inventoryView.getTitle()
-                            .equals(GAME_TITLE);
+                            .contains(GAME_TITLE.strip());
     }
 }
