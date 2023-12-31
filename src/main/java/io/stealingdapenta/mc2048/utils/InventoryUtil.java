@@ -94,6 +94,6 @@ public class InventoryUtil {
 
     public boolean isGameWindow(InventoryView inventoryView) {
         return inventoryView.getTitle()
-                            .contains(GAME_TITLE.strip());
+                            .contains(ChatColor.translateAlternateColorCodes('&', GAME_TITLE.strip()));
     }
 }
