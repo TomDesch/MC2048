@@ -1,5 +1,7 @@
 package io.stealingdapenta.mc2048.utils;
 
+import static io.stealingdapenta.mc2048.MC2048.logger;
+
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
@@ -26,6 +28,30 @@ public enum NumberRepresentations {
         this.number = number;
         this.representation = representation;
     }
+
+    public static int getRepresentationFromItem(ItemStack itemStack) {
+        for (NumberRepresentations representation : NumberRepresentations.values()) {
+            if (representation.getRepresentation() == itemStack.getType()) {
+                return representation.getNumber();
+            }
+        }
+        logger.severe("Error getting representation for %s. Returning 0!".formatted(itemStack.getType()));
+        return 0;
+    }
+
+    public static NumberRepresentations getNextRepresentation(int currentRepresentation) {
+        NumberRepresentations[] representations = NumberRepresentations.values();
+
+        for (int i = 0; i < representations.length - 1; i++) {
+            if (representations[i].getNumber() == currentRepresentation) {
+                return representations[i + 1];
+            }
+        }
+
+        logger.severe("Error getting next representation for %s. Returning TWO!".formatted(currentRepresentation));
+        return TWO;
+    }
+
 
     public int getNumber() {
         return number;

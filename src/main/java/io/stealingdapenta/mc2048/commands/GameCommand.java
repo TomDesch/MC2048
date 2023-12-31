@@ -7,6 +7,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 
 public class GameCommand implements CommandExecutor {
     private final InventoryUtil inventoryUtil;
@@ -22,9 +23,13 @@ public class GameCommand implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player player) {
             player.sendMessage(ChatColor.RED + "Good luck!");
-            player.openInventory(inventoryUtil.getGameInventory(player));
-            gameManager.activateGameFor(player);
+            Inventory gameWindow = inventoryUtil.getGameInventory(player);
+            player.openInventory(gameWindow);
+            gameManager.activateGameFor(player, gameWindow);
 
+            // 2 starting blocks
+            inventoryUtil.spawnNewBlock(gameWindow);
+            inventoryUtil.spawnNewBlock(gameWindow);
             return true;
         }
 

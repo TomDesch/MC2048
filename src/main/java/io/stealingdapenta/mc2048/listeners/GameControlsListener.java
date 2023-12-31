@@ -26,14 +26,14 @@ public class GameControlsListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onButtonClick(InventoryClickEvent event) {
-        Inventory clickedInventory = event.getClickedInventory();
-
         InventoryView clickedInventoryView = event.getView();
         if (!inventoryUtil.isGameWindow(clickedInventoryView)) {
             return;
         }
 
         event.setCancelled(true);
+        Inventory gameWindow = event.getClickedInventory();
+
 
         ItemStack clickedItem = event.getCurrentItem();
         if (Objects.isNull(clickedItem)) {
@@ -49,15 +49,22 @@ public class GameControlsListener implements Listener {
         String displayName = itemMeta.getDisplayName();
         if (displayName.contains("UP")) {
             pressed = pressed.formatted("UP");
+            inventoryUtil.moveUp(gameWindow);
         } else if (displayName.contains("LEFT")) {
             pressed = pressed.formatted("LEFT");
+            inventoryUtil.moveLeft(gameWindow);
         } else if (displayName.contains("RIGHT")) {
             pressed = pressed.formatted("RIGHT");
+            inventoryUtil.moveRight(gameWindow);
         } else if (displayName.contains("DOWN")) {
             pressed = pressed.formatted("DOWN");
+            inventoryUtil.moveDown(gameWindow);
         } else {
             return;
         }
+
+        inventoryUtil.spawnNewBlock(gameWindow);
+
         event.getWhoClicked()
              .sendMessage(pressed);
 
