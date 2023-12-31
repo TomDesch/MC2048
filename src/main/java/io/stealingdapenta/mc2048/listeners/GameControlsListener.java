@@ -45,30 +45,20 @@ public class GameControlsListener implements Listener {
             return;
         }
 
-        String pressed = "You clicked on %s.";
-
         String displayName = itemMeta.getDisplayName();
         if (displayName.contains("UP")) {
-            pressed = pressed.formatted("UP");
             inventoryUtil.moveItemsInDirection(gameWindow, Direction.UP);
         } else if (displayName.contains("LEFT")) {
-            pressed = pressed.formatted("LEFT");
             inventoryUtil.moveItemsInDirection(gameWindow, Direction.LEFT);
         } else if (displayName.contains("RIGHT")) {
-            pressed = pressed.formatted("RIGHT");
             inventoryUtil.moveItemsInDirection(gameWindow, Direction.RIGHT);
         } else if (displayName.contains("DOWN")) {
-            pressed = pressed.formatted("DOWN");
             inventoryUtil.moveItemsInDirection(gameWindow, Direction.DOWN);
         } else {
             return;
         }
 
         inventoryUtil.spawnNewBlock(gameWindow);
-
-        event.getWhoClicked()
-             .sendMessage(pressed);
-
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
