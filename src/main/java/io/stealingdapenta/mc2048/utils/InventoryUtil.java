@@ -106,72 +106,105 @@ public class InventoryUtil {
                             .contains(ChatColor.translateAlternateColorCodes('&', GAME_TITLE.strip()));
     }
 
-    private void moveItemsInDirection(Inventory gameWindow, int start, int end, int increment, boolean isVertical) {
+    public void moveItemsInDirection(Inventory gameWindow, Direction direction) {
         ItemStack[][] inventoryArray = new ItemStack[ROW_AND_COLUMN_SIZE][ROW_AND_COLUMN_SIZE];
 
         // Copy contents from actual items to the 2D array based on mergeSlots numbers
         for (int row = 0; row < ROW_AND_COLUMN_SIZE; row++) {
             for (int column = 0; column < ROW_AND_COLUMN_SIZE; column++) {
-                logger.info("Setting [%s, %s] to item %s".formatted(row, column, gameWindow.getItem(mergeSlots[row][column])));
                 inventoryArray[row][column] = gameWindow.getItem(mergeSlots[row][column]);
             }
         }
+        // ============================================================================
 
-        for (int movingIndex = start; movingIndex != end; movingIndex += increment) {
-            for (int fixedIndex = 0; fixedIndex < ROW_AND_COLUMN_SIZE; fixedIndex++) {
-                if (inventoryArray[isVertical ? movingIndex : fixedIndex][isVertical ? fixedIndex : movingIndex] != null) {
-                    int currentIndex = movingIndex;
-                    while (currentIndex >= end
-                            && inventoryArray[isVertical ? currentIndex - increment : fixedIndex][isVertical ? fixedIndex : currentIndex - increment] == null) {
-                        inventoryArray[isVertical ? currentIndex - increment : fixedIndex][isVertical ? fixedIndex : currentIndex - increment] = inventoryArray[
-                                isVertical ? currentIndex : fixedIndex][isVertical ? fixedIndex : currentIndex];
-                        inventoryArray[isVertical ? currentIndex : fixedIndex][isVertical ? fixedIndex : currentIndex] = null;
-                        currentIndex -= increment;
+        switch (direction) {
+            case UP -> {
+                for (int row = 1; row < ROW_AND_COLUMN_SIZE; row++) {
+                    for (int column = 0; column < ROW_AND_COLUMN_SIZE; column++) {
+                        if (Objects.nonNull(inventoryArray[row][column])) {
+                            int currentIndex = row;
+
+                            while (currentIndex - 1 >= 0 && Objects.isNull(inventoryArray[currentIndex - 1][column])) {
+                                inventoryArray[currentIndex - 1][column] = inventoryArray[currentIndex][column];
+                                inventoryArray[currentIndex][column] = null;
+                                currentIndex--;
+                            }
+
+                            if (currentIndex != 0 && inventoryArray[currentIndex - 1][column] != null) {
+                                logger.info("COLLIDED UP!");
+                            }
+                        }
                     }
-                    if (currentIndex != end
-                            && inventoryArray[isVertical ? currentIndex - increment : fixedIndex][isVertical ? fixedIndex : currentIndex - increment] != null) {
-                        logger.info("COLLIDED!");
+                }
+            }
+            case DOWN -> {
+                for (int row = ROW_AND_COLUMN_SIZE - 2; row >= 0; row--) {
+                    for (int column = 0; column < ROW_AND_COLUMN_SIZE; column++) {
+                        if (Objects.nonNull(inventoryArray[row][column])) {
+                            int currentIndex = row;
+
+                            while (currentIndex + 1 < ROW_AND_COLUMN_SIZE && Objects.isNull(inventoryArray[currentIndex + 1][column])) {
+                                inventoryArray[currentIndex + 1][column] = inventoryArray[currentIndex][column];
+                                inventoryArray[currentIndex][column] = null;
+                                currentIndex++;
+                            }
+
+                            if (currentIndex != ROW_AND_COLUMN_SIZE - 1 && inventoryArray[currentIndex + 1][column] != null) {
+                                logger.info("COLLIDED DOWN!");
+                            }
+                        }
+                    }
+                }
+            }
+            case LEFT -> {
+                for (int column = 1; column < ROW_AND_COLUMN_SIZE; column++) {
+                    for (int row = 0; row < ROW_AND_COLUMN_SIZE; row++) {
+                        if (Objects.nonNull(inventoryArray[row][column])) {
+                            int currentIndex = column;
+
+                            while (currentIndex - 1 >= 0 && Objects.isNull(inventoryArray[row][currentIndex - 1])) {
+                                inventoryArray[row][currentIndex - 1] = inventoryArray[row][currentIndex];
+                                inventoryArray[row][currentIndex] = null;
+                                currentIndex--;
+                            }
+
+                            if (currentIndex != 0 && inventoryArray[row][currentIndex - 1] != null) {
+                                logger.info("COLLIDED LEFT!");
+                            }
+                        }
+                    }
+                }
+
+            }
+            case RIGHT -> {
+                for (int column = ROW_AND_COLUMN_SIZE - 2; column >= 0; column--) {
+                    for (int row = 0; row < ROW_AND_COLUMN_SIZE; row++) {
+                        if (Objects.nonNull(inventoryArray[row][column])) {
+                            int currentIndex = column;
+
+                            while (currentIndex + 1 < ROW_AND_COLUMN_SIZE && Objects.isNull(inventoryArray[row][currentIndex + 1])) {
+                                inventoryArray[row][currentIndex + 1] = inventoryArray[row][currentIndex];
+                                inventoryArray[row][currentIndex] = null;
+                                currentIndex++;
+                            }
+
+                            if (currentIndex != ROW_AND_COLUMN_SIZE - 1 && inventoryArray[row][currentIndex + 1] != null) {
+                                logger.info("COLLIDED RIGHT!");
+                            }
+                        }
                     }
                 }
             }
         }
 
-        // Update the gameWindow inventory with the modified items
-        for (int i = 0; i < ROW_AND_COLUMN_SIZE; i++) {
-            for (int j = 0; j < ROW_AND_COLUMN_SIZE; j++) {
-                gameWindow.setItem(mergeSlots[i][j], inventoryArray[i][j]);
+        // ============================================================================
+
+        // Update the gameWindow inventory with the modified items arrays
+        for (int row = 0; row < ROW_AND_COLUMN_SIZE; row++) {
+            for (int column = 0; column < ROW_AND_COLUMN_SIZE; column++) {
+                gameWindow.setItem(mergeSlots[row][column], inventoryArray[row][column]);
             }
         }
-    }
-
-    public void moveUp(Inventory gameWindow) {
-        moveItemsInDirection(gameWindow, 1, ROW_AND_COLUMN_SIZE, 1, true);
-    }
-
-    public void moveDown(Inventory gameWindow) {
-        moveItemsInDirection(gameWindow, ROW_AND_COLUMN_SIZE - 2, -1, -1, true);
-    }
-
-    public void moveLeft(Inventory gameWindow) {
-        moveItemsInDirection(gameWindow, 1, ROW_AND_COLUMN_SIZE, 1, false);
-    }
-
-    public void moveRight(Inventory gameWindow) {
-        moveItemsInDirection(gameWindow, ROW_AND_COLUMN_SIZE - 2, -1, -1, false);
-    }
-
-
-    private void moveItem(ItemStack[][] array, int sourceRow, int sourceColumn, int destRow, int destColumn) {
-        array[destRow][destColumn] = array[sourceRow][sourceColumn];
-        array[sourceRow][sourceColumn] = null;
-    }
-
-    private int getNextRow(int row, boolean isReverse) {
-        return isReverse ? row - 1 : row + 1;
-    }
-
-    private int getNextColumn(int column, boolean isReverse) {
-        return isReverse ? column - 1 : column + 1;
     }
 
     private ItemStack getNextRepresentation(ItemStack itemStack) {
@@ -180,7 +213,7 @@ public class InventoryUtil {
                                     .getDisplayableBlock();
     }
 
-    public Inventory spawnNewBlock(Inventory inventory) {
+    public void spawnNewBlock(Inventory inventory) {
         List<Integer> emptySlots = IntStream.range(0, inventory.getSize())
                                             .filter(i -> Objects.isNull(inventory.getItem(i)))
                                             .boxed()
@@ -189,7 +222,6 @@ public class InventoryUtil {
         if (!emptySlots.isEmpty()) {
             inventory.setItem(emptySlots.get(new Random().nextInt(emptySlots.size())), generateNewBlock());
         }
-        return inventory;
     }
 
     private ItemStack generateNewBlock() {

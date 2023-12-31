@@ -1,6 +1,7 @@
 package io.stealingdapenta.mc2048.listeners;
 
 import io.stealingdapenta.mc2048.GameManager;
+import io.stealingdapenta.mc2048.utils.Direction;
 import io.stealingdapenta.mc2048.utils.InventoryUtil;
 import java.util.Objects;
 import org.bukkit.entity.Player;
@@ -49,16 +50,16 @@ public class GameControlsListener implements Listener {
         String displayName = itemMeta.getDisplayName();
         if (displayName.contains("UP")) {
             pressed = pressed.formatted("UP");
-            inventoryUtil.moveUp(gameWindow);
+            inventoryUtil.moveItemsInDirection(gameWindow, Direction.UP);
         } else if (displayName.contains("LEFT")) {
             pressed = pressed.formatted("LEFT");
-            inventoryUtil.moveLeft(gameWindow);
+            inventoryUtil.moveItemsInDirection(gameWindow, Direction.LEFT);
         } else if (displayName.contains("RIGHT")) {
             pressed = pressed.formatted("RIGHT");
-            inventoryUtil.moveRight(gameWindow);
+            inventoryUtil.moveItemsInDirection(gameWindow, Direction.RIGHT);
         } else if (displayName.contains("DOWN")) {
             pressed = pressed.formatted("DOWN");
-            inventoryUtil.moveDown(gameWindow);
+            inventoryUtil.moveItemsInDirection(gameWindow, Direction.DOWN);
         } else {
             return;
         }
