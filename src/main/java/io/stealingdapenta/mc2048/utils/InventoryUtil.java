@@ -156,9 +156,17 @@ public class InventoryUtil {
                         moved = true;
                     }
 
-                    if (aboveRowIndex >= 0) {
-                        possiblyMergeItems(inventoryArray, aboveRowIndex, column, column, inventoryArray[currentRowIndex]);
-                        moved = true;
+                    if (currentRowIndex != 0) {
+                        ItemStack itemAbove = inventoryArray[row][aboveRowIndex];
+                        if (Objects.nonNull(itemAbove)) {
+                            ItemStack currentItem = inventoryArray[row][currentRowIndex];
+                            if (itemAbove.isSimilar(currentItem)) {
+                                ItemStack nextItem = getNextRepresentation(currentItem);
+                                inventoryArray[row][aboveRowIndex] = nextItem;
+                                inventoryArray[row][currentRowIndex] = null;
+                                moved = true;
+                            }
+                        }
                     }
                 }
             }
@@ -172,25 +180,25 @@ public class InventoryUtil {
         for (int column = ROW_AND_COLUMN_SIZE - 2; column >= 0; column--) {
             for (int row = 0; row < ROW_AND_COLUMN_SIZE; row++) {
                 if (Objects.nonNull(inventoryArray[row][column])) {
-                    int currentIndex = column;
-                    int rightIndex = currentIndex + 1;
+                    int currentColumnIndex = column;
+                    int rightColumnIndex = currentColumnIndex + 1;
 
-                    while (rightIndex < ROW_AND_COLUMN_SIZE && Objects.isNull(inventoryArray[row][rightIndex])) {
-                        inventoryArray[row][rightIndex] = inventoryArray[row][currentIndex];
-                        inventoryArray[row][currentIndex] = null;
-                        currentIndex++;
-                        rightIndex = currentIndex + 1;
+                    while (rightColumnIndex < ROW_AND_COLUMN_SIZE && Objects.isNull(inventoryArray[row][rightColumnIndex])) {
+                        inventoryArray[row][rightColumnIndex] = inventoryArray[row][currentColumnIndex];
+                        inventoryArray[row][currentColumnIndex] = null;
+                        currentColumnIndex++;
+                        rightColumnIndex = currentColumnIndex + 1;
                         moved = true;
                     }
 
-                    if (currentIndex != ROW_AND_COLUMN_SIZE - 1) {
-                        ItemStack rightItem = inventoryArray[row][rightIndex];
+                    if (currentColumnIndex != ROW_AND_COLUMN_SIZE - 1) {
+                        ItemStack rightItem = inventoryArray[row][rightColumnIndex];
                         if (Objects.nonNull(rightItem)) {
-                            ItemStack currentItem = inventoryArray[row][currentIndex];
+                            ItemStack currentItem = inventoryArray[row][currentColumnIndex];
                             if (rightItem.isSimilar(currentItem)) {
                                 ItemStack nextItem = getNextRepresentation(currentItem);
-                                inventoryArray[row][rightIndex] = nextItem;
-                                inventoryArray[row][currentIndex] = null;
+                                inventoryArray[row][rightColumnIndex] = nextItem;
+                                inventoryArray[row][currentColumnIndex] = null;
                                 moved = true;
                             }
                         }
@@ -207,20 +215,28 @@ public class InventoryUtil {
         for (int column = 1; column < ROW_AND_COLUMN_SIZE; column++) {
             for (int row = 0; row < ROW_AND_COLUMN_SIZE; row++) {
                 if (Objects.nonNull(inventoryArray[row][column])) {
-                    int currentIndex = column;
-                    int leftIndex = currentIndex - 1;
+                    int currentColumnIndex = column;
+                    int leftColumnIndex = currentColumnIndex - 1;
 
-                    while (leftIndex >= 0 && Objects.isNull(inventoryArray[row][leftIndex])) {
-                        inventoryArray[row][leftIndex] = inventoryArray[row][currentIndex];
-                        inventoryArray[row][currentIndex] = null;
-                        currentIndex--;
-                        leftIndex = currentIndex - 1;
+                    while (leftColumnIndex >= 0 && Objects.isNull(inventoryArray[row][leftColumnIndex])) {
+                        inventoryArray[row][leftColumnIndex] = inventoryArray[row][currentColumnIndex];
+                        inventoryArray[row][currentColumnIndex] = null;
+                        currentColumnIndex--;
+                        leftColumnIndex = currentColumnIndex - 1;
                         moved = true;
                     }
 
-                    if (currentIndex != 0) {
-                        possiblyMergeItems(inventoryArray, row, currentIndex, leftIndex, inventoryArray[row]);
-                        moved = true;
+                    if (currentColumnIndex != 0) {
+                        ItemStack rightItem = inventoryArray[row][leftColumnIndex];
+                        if (Objects.nonNull(rightItem)) {
+                            ItemStack currentItem = inventoryArray[row][currentColumnIndex];
+                            if (rightItem.isSimilar(currentItem)) {
+                                ItemStack nextItem = getNextRepresentation(currentItem);
+                                inventoryArray[row][leftColumnIndex] = nextItem;
+                                inventoryArray[row][currentColumnIndex] = null;
+                                moved = true;
+                            }
+                        }
                     }
                 }
             }
@@ -235,38 +251,34 @@ public class InventoryUtil {
         for (int row = ROW_AND_COLUMN_SIZE - 2; row >= 0; row--) {
             for (int column = 0; column < ROW_AND_COLUMN_SIZE; column++) {
                 if (Objects.nonNull(inventoryArray[row][column])) {
-                    int currentIndex = row;
-                    int belowIndex = currentIndex + 1;
+                    int currentRowIndex = row;
+                    int belowRowIndex = currentRowIndex + 1;
 
-                    while (belowIndex < ROW_AND_COLUMN_SIZE && Objects.isNull(inventoryArray[belowIndex][column])) {
-                        inventoryArray[belowIndex][column] = inventoryArray[currentIndex][column];
-                        inventoryArray[currentIndex][column] = null;
-                        currentIndex++;
-                        belowIndex = currentIndex + 1;
+                    while (belowRowIndex < ROW_AND_COLUMN_SIZE && Objects.isNull(inventoryArray[belowRowIndex][column])) {
+                        inventoryArray[belowRowIndex][column] = inventoryArray[currentRowIndex][column];
+                        inventoryArray[currentRowIndex][column] = null;
+                        currentRowIndex++;
+                        belowRowIndex = currentRowIndex + 1;
                         moved = true;
                     }
 
-                    if (currentIndex != ROW_AND_COLUMN_SIZE - 1) {
-                        possiblyMergeItems(inventoryArray, belowIndex, column, column, inventoryArray[currentIndex]);
-                        moved = true;
+                    if (currentRowIndex != ROW_AND_COLUMN_SIZE - 1) {
+                        ItemStack rightItem = inventoryArray[row][belowRowIndex];
+                        if (Objects.nonNull(rightItem)) {
+                            ItemStack currentItem = inventoryArray[row][currentRowIndex];
+                            if (rightItem.isSimilar(currentItem)) {
+                                ItemStack nextItem = getNextRepresentation(currentItem);
+                                inventoryArray[row][belowRowIndex] = nextItem;
+                                inventoryArray[row][currentRowIndex] = null;
+                                moved = true;
+                            }
+
+                        }
                     }
                 }
             }
         }
         return moved;
-    }
-
-
-    private void possiblyMergeItems(ItemStack[][] inventoryArray, int row, int currentIndex, int leftIndex, ItemStack[] itemStacks) {
-        ItemStack leftItem = inventoryArray[row][leftIndex];
-        if (Objects.nonNull(leftItem)) {
-            ItemStack currentItem = itemStacks[currentIndex];
-            if (leftItem.isSimilar(currentItem)) {
-                ItemStack nextItem = getNextRepresentation(currentItem);
-                inventoryArray[row][leftIndex] = nextItem;
-                itemStacks[currentIndex] = null;
-            }
-        }
     }
 
     private ItemStack getNextRepresentation(ItemStack itemStack) {
