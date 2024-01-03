@@ -20,6 +20,11 @@
       <groupId>org.spigotmc</groupId>
       <version>1.20.2-R0.1-SNAPSHOT</version>
     </dependency>
+    <dependency>
+      <artifactId>adventure-api</artifactId>
+      <groupId>net.kyori</groupId>
+      <version>4.14.0</version>
+    </dependency>
   </dependencies>
 
 </project>

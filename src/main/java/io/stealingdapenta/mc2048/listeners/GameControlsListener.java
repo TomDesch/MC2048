@@ -4,6 +4,7 @@ import io.stealingdapenta.mc2048.GameManager;
 import io.stealingdapenta.mc2048.utils.Direction;
 import io.stealingdapenta.mc2048.utils.InventoryUtil;
 import java.util.Objects;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -17,6 +18,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 public class GameControlsListener implements Listener {
 
+    private static final String INVALID_MOVE = "Sorry! That's not a valid move.";
     private final InventoryUtil inventoryUtil;
     private final GameManager gameManager;
 
@@ -35,7 +37,6 @@ public class GameControlsListener implements Listener {
         event.setCancelled(true);
         Inventory gameWindow = event.getClickedInventory();
 
-
         ItemStack clickedItem = event.getCurrentItem();
         if (Objects.isNull(clickedItem)) {
             return;
@@ -46,19 +47,26 @@ public class GameControlsListener implements Listener {
         }
 
         String displayName = itemMeta.getDisplayName();
+        boolean move;
         if (displayName.contains("UP")) {
-            inventoryUtil.moveItemsInDirection(gameWindow, Direction.UP);
+            move = inventoryUtil.moveItemsInDirection(gameWindow, Direction.UP);
         } else if (displayName.contains("LEFT")) {
-            inventoryUtil.moveItemsInDirection(gameWindow, Direction.LEFT);
+            move = inventoryUtil.moveItemsInDirection(gameWindow, Direction.LEFT);
         } else if (displayName.contains("RIGHT")) {
-            inventoryUtil.moveItemsInDirection(gameWindow, Direction.RIGHT);
+            move = inventoryUtil.moveItemsInDirection(gameWindow, Direction.RIGHT);
         } else if (displayName.contains("DOWN")) {
-            inventoryUtil.moveItemsInDirection(gameWindow, Direction.DOWN);
+            move = inventoryUtil.moveItemsInDirection(gameWindow, Direction.DOWN);
         } else {
             return;
         }
 
-        inventoryUtil.spawnNewBlock(gameWindow);
+        if (move) {
+            inventoryUtil.spawnNewBlock(gameWindow);
+        } else {
+            Player player = (Player) event.getWhoClicked();
+            player.sendMessage(ChatColor.DARK_PURPLE + INVALID_MOVE);
+        }
+
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
