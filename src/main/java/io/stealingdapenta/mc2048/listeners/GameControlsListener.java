@@ -19,6 +19,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 public class GameControlsListener implements Listener {
 
     private static final String INVALID_MOVE = "Sorry! That's not a valid move.";
+    private static final String GAME_OVER = "Game over!!";
     private final InventoryUtil inventoryUtil;
     private final GameManager gameManager;
 
@@ -33,6 +34,7 @@ public class GameControlsListener implements Listener {
         if (!inventoryUtil.isGameWindow(clickedInventoryView)) {
             return;
         }
+        Player player = (Player) event.getWhoClicked();
 
         event.setCancelled(true);
         Inventory gameWindow = event.getClickedInventory();
@@ -62,8 +64,12 @@ public class GameControlsListener implements Listener {
 
         if (move) {
             inventoryUtil.spawnNewBlock(gameWindow);
+
+            if (inventoryUtil.noValidMovesLeft(gameWindow)) {
+                player.sendMessage(ChatColor.RED + GAME_OVER);
+            }
+
         } else {
-            Player player = (Player) event.getWhoClicked();
             player.sendMessage(ChatColor.DARK_PURPLE + INVALID_MOVE);
         }
 

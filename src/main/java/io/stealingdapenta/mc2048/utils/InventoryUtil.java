@@ -2,6 +2,7 @@ package io.stealingdapenta.mc2048.utils;
 
 import static io.stealingdapenta.mc2048.MC2048.logger;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
@@ -121,6 +122,48 @@ public class InventoryUtil {
         return true;
     }
 
+    public boolean noValidMovesLeft(Inventory gameWindow) {
+        ItemStack[][] itemsInGame = new ItemStack[ROW_AND_COLUMN_SIZE][ROW_AND_COLUMN_SIZE];
+        copyGameContents(gameWindow, itemsInGame);
+        if (Arrays.stream(itemsInGame)
+                  .flatMap(Arrays::stream)
+                  .noneMatch(Objects::isNull)) {
+            return !hasValidMovesLeft(itemsInGame);
+        }
+
+        return false;
+    }
+
+    /**
+     * Checks if there are valid moves left by examining adjacent items in the given 2D matrix.
+     *
+     * @param itemsInGame The 2D matrix representing the game state.
+     * @return {@code true} if there are valid moves left, {@code false} otherwise.
+     */
+    private boolean hasValidMovesLeft(ItemStack[][] itemsInGame) {
+        for (int row = 0; row < ROW_AND_COLUMN_SIZE; row++) {
+            for (int column = 0; column < ROW_AND_COLUMN_SIZE; column++) {
+                // Check right and down for each position
+                ItemStack currentItem = itemsInGame[row][column];
+                ItemStack rightItem = null;
+                if (column + 1 < ROW_AND_COLUMN_SIZE) {
+                    rightItem = itemsInGame[row][column + 1];
+                }
+
+                ItemStack belowItem = null;
+                if (row + 1 < ROW_AND_COLUMN_SIZE) {
+                    belowItem = itemsInGame[row + 1][column];
+                }
+
+                if ((column < ROW_AND_COLUMN_SIZE - 1 && currentItem.isSimilar(rightItem)) || (row < ROW_AND_COLUMN_SIZE - 1 && currentItem.isSimilar(
+                        belowItem))) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     // Update the gameWindow inventory with the modified items arrays
     private void copyToGameWindow(Inventory gameWindow, ItemStack[][] itemsInGame) {
         for (int row = 0; row < ROW_AND_COLUMN_SIZE; row++) {
@@ -156,14 +199,14 @@ public class InventoryUtil {
                         moved = true;
                     }
 
-                    if (currentRowIndex != 0) {
-                        ItemStack itemAbove = inventoryArray[row][aboveRowIndex];
+                    if (aboveRowIndex >= 0) {
+                        ItemStack itemAbove = inventoryArray[aboveRowIndex][column];
                         if (Objects.nonNull(itemAbove)) {
-                            ItemStack currentItem = inventoryArray[row][currentRowIndex];
+                            ItemStack currentItem = inventoryArray[currentRowIndex][column];
                             if (itemAbove.isSimilar(currentItem)) {
                                 ItemStack nextItem = getNextRepresentation(currentItem);
-                                inventoryArray[row][aboveRowIndex] = nextItem;
-                                inventoryArray[row][currentRowIndex] = null;
+                                inventoryArray[aboveRowIndex][column] = nextItem;
+                                inventoryArray[currentRowIndex][column] = null;
                                 moved = true;
                             }
                         }
@@ -191,7 +234,7 @@ public class InventoryUtil {
                         moved = true;
                     }
 
-                    if (currentColumnIndex != ROW_AND_COLUMN_SIZE - 1) {
+                    if (rightColumnIndex < ROW_AND_COLUMN_SIZE) {
                         ItemStack rightItem = inventoryArray[row][rightColumnIndex];
                         if (Objects.nonNull(rightItem)) {
                             ItemStack currentItem = inventoryArray[row][currentColumnIndex];
@@ -226,7 +269,7 @@ public class InventoryUtil {
                         moved = true;
                     }
 
-                    if (currentColumnIndex != 0) {
+                    if (leftColumnIndex >= 0) {
                         ItemStack rightItem = inventoryArray[row][leftColumnIndex];
                         if (Objects.nonNull(rightItem)) {
                             ItemStack currentItem = inventoryArray[row][currentColumnIndex];
@@ -262,17 +305,16 @@ public class InventoryUtil {
                         moved = true;
                     }
 
-                    if (currentRowIndex != ROW_AND_COLUMN_SIZE - 1) {
-                        ItemStack rightItem = inventoryArray[row][belowRowIndex];
+                    if (belowRowIndex < ROW_AND_COLUMN_SIZE) {
+                        ItemStack rightItem = inventoryArray[belowRowIndex][column];
                         if (Objects.nonNull(rightItem)) {
-                            ItemStack currentItem = inventoryArray[row][currentRowIndex];
+                            ItemStack currentItem = inventoryArray[currentRowIndex][column];
                             if (rightItem.isSimilar(currentItem)) {
                                 ItemStack nextItem = getNextRepresentation(currentItem);
-                                inventoryArray[row][belowRowIndex] = nextItem;
-                                inventoryArray[row][currentRowIndex] = null;
+                                inventoryArray[belowRowIndex][column] = nextItem;
+                                inventoryArray[currentRowIndex][column] = null;
                                 moved = true;
                             }
-
                         }
                     }
                 }
