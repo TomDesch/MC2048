@@ -6,33 +6,39 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 public enum NumberRepresentations {
-    TWO(2, Material.BONE_BLOCK),
-    FOUR(4, Material.HONEY_BLOCK),
-    EIGHT(8, Material.HONEYCOMB_BLOCK),
-    SIXTEEN(16, Material.HORN_CORAL_BLOCK),
-    THIRTY_TWO(32, Material.RAW_GOLD_BLOCK),
-    SIXTY_FOUR(64, Material.GOLD_BLOCK),
-    HUNDRED_TWENTY_EIGHT(128, Material.BONE_BLOCK),
-    TWO_HUNDRED_FIFTY_SIX(256, Material.OBSIDIAN),
-    FIVE_HUNDRED_TWELVE(512, Material.NETHER_BRICK),
-    ONE_THOUSAND_TWENTY_FOUR(1024, Material.NETHERITE_BLOCK),
-    TWO_THOUSAND_FORTY_EIGHT(2048, Material.DIAMOND_BLOCK),
-    FOUR_THOUSAND_NINETY_SIX(4096, Material.EMERALD_BLOCK),
-    EIGHT_THOUSAND_ONE_HUNDRED_NINETY_TWO(8192, Material.DIAMOND_BLOCK),
-    SIXTEEN_THOUSAND_THREE_HUNDRED_EIGHTY_FOUR(16384, Material.END_STONE);
+    TWO(2, 2, Material.RAW_COPPER),
+    FOUR(4, 4, Material.COPPER_INGOT),
+    EIGHT(8, 8, Material.COPPER_BLOCK),
+    SIXTEEN(16, 16, Material.RAW_IRON),
+    THIRTY_TWO(32, 32, Material.IRON_NUGGET),
+    SIXTY_FOUR(64, 64, Material.IRON_INGOT),
+    HUNDRED_TWENTY_EIGHT(2, 128, Material.IRON_BLOCK),
+    TWO_HUNDRED_FIFTY_SIX(4, 256, Material.RAW_GOLD),
+    FIVE_HUNDRED_TWELVE(8, 512, Material.GOLD_NUGGET),
+    ONE_THOUSAND_TWENTY_FOUR(16, 1024, Material.GOLD_INGOT),
+    TWO_THOUSAND_FORTY_EIGHT(32, 2048, Material.GOLD_BLOCK),
+    FOUR_THOUSAND_NINETY_SIX(64, 4096, Material.EMERALD),
+    EIGHT_THOUSAND_ONE_HUNDRED_NINETY_TWO(2, 8192, Material.EMERALD_BLOCK),
+    SIXTEEN_THOUSAND_THREE_HUNDRED_EIGHTY_FOUR(4, 16384, Material.LAPIS_LAZULI),
+    THIRTY_TWO_THOUSAND_SEVEN_HUNDRED_SIXTY_EIGHT(8, 32768, Material.LAPIS_BLOCK),
+    SIXTY_FIVE_THOUSAND_FIVE_HUNDRED_THIRTY_SIX(16, 65536, Material.DIAMOND),
+    HUNDRED_THIRTY_ONE_THOUSAND_SEVENTY_TWO(32, 131072, Material.DIAMOND_BLOCK),
+    INFINITY(64, Integer.MAX_VALUE, Material.END_STONE);
 
-    private final int number;
+    private final int amount;
+    private final int score;
     private final Material representation;
 
-    NumberRepresentations(int number, Material representation) {
-        this.number = number;
+    NumberRepresentations(int amount, int score, Material representation) {
+        this.amount = amount;
+        this.score = score;
         this.representation = representation;
     }
 
     public static int getRepresentationFromItem(ItemStack itemStack) {
         for (NumberRepresentations representation : NumberRepresentations.values()) {
             if (representation.getRepresentation() == itemStack.getType()) {
-                return representation.getNumber();
+                return representation.getAmount();
             }
         }
         logger.severe("Error getting representation for %s. Returning 0!".formatted(itemStack.getType()));
@@ -43,7 +49,7 @@ public enum NumberRepresentations {
         NumberRepresentations[] representations = NumberRepresentations.values();
 
         for (int i = 0; i < representations.length - 1; i++) {
-            if (representations[i].getNumber() == currentRepresentation) {
+            if (representations[i].getAmount() == currentRepresentation) {
                 return representations[i + 1];
             }
         }
@@ -53,8 +59,12 @@ public enum NumberRepresentations {
     }
 
 
-    public int getNumber() {
-        return number;
+    public int getAmount() {
+        return amount;
+    }
+
+    public int getScore() {
+        return score;
     }
 
     public Material getRepresentation() {
@@ -62,6 +72,6 @@ public enum NumberRepresentations {
     }
 
     public ItemStack getDisplayableBlock() {
-        return new ItemStack(representation, number);
+        return new ItemStack(representation, amount);
     }
 }
