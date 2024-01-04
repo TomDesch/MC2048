@@ -16,8 +16,8 @@ public class MC2048 extends JavaPlugin {
     public static Logger logger;
     private static MC2048 instance = null;
 
-    private final GameManager gameManager = new GameManager();
     private final InventoryUtil inventoryUtil = new InventoryUtil();
+    private final GameManager gameManager = new GameManager(inventoryUtil);
     private final GameControlsListener gameControlsListener = new GameControlsListener(inventoryUtil, gameManager);
     private final GameCommand gameCommand = new GameCommand(inventoryUtil, gameManager);
 

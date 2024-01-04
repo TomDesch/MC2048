@@ -13,7 +13,9 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.SkullMeta;
 
 public class InventoryUtil {
 
@@ -31,10 +33,11 @@ public class InventoryUtil {
     private static final int SLOT_STATS = 25;
     private final Random random = new Random();
 
-    public Inventory getGameInventory(Player player) {
-        Inventory inventory = createChestInventory(player);
+    public Inventory createGameInventory(ActiveGame activeGame) {
+        Inventory inventory = createChestInventory(activeGame.getPlayer());
         fillSides(inventory);
-        setButtonsAndStats(inventory, player);
+        activeGame.setGameWindow(inventory);
+        setButtonsAndStats(activeGame);
         return inventory;
     }
 
@@ -71,26 +74,19 @@ public class InventoryUtil {
                                                                                    .create();
     }
 
-    private void setButtonsAndStats(Inventory inventory, Player player) {
-        setItemInSlot(inventory, SLOT_UP, createButton("&2&lUP"));
-        setItemInSlot(inventory, SLOT_LEFT, createButton("&2&lLEFT"));
-        setItemInSlot(inventory, SLOT_RIGHT, createButton("&2&lRIGHT"));
-        setItemInSlot(inventory, SLOT_DOWN, createButton("&2&lDOWN"));
-        setItemInSlot(inventory, SLOT_STATS, createStatsItem(player));
+    private void setButtonsAndStats(ActiveGame activeGame) {
+        setItemInSlot(activeGame.getGameWindow(), SLOT_UP, createButton("&2&lUP"));
+        setItemInSlot(activeGame.getGameWindow(), SLOT_LEFT, createButton("&2&lLEFT"));
+        setItemInSlot(activeGame.getGameWindow(), SLOT_RIGHT, createButton("&2&lRIGHT"));
+        setItemInSlot(activeGame.getGameWindow(), SLOT_DOWN, createButton("&2&lDOWN"));
+        updateStatisticItem(activeGame);
     }
 
     private ItemStack createButton(String buttonName) {
         return new ItemBuilder(Material.LIGHTNING_ROD).setDisplayName(buttonName)
                                                       .addLore("&aClick to move everything!")
+                                                      .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
                                                       .create();
-    }
-
-    private ItemStack createStatsItem(Player player) {
-        return new ItemBuilder(Material.RECOVERY_COMPASS).setDisplayName("&6&l" + player.getName() + "s stats")
-                                                         .addLore("&e>> Playtime: 11:12:13s")
-                                                         .addLore("&e>> HiScore: 2048")
-                                                         .addLore("&e>> Current score: 1024")
-                                                         .create();
     }
 
     private void setItemInSlot(Inventory inventory, int slot, ItemStack itemStack) {
@@ -102,16 +98,31 @@ public class InventoryUtil {
                             .contains(ChatColor.translateAlternateColorCodes('&', GAME_TITLE.strip()));
     }
 
-    public boolean moveItemsInDirection(Inventory gameWindow, Direction direction) {
+    private void setLegend(Inventory gameWindow) {
+        // todo alter this in a new window.
+        ItemStack currentItem = NumberRepresentations.TWO.getDisplayableBlock();
+
+        for (int row = INVENTORY_ROWS - 2; row < INVENTORY_ROWS; row++) {
+            for (int column = 0; column < INVENTORY_COLUMNS; column++) {
+                int slot = row * 9 + column;
+                // Do something with the inventory slot at index 'slot'
+                gameWindow.setItem(slot, currentItem);
+                currentItem = getNextRepresentation(currentItem);
+            }
+        }
+    }
+
+    public boolean moveItemsInDirection(ActiveGame activeGame, Direction direction) {
+        Inventory gameWindow = activeGame.getGameWindow();
         ItemStack[][] itemsInGame = new ItemStack[ROW_AND_COLUMN_SIZE][ROW_AND_COLUMN_SIZE];
 
         copyGameContents(gameWindow, itemsInGame);
 
         boolean anythingMoved = switch (direction) {
-            case UP -> moveItemsUp(itemsInGame);
-            case DOWN -> moveItemsDown(itemsInGame);
-            case LEFT -> moveItemsLeft(itemsInGame);
-            case RIGHT -> moveItemsRight(itemsInGame);
+            case UP -> moveItemsUp(itemsInGame, activeGame);
+            case DOWN -> moveItemsDown(itemsInGame, activeGame);
+            case LEFT -> moveItemsLeft(itemsInGame, activeGame);
+            case RIGHT -> moveItemsRight(itemsInGame, activeGame);
         };
 
         if (!anythingMoved) {
@@ -182,7 +193,7 @@ public class InventoryUtil {
         }
     }
 
-    private boolean moveItemsUp(ItemStack[][] inventoryArray) {
+    private boolean moveItemsUp(ItemStack[][] inventoryArray, ActiveGame activeGame) {
         boolean moved = false;
 
         for (int row = 1; row < ROW_AND_COLUMN_SIZE; row++) {
@@ -208,6 +219,7 @@ public class InventoryUtil {
                                 inventoryArray[aboveRowIndex][column] = nextItem;
                                 inventoryArray[currentRowIndex][column] = null;
                                 moved = true;
+                                activeGame.addToScore(NumberRepresentations.getScoreFromItem(nextItem));
                             }
                         }
                     }
@@ -217,7 +229,7 @@ public class InventoryUtil {
         return moved;
     }
 
-    private boolean moveItemsRight(ItemStack[][] inventoryArray) {
+    private boolean moveItemsRight(ItemStack[][] inventoryArray, ActiveGame activeGame) {
         boolean moved = false;
 
         for (int column = ROW_AND_COLUMN_SIZE - 2; column >= 0; column--) {
@@ -243,6 +255,7 @@ public class InventoryUtil {
                                 inventoryArray[row][rightColumnIndex] = nextItem;
                                 inventoryArray[row][currentColumnIndex] = null;
                                 moved = true;
+                                activeGame.addToScore(NumberRepresentations.getScoreFromItem(nextItem));
                             }
                         }
                     }
@@ -252,7 +265,7 @@ public class InventoryUtil {
         return moved;
     }
 
-    private boolean moveItemsLeft(ItemStack[][] inventoryArray) {
+    private boolean moveItemsLeft(ItemStack[][] inventoryArray, ActiveGame activeGame) {
         boolean moved = false;
 
         for (int column = 1; column < ROW_AND_COLUMN_SIZE; column++) {
@@ -278,6 +291,7 @@ public class InventoryUtil {
                                 inventoryArray[row][leftColumnIndex] = nextItem;
                                 inventoryArray[row][currentColumnIndex] = null;
                                 moved = true;
+                                activeGame.addToScore(NumberRepresentations.getScoreFromItem(nextItem));
                             }
                         }
                     }
@@ -288,7 +302,7 @@ public class InventoryUtil {
         return moved;
     }
 
-    private boolean moveItemsDown(ItemStack[][] inventoryArray) {
+    private boolean moveItemsDown(ItemStack[][] inventoryArray, ActiveGame activeGame) {
         boolean moved = false;
 
         for (int row = ROW_AND_COLUMN_SIZE - 2; row >= 0; row--) {
@@ -314,6 +328,7 @@ public class InventoryUtil {
                                 inventoryArray[belowRowIndex][column] = nextItem;
                                 inventoryArray[currentRowIndex][column] = null;
                                 moved = true;
+                                activeGame.addToScore(NumberRepresentations.getScoreFromItem(nextItem));
                             }
                         }
                     }
@@ -343,5 +358,31 @@ public class InventoryUtil {
     private ItemStack generateNewBlock() {
         NumberRepresentations chosenNumber = random.nextInt(2) == 0 ? NumberRepresentations.TWO : NumberRepresentations.FOUR;
         return new ItemBuilder(chosenNumber.getDisplayableBlock()).create();
+    }
+
+    public ItemStack getPlayerSkullItem(Player player) {
+        ItemStack playerHead = (new ItemBuilder(Material.PLAYER_HEAD)).create();
+        SkullMeta skullMeta = (SkullMeta) playerHead.getItemMeta();
+        if (Objects.isNull(skullMeta)) {
+            logger.severe("Error getting skull meta for %s.".formatted(player.getName()));
+            return playerHead;
+        }
+        skullMeta.setOwningPlayer(player);
+        skullMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&6%s's Statistics".formatted(player.getName())));
+        playerHead.setItemMeta(skullMeta);
+        return playerHead;
+    }
+
+    public void updateStatisticItem(ActiveGame activeGame) {
+        activeGame.getGameWindow()
+                  .setItem(SLOT_STATS, getPlayerStatsHead(activeGame));
+    }
+
+    private ItemStack getPlayerStatsHead(ActiveGame activeGame) {
+        return (new ItemBuilder(getPlayerSkullItem(activeGame.getPlayer()))).addLore("&bCurrent playtime: &2%s".formatted(activeGame.getPlayTimeFormatted()))
+                                                                            .addLore("&bHiScore: &2%s".formatted("123456"))
+                                                                            .addLore("&bCurrent score: &2%s".formatted(activeGame.getScore()))
+                                                                            .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
+                                                                            .create();
     }
 }

@@ -1,6 +1,7 @@
 package io.stealingdapenta.mc2048.commands;
 
 import io.stealingdapenta.mc2048.GameManager;
+import io.stealingdapenta.mc2048.utils.ActiveGame;
 import io.stealingdapenta.mc2048.utils.InventoryUtil;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -23,9 +24,12 @@ public class GameCommand implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player player) {
             player.sendMessage(ChatColor.RED + "Good luck!");
-            Inventory gameWindow = inventoryUtil.getGameInventory(player);
+
+            ActiveGame activeGame = new ActiveGame(player, gameManager.createTask(player));
+            Inventory gameWindow = inventoryUtil.createGameInventory(activeGame);
             player.openInventory(gameWindow);
-            gameManager.activateGameFor(player, gameWindow);
+
+            gameManager.activateGame(activeGame);
 
             // 2 starting blocks
             inventoryUtil.spawnNewBlock(gameWindow);

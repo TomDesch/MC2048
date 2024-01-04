@@ -1,6 +1,9 @@
 package io.stealingdapenta.mc2048.listeners;
 
+import static io.stealingdapenta.mc2048.MC2048.logger;
+
 import io.stealingdapenta.mc2048.GameManager;
+import io.stealingdapenta.mc2048.utils.ActiveGame;
 import io.stealingdapenta.mc2048.utils.Direction;
 import io.stealingdapenta.mc2048.utils.InventoryUtil;
 import java.util.Objects;
@@ -11,7 +14,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -37,7 +39,6 @@ public class GameControlsListener implements Listener {
         Player player = (Player) event.getWhoClicked();
 
         event.setCancelled(true);
-        Inventory gameWindow = event.getClickedInventory();
 
         ItemStack clickedItem = event.getCurrentItem();
         if (Objects.isNull(clickedItem)) {
@@ -48,25 +49,31 @@ public class GameControlsListener implements Listener {
             return;
         }
 
+        ActiveGame activeGame = gameManager.getActiveGame(player);
+        if (Objects.isNull(activeGame) || Objects.isNull(activeGame.getGameWindow())) {
+            logger.severe("Error loading game for %s.".formatted(player.getName()));
+        }
+
         String displayName = itemMeta.getDisplayName();
         boolean move;
         if (displayName.contains("UP")) {
-            move = inventoryUtil.moveItemsInDirection(gameWindow, Direction.UP);
+            move = inventoryUtil.moveItemsInDirection(activeGame, Direction.UP);
         } else if (displayName.contains("LEFT")) {
-            move = inventoryUtil.moveItemsInDirection(gameWindow, Direction.LEFT);
+            move = inventoryUtil.moveItemsInDirection(activeGame, Direction.LEFT);
         } else if (displayName.contains("RIGHT")) {
-            move = inventoryUtil.moveItemsInDirection(gameWindow, Direction.RIGHT);
+            move = inventoryUtil.moveItemsInDirection(activeGame, Direction.RIGHT);
         } else if (displayName.contains("DOWN")) {
-            move = inventoryUtil.moveItemsInDirection(gameWindow, Direction.DOWN);
+            move = inventoryUtil.moveItemsInDirection(activeGame, Direction.DOWN);
         } else {
             return;
         }
 
         if (move) {
-            inventoryUtil.spawnNewBlock(gameWindow);
+            inventoryUtil.spawnNewBlock(activeGame.getGameWindow());
 
-            if (inventoryUtil.noValidMovesLeft(gameWindow)) {
+            if (inventoryUtil.noValidMovesLeft(activeGame.getGameWindow())) {
                 player.sendMessage(ChatColor.RED + GAME_OVER);
+                player.sendMessage("Score: %s".formatted(activeGame.getScore()));
             }
 
         } else {
@@ -82,8 +89,15 @@ public class GameControlsListener implements Listener {
             return;
         }
 
-        event.getPlayer()
-             .sendMessage("game window closed!!!");
-        gameManager.deactivateGameFor((Player) event.getPlayer());
+        Player player = (Player) event.getPlayer();
+
+        ActiveGame activeGame = gameManager.getActiveGame(player);
+        if (Objects.isNull(activeGame)) {
+            logger.severe("Error loading game for %s on closing.".formatted(player.getName()));
+            return;
+        }
+
+        player.sendMessage("You closed your 2048 game. Playtime: %s, Score: %s".formatted(activeGame.getPlayTimeFormatted(), activeGame.getScore()));
+        gameManager.deactivateGameFor(player);
     }
 }
