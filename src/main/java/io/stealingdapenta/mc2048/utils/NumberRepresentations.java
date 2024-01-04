@@ -35,10 +35,10 @@ public enum NumberRepresentations {
         this.representation = representation;
     }
 
-    public static int getRepresentationFromItem(ItemStack itemStack) {
+    public static int getScoreFromItem(ItemStack itemStack) {
         for (NumberRepresentations representation : NumberRepresentations.values()) {
             if (representation.getRepresentation() == itemStack.getType()) {
-                return representation.getAmount();
+                return representation.getScore();
             }
         }
         logger.severe("Error getting representation for %s. Returning 0!".formatted(itemStack.getType()));
@@ -49,7 +49,7 @@ public enum NumberRepresentations {
         NumberRepresentations[] representations = NumberRepresentations.values();
 
         for (int i = 0; i < representations.length - 1; i++) {
-            if (representations[i].getAmount() == currentRepresentation) {
+            if (representations[i].getScore() == currentRepresentation) {
                 return representations[i + 1];
             }
         }

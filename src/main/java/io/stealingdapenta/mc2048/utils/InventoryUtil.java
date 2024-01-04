@@ -324,7 +324,7 @@ public class InventoryUtil {
     }
 
     private ItemStack getNextRepresentation(ItemStack itemStack) {
-        int currentRepresentation = NumberRepresentations.getRepresentationFromItem(itemStack);
+        int currentRepresentation = NumberRepresentations.getScoreFromItem(itemStack);
         return NumberRepresentations.getNextRepresentation(currentRepresentation)
                                     .getDisplayableBlock();
     }
