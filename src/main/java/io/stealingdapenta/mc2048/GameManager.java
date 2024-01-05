@@ -54,8 +54,6 @@ public class GameManager {
         long totalPlayTime = activeGame.getTotalPlayTime() + activeGame.getMillisecondsSinceStart();
         fileManager.setValueByKey(activeGame.getPlayer(), TOTAL_PLAYTIME.getKey(), totalPlayTime);
         double average = calculateNewAverageScore(activeGame);
-        logger.info("Calculated new average %s for %s attempts and %s previous average score.".formatted(average, activeGame.getAttempts(),
-                activeGame.getAverageScore()));
         fileManager.setValueByKey(activeGame.getPlayer(), AVERAGE_SCORE.getKey(), average);
     }
 
