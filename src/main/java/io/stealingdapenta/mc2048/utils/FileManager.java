@@ -14,6 +14,8 @@ public class FileManager {
 
     private static final String EXCEPTION = "Error in file manager.";
     private static final String MC2048_STRING = "mc2048";
+    private static final String FILE_CREATED = "MC 2048: YML file created for %s.";
+    private static final String FILE_NOT_CREATED = "MC 2048: YML file failed to create for %s.";
     private static FileManager fileManager;
 
     public static FileManager getInstance() {
@@ -71,9 +73,9 @@ public class FileManager {
             file.createNewFile();
             writer = new PrintWriter(file);
             writer.println("Player Name: " + player.getName());
-            logger.info("MC 2048: YML file created for %s.".formatted(player.getName()));
+            logger.info(FILE_CREATED.formatted(player.getName()));
         } catch (IOException e1) {
-            logger.warning("MC 2048: YML file failed to create for %s.".formatted(player.getName()));
+            logger.warning(FILE_NOT_CREATED.formatted(player.getName()));
             logger.warning(EXCEPTION);
             logger.warning(e1.getMessage());
         } finally {

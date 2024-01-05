@@ -31,6 +31,7 @@ public class InventoryUtil {
     private static final int SLOT_RIGHT = 26;
     private static final int SLOT_DOWN = 34;
     private static final int SLOT_STATS = 25;
+    private static final String ERROR_SKULL = "Error getting skull meta for %s.";
     private final Random random = new Random();
 
     public Inventory createGameInventory(ActiveGame activeGame) {
@@ -75,10 +76,10 @@ public class InventoryUtil {
     }
 
     private void setButtonsAndStats(ActiveGame activeGame) {
-        setItemInSlot(activeGame.getGameWindow(), SLOT_UP, createButton("&2&lUP"));
-        setItemInSlot(activeGame.getGameWindow(), SLOT_LEFT, createButton("&2&lLEFT"));
-        setItemInSlot(activeGame.getGameWindow(), SLOT_RIGHT, createButton("&2&lRIGHT"));
-        setItemInSlot(activeGame.getGameWindow(), SLOT_DOWN, createButton("&2&lDOWN"));
+        setItemInSlot(activeGame.getGameWindow(), SLOT_UP, createButton("&2&l          UP"));
+        setItemInSlot(activeGame.getGameWindow(), SLOT_LEFT, createButton("&2&l          LEFT"));
+        setItemInSlot(activeGame.getGameWindow(), SLOT_RIGHT, createButton("&2&l          RIGHT"));
+        setItemInSlot(activeGame.getGameWindow(), SLOT_DOWN, createButton("&2&l          DOWN"));
         updateStatisticItem(activeGame);
     }
 
@@ -105,7 +106,6 @@ public class InventoryUtil {
         for (int row = INVENTORY_ROWS - 2; row < INVENTORY_ROWS; row++) {
             for (int column = 0; column < INVENTORY_COLUMNS; column++) {
                 int slot = row * 9 + column;
-                // Do something with the inventory slot at index 'slot'
                 gameWindow.setItem(slot, currentItem);
                 currentItem = getNextRepresentation(currentItem);
             }
@@ -364,7 +364,7 @@ public class InventoryUtil {
         ItemStack playerHead = (new ItemBuilder(Material.PLAYER_HEAD)).create();
         SkullMeta skullMeta = (SkullMeta) playerHead.getItemMeta();
         if (Objects.isNull(skullMeta)) {
-            logger.severe("Error getting skull meta for %s.".formatted(player.getName()));
+            logger.severe(ERROR_SKULL.formatted(player.getName()));
             return playerHead;
         }
         skullMeta.setOwningPlayer(player);
@@ -386,7 +386,8 @@ public class InventoryUtil {
                                                                             .addLore("&bHiScore: &2%s".formatted(activeGame.getHiScore()))
                                                                             .addLore("&bCurrent score: &2%s".formatted(activeGame.getScore()))
                                                                             .addLore("&bAmount of games played: &2%s".formatted(activeGame.getAttempts()))
-                                                                            .addLore("&bAverage Score: &2%s".formatted(activeGame.getAverageScore()))
+                                                                            .addLore(
+                                                                                    "&bAverage Score: &2%s".formatted(Math.round(activeGame.getAverageScore())))
                                                                             .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
                                                                             .create();
     }

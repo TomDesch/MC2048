@@ -22,6 +22,9 @@ public class GameManager {
 
     private final FileManager fileManager = FileManager.getInstance();
 
+    private static final String ATTEMPT_PROTECTION = "The game wasn't saved because you didn't do anything. Your average score & attempts were protected.";
+    private static final String ERROR_DEACTIVATING = "Error deactivating game for %s; no active game found.";
+
     public GameManager(InventoryUtil inventoryUtil) {
         this.inventoryUtil = inventoryUtil;
     }
@@ -34,7 +37,7 @@ public class GameManager {
     public void deactivateGameFor(Player player) {
         ActiveGame activeGame = activeGames.get(player.getUniqueId());
         if (Objects.isNull(activeGame)) {
-            logger.warning("Error deactivating game for %s; no active game found.".formatted(player.getName()));
+            logger.warning(ERROR_DEACTIVATING.formatted(player.getName()));
             return;
         }
         saveActiveGame(activeGame);
@@ -45,6 +48,11 @@ public class GameManager {
     }
 
     private void saveActiveGame(ActiveGame activeGame) {
+        if (activeGame.getScore() < 1) {
+            activeGame.getPlayer()
+                      .sendMessage(ATTEMPT_PROTECTION);
+            return;
+        }
         if (activeGame.getScore() >= activeGame.getHiScore()) {
             fileManager.setValueByKey(activeGame.getPlayer(), HISCORE.getKey(), activeGame.getScore());
             // todo new high score fireworks?

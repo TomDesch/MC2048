@@ -25,6 +25,8 @@ public enum NumberRepresentation {
     HUNDRED_THIRTY_ONE_THOUSAND_SEVENTY_TWO(32, 131072, Material.DIAMOND_BLOCK),
     INFINITY(64, Integer.MAX_VALUE, Material.END_STONE);
 
+    private static final String ERROR_REPRESENTATION = "Error getting representation for %s. Returning 0!";
+    private static final String ERROR_NEXT_REPRESENTATION = "Error getting next representation for %s. Returning TWO!";
     private final int amount;
     private final int score;
     private final Material representation;
@@ -41,7 +43,7 @@ public enum NumberRepresentation {
                 return representation.getScore();
             }
         }
-        logger.severe("Error getting representation for %s. Returning 0!".formatted(itemStack.getType()));
+        logger.severe(ERROR_REPRESENTATION.formatted(itemStack.getType()));
         return 0;
     }
 
@@ -54,7 +56,7 @@ public enum NumberRepresentation {
             }
         }
 
-        logger.severe("Error getting next representation for %s. Returning TWO!".formatted(currentRepresentation));
+        logger.severe(ERROR_NEXT_REPRESENTATION.formatted(currentRepresentation));
         return TWO;
     }
 

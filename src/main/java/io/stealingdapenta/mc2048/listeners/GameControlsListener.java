@@ -19,7 +19,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 public class GameControlsListener implements Listener {
 
     private static final String INVALID_MOVE = "Sorry! That's not a valid move.";
-    private static final String GAME_OVER = "Game over!!";
+    private static final String GAME_OVER = "Game over!";
+    private static final String GAME_OVER_SUB = "Score: %s | Playtime: %s";
     private final InventoryUtil inventoryUtil;
     private final GameManager gameManager;
 
@@ -70,9 +71,11 @@ public class GameControlsListener implements Listener {
             inventoryUtil.spawnNewBlock(activeGame.getGameWindow());
 
             if (inventoryUtil.noValidMovesLeft(activeGame.getGameWindow())) {
-                player.sendMessage(ChatColor.RED + GAME_OVER);
-                player.sendMessage("Score: %s".formatted(activeGame.getScore()));
                 gameManager.deactivateGameFor(player);
+                activeGame.getPlayer()
+                          .getOpenInventory()
+                          .close();
+                doGameOver(activeGame);
             }
 
         } else {
@@ -95,8 +98,12 @@ public class GameControlsListener implements Listener {
             return;
         }
 
-        player.sendMessage(
-                "You ended your 2048 game by closing it. Playtime: %s, Score: %s".formatted(activeGame.getCurrentPlayTimeFormatted(), activeGame.getScore()));
+        doGameOver(activeGame);
         gameManager.deactivateGameFor(player);
+    }
+
+    private void doGameOver(ActiveGame activeGame) {
+        activeGame.getPlayer()
+                  .sendTitle(GAME_OVER, GAME_OVER_SUB.formatted(activeGame.getScore(), activeGame.getCurrentPlayTimeFormatted()), 20, 40, 20);
     }
 }

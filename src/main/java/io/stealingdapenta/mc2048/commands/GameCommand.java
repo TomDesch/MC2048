@@ -14,6 +14,7 @@ public class GameCommand implements CommandExecutor {
     private final InventoryUtil inventoryUtil;
     private final GameManager gameManager;
     private static final String NOT_PLAYER = "You can only execute this command as a player.";
+    private static final String GOOD_LUCK = "Good luck & have fun!";
 
     public GameCommand(InventoryUtil inventoryUtil, GameManager gameManager) {
         this.inventoryUtil = inventoryUtil;
@@ -23,7 +24,7 @@ public class GameCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player player) {
-            player.sendMessage(ChatColor.RED + "Good luck!");
+            player.sendMessage(ChatColor.GREEN + GOOD_LUCK);
 
             ActiveGame activeGame = new ActiveGame(player, gameManager.createTask(player));
             Inventory gameWindow = inventoryUtil.createGameInventory(activeGame);
