@@ -10,20 +10,24 @@ public class ActiveGame {
 
     private final RepeatingUpdateTask relatedTask;
     private Inventory gameWindow;
-    private long gameOpenTime;
+    private final long gameOpenTime;
     private int score;
-
-    public ActiveGame(Player player, Inventory gameWindow, RepeatingUpdateTask relatedTask) {
-        this(player, relatedTask);
-        this.gameWindow = gameWindow;
-
-    }
+    private final FileManager fileManager = FileManager.getInstance();
+    private int hiScore;
+    private int attempts;
+    private long totalPlayTime;
+    private double averageScore;
 
     public ActiveGame(Player player, RepeatingUpdateTask relatedTask) {
         this.player = player;
         this.relatedTask = relatedTask;
         this.score = 0;
-        gameOpenTime = System.currentTimeMillis();
+        this.gameOpenTime = System.currentTimeMillis();
+
+        this.hiScore = fileManager.getIntByKey(player, ConfigField.HISCORE.getKey());
+        this.attempts = fileManager.getIntByKey(player, ConfigField.ATTEMPTS.getKey());
+        this.totalPlayTime = fileManager.getLongByKey(player, ConfigField.TOTAL_PLAYTIME.getKey());
+        this.averageScore = fileManager.getDoubleByKey(player, ConfigField.AVERAGE_SCORE.getKey());
     }
 
     private static String makeSecondsATimestamp(long totalMilliSeconds) {
@@ -67,7 +71,27 @@ public class ActiveGame {
         return System.currentTimeMillis() - gameOpenTime;
     }
 
-    public String getPlayTimeFormatted() {
+    public String getCurrentPlayTimeFormatted() {
         return makeSecondsATimestamp(getMillisecondsSinceStart());
+    }
+
+    public String getTotalPlusCurrentPlayTimeFormatted() {
+        return makeSecondsATimestamp(getMillisecondsSinceStart() + getTotalPlayTime());
+    }
+
+    public int getHiScore() {
+        return hiScore;
+    }
+
+    public int getAttempts() {
+        return attempts;
+    }
+
+    public long getTotalPlayTime() {
+        return totalPlayTime;
+    }
+
+    public double getAverageScore() {
+        return averageScore;
     }
 }

@@ -100,7 +100,7 @@ public class InventoryUtil {
 
     private void setLegend(Inventory gameWindow) {
         // todo alter this in a new window.
-        ItemStack currentItem = NumberRepresentations.TWO.getDisplayableBlock();
+        ItemStack currentItem = NumberRepresentation.TWO.getDisplayableBlock();
 
         for (int row = INVENTORY_ROWS - 2; row < INVENTORY_ROWS; row++) {
             for (int column = 0; column < INVENTORY_COLUMNS; column++) {
@@ -219,7 +219,7 @@ public class InventoryUtil {
                                 inventoryArray[aboveRowIndex][column] = nextItem;
                                 inventoryArray[currentRowIndex][column] = null;
                                 moved = true;
-                                activeGame.addToScore(NumberRepresentations.getScoreFromItem(nextItem));
+                                activeGame.addToScore(NumberRepresentation.getScoreFromItem(nextItem));
                             }
                         }
                     }
@@ -255,7 +255,7 @@ public class InventoryUtil {
                                 inventoryArray[row][rightColumnIndex] = nextItem;
                                 inventoryArray[row][currentColumnIndex] = null;
                                 moved = true;
-                                activeGame.addToScore(NumberRepresentations.getScoreFromItem(nextItem));
+                                activeGame.addToScore(NumberRepresentation.getScoreFromItem(nextItem));
                             }
                         }
                     }
@@ -291,7 +291,7 @@ public class InventoryUtil {
                                 inventoryArray[row][leftColumnIndex] = nextItem;
                                 inventoryArray[row][currentColumnIndex] = null;
                                 moved = true;
-                                activeGame.addToScore(NumberRepresentations.getScoreFromItem(nextItem));
+                                activeGame.addToScore(NumberRepresentation.getScoreFromItem(nextItem));
                             }
                         }
                     }
@@ -328,7 +328,7 @@ public class InventoryUtil {
                                 inventoryArray[belowRowIndex][column] = nextItem;
                                 inventoryArray[currentRowIndex][column] = null;
                                 moved = true;
-                                activeGame.addToScore(NumberRepresentations.getScoreFromItem(nextItem));
+                                activeGame.addToScore(NumberRepresentation.getScoreFromItem(nextItem));
                             }
                         }
                     }
@@ -339,9 +339,9 @@ public class InventoryUtil {
     }
 
     private ItemStack getNextRepresentation(ItemStack itemStack) {
-        int currentRepresentation = NumberRepresentations.getScoreFromItem(itemStack);
-        return NumberRepresentations.getNextRepresentation(currentRepresentation)
-                                    .getDisplayableBlock();
+        int currentRepresentation = NumberRepresentation.getScoreFromItem(itemStack);
+        return NumberRepresentation.getNextRepresentation(currentRepresentation)
+                                   .getDisplayableBlock();
     }
 
     public void spawnNewBlock(Inventory inventory) {
@@ -356,7 +356,7 @@ public class InventoryUtil {
     }
 
     private ItemStack generateNewBlock() {
-        NumberRepresentations chosenNumber = random.nextInt(2) == 0 ? NumberRepresentations.TWO : NumberRepresentations.FOUR;
+        NumberRepresentation chosenNumber = random.nextInt(2) == 0 ? NumberRepresentation.TWO : NumberRepresentation.FOUR;
         return new ItemBuilder(chosenNumber.getDisplayableBlock()).create();
     }
 
@@ -379,9 +379,14 @@ public class InventoryUtil {
     }
 
     private ItemStack getPlayerStatsHead(ActiveGame activeGame) {
-        return (new ItemBuilder(getPlayerSkullItem(activeGame.getPlayer()))).addLore("&bCurrent playtime: &2%s".formatted(activeGame.getPlayTimeFormatted()))
-                                                                            .addLore("&bHiScore: &2%s".formatted("123456"))
+        return (new ItemBuilder(getPlayerSkullItem(activeGame.getPlayer()))).addLore(
+                                                                                    "&bTotal playtime: &2%s".formatted(activeGame.getTotalPlusCurrentPlayTimeFormatted()))
+                                                                            .addLore("&bCurrent playtime: &2%s".formatted(
+                                                                                    activeGame.getCurrentPlayTimeFormatted()))
+                                                                            .addLore("&bHiScore: &2%s".formatted(activeGame.getHiScore()))
                                                                             .addLore("&bCurrent score: &2%s".formatted(activeGame.getScore()))
+                                                                            .addLore("&bAmount of games played: &2%s".formatted(activeGame.getAttempts()))
+                                                                            .addLore("&bAverage Score: &2%s".formatted(activeGame.getAverageScore()))
                                                                             .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
                                                                             .create();
     }

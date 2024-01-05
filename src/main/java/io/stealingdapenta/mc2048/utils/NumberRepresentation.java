@@ -5,7 +5,7 @@ import static io.stealingdapenta.mc2048.MC2048.logger;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
-public enum NumberRepresentations {
+public enum NumberRepresentation {
     TWO(2, 2, Material.RAW_COPPER),
     FOUR(4, 4, Material.COPPER_INGOT),
     EIGHT(8, 8, Material.COPPER_BLOCK),
@@ -29,14 +29,14 @@ public enum NumberRepresentations {
     private final int score;
     private final Material representation;
 
-    NumberRepresentations(int amount, int score, Material representation) {
+    NumberRepresentation(int amount, int score, Material representation) {
         this.amount = amount;
         this.score = score;
         this.representation = representation;
     }
 
     public static int getScoreFromItem(ItemStack itemStack) {
-        for (NumberRepresentations representation : NumberRepresentations.values()) {
+        for (NumberRepresentation representation : NumberRepresentation.values()) {
             if (representation.getRepresentation() == itemStack.getType()) {
                 return representation.getScore();
             }
@@ -45,8 +45,8 @@ public enum NumberRepresentations {
         return 0;
     }
 
-    public static NumberRepresentations getNextRepresentation(int currentRepresentation) {
-        NumberRepresentations[] representations = NumberRepresentations.values();
+    public static NumberRepresentation getNextRepresentation(int currentRepresentation) {
+        NumberRepresentation[] representations = NumberRepresentation.values();
 
         for (int i = 0; i < representations.length - 1; i++) {
             if (representations[i].getScore() == currentRepresentation) {

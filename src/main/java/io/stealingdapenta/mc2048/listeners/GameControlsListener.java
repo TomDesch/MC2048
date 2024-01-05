@@ -1,7 +1,5 @@
 package io.stealingdapenta.mc2048.listeners;
 
-import static io.stealingdapenta.mc2048.MC2048.logger;
-
 import io.stealingdapenta.mc2048.GameManager;
 import io.stealingdapenta.mc2048.utils.ActiveGame;
 import io.stealingdapenta.mc2048.utils.Direction;
@@ -51,7 +49,7 @@ public class GameControlsListener implements Listener {
 
         ActiveGame activeGame = gameManager.getActiveGame(player);
         if (Objects.isNull(activeGame) || Objects.isNull(activeGame.getGameWindow())) {
-            logger.severe("Error loading game for %s.".formatted(player.getName()));
+            return;
         }
 
         String displayName = itemMeta.getDisplayName();
@@ -74,6 +72,7 @@ public class GameControlsListener implements Listener {
             if (inventoryUtil.noValidMovesLeft(activeGame.getGameWindow())) {
                 player.sendMessage(ChatColor.RED + GAME_OVER);
                 player.sendMessage("Score: %s".formatted(activeGame.getScore()));
+                gameManager.deactivateGameFor(player);
             }
 
         } else {
@@ -93,11 +92,11 @@ public class GameControlsListener implements Listener {
 
         ActiveGame activeGame = gameManager.getActiveGame(player);
         if (Objects.isNull(activeGame)) {
-            logger.severe("Error loading game for %s on closing.".formatted(player.getName()));
             return;
         }
 
-        player.sendMessage("You closed your 2048 game. Playtime: %s, Score: %s".formatted(activeGame.getPlayTimeFormatted(), activeGame.getScore()));
+        player.sendMessage(
+                "You ended your 2048 game by closing it. Playtime: %s, Score: %s".formatted(activeGame.getCurrentPlayTimeFormatted(), activeGame.getScore()));
         gameManager.deactivateGameFor(player);
     }
 }

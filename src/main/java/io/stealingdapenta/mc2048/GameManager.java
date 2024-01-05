@@ -1,20 +1,26 @@
 package io.stealingdapenta.mc2048;
 
 import static io.stealingdapenta.mc2048.MC2048.logger;
+import static io.stealingdapenta.mc2048.utils.ConfigField.ATTEMPTS;
+import static io.stealingdapenta.mc2048.utils.ConfigField.AVERAGE_SCORE;
+import static io.stealingdapenta.mc2048.utils.ConfigField.HISCORE;
+import static io.stealingdapenta.mc2048.utils.ConfigField.TOTAL_PLAYTIME;
 
 import io.stealingdapenta.mc2048.utils.ActiveGame;
+import io.stealingdapenta.mc2048.utils.FileManager;
 import io.stealingdapenta.mc2048.utils.InventoryUtil;
 import io.stealingdapenta.mc2048.utils.RepeatingUpdateTask;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.UUID;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
 
 public class GameManager {
 
     private static final HashMap<UUID, ActiveGame> activeGames = new HashMap<>();
     private final InventoryUtil inventoryUtil;
+
+    private final FileManager fileManager = FileManager.getInstance();
 
     public GameManager(InventoryUtil inventoryUtil) {
         this.inventoryUtil = inventoryUtil;
@@ -31,30 +37,30 @@ public class GameManager {
             logger.warning("Error deactivating game for %s; no active game found.".formatted(player.getName()));
             return;
         }
-
+        saveActiveGame(activeGame);
         activeGame.getRelatedTask()
                   .cancel();
+
         activeGames.remove(player.getUniqueId());
     }
 
-    public void deactivateGame(ActiveGame activeGame) {
-        RepeatingUpdateTask task = activeGame.getRelatedTask();
-        Player player = activeGame.getPlayer();
-        if (Objects.isNull(task)) {
-            logger.warning("Error cancelling related task for active game of %s: task not found.".formatted(player.getName()));
-        } else {
-            task.cancel();
+    private void saveActiveGame(ActiveGame activeGame) {
+        if (activeGame.getScore() >= activeGame.getHiScore()) {
+            fileManager.setValueByKey(activeGame.getPlayer(), HISCORE.getKey(), activeGame.getScore());
+            // todo new high score fireworks?
         }
 
-        activeGames.remove(player.getUniqueId());
+        fileManager.setValueByKey(activeGame.getPlayer(), ATTEMPTS.getKey(), activeGame.getAttempts() + 1);
+        long totalPlayTime = activeGame.getTotalPlayTime() + activeGame.getMillisecondsSinceStart();
+        fileManager.setValueByKey(activeGame.getPlayer(), TOTAL_PLAYTIME.getKey(), totalPlayTime);
+        double average = calculateNewAverageScore(activeGame);
+        logger.info("Calculated new average %s for %s attempts and %s previous average score.".formatted(average, activeGame.getAttempts(),
+                activeGame.getAverageScore()));
+        fileManager.setValueByKey(activeGame.getPlayer(), AVERAGE_SCORE.getKey(), average);
     }
 
-    public boolean hasActiveGame(Player player) {
-        return activeGames.containsKey(player.getUniqueId());
-    }
-
-    public Inventory getGameWindow(Player player) {
-        return getActiveGame(player).getGameWindow();
+    private double calculateNewAverageScore(ActiveGame activeGame) {
+        return (activeGame.getAttempts() * activeGame.getAverageScore() + activeGame.getScore()) / (activeGame.getAttempts() + 1);
     }
 
     public ActiveGame getActiveGame(Player player) {
@@ -69,5 +75,4 @@ public class GameManager {
             }
         };
     }
-
 }
