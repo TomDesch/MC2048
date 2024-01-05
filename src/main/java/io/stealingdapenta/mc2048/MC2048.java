@@ -27,6 +27,11 @@ public class MC2048 extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        // todo
+        // 1. Make the legend displayable so people know the progression
+        // 2. pause feature? <- toggleable that "hides" the game screen until toggle back ?
+        // Could also pause the game then upon close instead of ending it
+        // 3. ...
         instance = this;
         logger = this.getLogger();
 
