@@ -11,11 +11,11 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
 public class FileManager {
-
     private static final String EXCEPTION = "Error in file manager.";
     private static final String MC2048_STRING = "mc2048";
     private static final String FILE_CREATED = "MC 2048: YML file created for %s.";
     private static final String FILE_NOT_CREATED = "MC 2048: YML file failed to create for %s.";
+    private static final String FILE_SHOULD_EXIST_ERROR = "Error fetching player file by UUID that should exist!";
     private static FileManager fileManager;
 
     public static FileManager getInstance() {
@@ -29,12 +29,20 @@ public class FileManager {
         return YamlConfiguration.loadConfiguration(getPlayerFile(player));
     }
 
+    public YamlConfiguration getConfig(String uuid) {
+        return YamlConfiguration.loadConfiguration(getPlayerFile(uuid));
+    }
+
     public double getDoubleByKey(Player player, String key) {
         return getConfig(player).getDouble(key);
     }
 
     public int getIntByKey(Player player, String key) {
         return getConfig(player).getInt(key);
+    }
+
+    public int getIntByKey(String uuid, String key) {
+        return getConfig(uuid).getInt(key);
     }
 
     public long getLongByKey(Player player, String key) {
@@ -57,7 +65,12 @@ public class FileManager {
     }
 
     private String getFileName(Player player) {
-        return player.getUniqueId() + ".yml";
+        return getFileName(player.getUniqueId()
+                                 .toString());
+    }
+
+    private String getFileName(String uuid) {
+        return uuid + ".yml";
     }
 
     public void createFile(Player player) {
@@ -88,6 +101,14 @@ public class FileManager {
         if (!file.exists()) {
             createFile(player);
             savePlayerFile(player);
+        }
+        return file;
+    }
+
+    public File getPlayerFile(String uuid) {
+        File file = new File(getUserFiles(), getFileName(uuid));
+        if (!file.exists()) {
+            logger.severe(FILE_SHOULD_EXIST_ERROR);
         }
         return file;
     }

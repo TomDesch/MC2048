@@ -11,6 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
 public class GameCommand implements CommandExecutor {
+
     private final InventoryUtil inventoryUtil;
     private final GameManager gameManager;
     private static final String NOT_PLAYER = "You can only execute this command as a player.";

@@ -9,3 +9,13 @@ commands:
   2048:
     description: Launch a new game.
     usage: /<command>
+
+  top2048:
+    description: Check out the top 10 best players!
+    usage: /<command>
+    aliases:
+      - 2048top
+      - hiscore2048
+      - 2048hiscore
+      - 2048score
+      - score2048
