@@ -76,7 +76,7 @@ public class InventoryUtil {
     }
 
     private void setButtonsAndStats(ActiveGame activeGame) {
-        setItemInSlot(activeGame.getGameWindow(), SLOT_UP, createButton("&2&l          UP"));
+        setItemInSlot(activeGame.getGameWindow(), SLOT_UP, createButton("&2&l            UP"));
         setItemInSlot(activeGame.getGameWindow(), SLOT_LEFT, createButton("&2&l          LEFT"));
         setItemInSlot(activeGame.getGameWindow(), SLOT_RIGHT, createButton("&2&l          RIGHT"));
         setItemInSlot(activeGame.getGameWindow(), SLOT_DOWN, createButton("&2&l          DOWN"));
