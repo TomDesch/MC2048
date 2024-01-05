@@ -1,9 +1,12 @@
 package io.stealingdapenta.mc2048;
 
+import static io.stealingdapenta.mc2048.MC2048.logger;
+
 import io.stealingdapenta.mc2048.utils.ActiveGame;
 import io.stealingdapenta.mc2048.utils.InventoryUtil;
 import io.stealingdapenta.mc2048.utils.RepeatingUpdateTask;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.UUID;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -23,19 +26,27 @@ public class GameManager {
     }
 
     public void deactivateGameFor(Player player) {
-        // todo make NPE proof
-        activeGames.get(player.getUniqueId())
-                   .getRelatedTask()
-                   .cancel();
+        ActiveGame activeGame = activeGames.get(player.getUniqueId());
+        if (Objects.isNull(activeGame)) {
+            logger.warning("Error deactivating game for %s; no active game found.".formatted(player.getName()));
+            return;
+        }
+
+        activeGame.getRelatedTask()
+                  .cancel();
         activeGames.remove(player.getUniqueId());
     }
 
     public void deactivateGame(ActiveGame activeGame) {
-        // todo make NPE proof
-        activeGame.getRelatedTask()
-                  .cancel();
-        activeGames.remove(activeGame.getPlayer()
-                                     .getUniqueId());
+        RepeatingUpdateTask task = activeGame.getRelatedTask();
+        Player player = activeGame.getPlayer();
+        if (Objects.isNull(task)) {
+            logger.warning("Error cancelling related task for active game of %s: task not found.".formatted(player.getName()));
+        } else {
+            task.cancel();
+        }
+
+        activeGames.remove(player.getUniqueId());
     }
 
     public boolean hasActiveGame(Player player) {
