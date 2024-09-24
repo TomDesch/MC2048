@@ -5,6 +5,7 @@ import static io.stealingdapenta.mc2048.MC2048.logger;
 import java.io.File;
 import java.util.AbstractMap;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -64,9 +65,10 @@ public class HighScoreManager {
 
     public Map<String, Integer> getTop10HiScores() {
         return getHighScores().entrySet()
-                              .stream()
-                              .limit(10)
-                              .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                              .stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())) // Sort by value in descending order
+                              .limit(10) // Take the top 10
+                              .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, // merge function in case of duplicates
+                                                        LinkedHashMap::new)); // Use LinkedHashMap to maintain insertion order
     }
 
     private Map.Entry<String, Integer> getPlayerScorePair(File playerFile) {
