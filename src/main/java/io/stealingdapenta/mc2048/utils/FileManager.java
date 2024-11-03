@@ -11,6 +11,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
 public class FileManager {
+
     private static final String EXCEPTION = "Error in file manager.";
     private static final String MC2048_STRING = "mc2048";
     private static final String FILE_CREATED = "MC 2048: YML file created for %s.";
@@ -65,8 +66,7 @@ public class FileManager {
     }
 
     private String getFileName(Player player) {
-        return getFileName(player.getUniqueId()
-                                 .toString());
+        return getFileName(player.getUniqueId().toString());
     }
 
     private String getFileName(String uuid) {
@@ -92,6 +92,7 @@ public class FileManager {
             logger.warning(EXCEPTION);
             logger.warning(e1.getMessage());
         } finally {
+            assert writer != null;
             writer.close();
         }
     }
@@ -114,11 +115,8 @@ public class FileManager {
     }
 
     public File getUserFiles() {
-        File userFiles = new File(MC2048.getInstance()
-                                        .getDataFolder() + File.separator + MC2048_STRING);
-        if (!userFiles.exists()) {
-            userFiles.mkdirs();
-        }
+        File userFiles = new File(MC2048.getInstance().getDataFolder() + File.separator + MC2048_STRING);
+        userFiles.mkdirs();
         return userFiles;
     }
 
@@ -128,8 +126,7 @@ public class FileManager {
             createFile(player);
         }
         try {
-            YamlConfiguration.loadConfiguration(file)
-                             .save(file);
+            YamlConfiguration.loadConfiguration(file).save(file);
         } catch (IOException e) {
             logger.warning(EXCEPTION);
             logger.warning(e.getMessage());

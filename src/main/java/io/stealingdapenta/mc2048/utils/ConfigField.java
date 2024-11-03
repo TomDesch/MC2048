@@ -1,7 +1,7 @@
 package io.stealingdapenta.mc2048.utils;
 
 public enum ConfigField {
-    HISCORE("HiScore"),
+    HIGH_SCORE("high-score"),
     ATTEMPTS("Attempts"),
     TOTAL_PLAYTIME("playtime"),
     AVERAGE_SCORE("average");

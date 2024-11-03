@@ -25,10 +25,7 @@ public class HighScoreManager {
     private static final String DOT_YML = ".yml";
 
     private static Map<String, Integer> sortByHiScores(Map<String, Integer> highScores) {
-        return highScores.entrySet()
-                         .stream()
-                         .sorted(Map.Entry.<String, Integer>comparingByValue()
-                                          .reversed())
+        return highScores.entrySet().stream().sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
                          .collect(LinkedHashMap::new, (map, entry) -> map.put(entry.getKey(), entry.getValue()), LinkedHashMap::putAll);
     }
 
@@ -41,31 +38,22 @@ public class HighScoreManager {
             return new HashMap<>();
         }
 
-        Map<String, Integer> topHighScores = Arrays.stream(playerFiles)
-                                                   .filter(File::isFile)
-                                                   .filter(playerFile -> playerFile.getName()
-                                                                                   .endsWith(DOT_YML))
-                                                   .map(this::getPlayerScorePair)
-                                                   .filter(Objects::nonNull)
+        Map<String, Integer> topHighScores = Arrays.stream(playerFiles).filter(File::isFile).filter(playerFile -> playerFile.getName().endsWith(DOT_YML))
+                                                   .map(this::getPlayerScorePair).filter(Objects::nonNull)
                                                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         return sortByHiScores(topHighScores);
     }
 
     public int getPlayerPosition(Player targetPlayer) {
-        List<String> sortedPlayers = getHighScores().entrySet()
-                                                    .stream()
-                                                    .sorted(Entry.<String, Integer>comparingByValue()
-                                                                 .reversed())
-                                                    .map(Entry::getKey)
+        List<String> sortedPlayers = getHighScores().entrySet().stream().sorted(Entry.<String, Integer>comparingByValue().reversed()).map(Entry::getKey)
                                                     .toList();
 
         return sortedPlayers.indexOf(targetPlayer.getName()) + 1;
     }
 
     public Map<String, Integer> getTop10HiScores() {
-        return getHighScores().entrySet()
-                              .stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())) // Sort by value in descending order
+        return getHighScores().entrySet().stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())) // Sort by value in descending order
                               .limit(10) // Take the top 10
                               .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, // merge function in case of duplicates
                                                         LinkedHashMap::new)); // Use LinkedHashMap to maintain insertion order
@@ -75,20 +63,17 @@ public class HighScoreManager {
         String uuid = getPlayerUUIDFrom(playerFile);
         String playerName = getPlayerName(uuid);
         if (Objects.nonNull(playerName)) {
-            int hiScore = fileManager.getIntByKey(uuid, ConfigField.HISCORE.getKey());
+            int hiScore = fileManager.getIntByKey(uuid, ConfigField.HIGH_SCORE.getKey());
             return new AbstractMap.SimpleEntry<>(playerName, hiScore);
         }
         return null;
     }
 
     private String getPlayerName(String uuid) {
-        return Bukkit.getOfflinePlayer(UUID.fromString(uuid))
-                     .getName();
+        return Bukkit.getOfflinePlayer(UUID.fromString(uuid)).getName();
     }
 
     private String getPlayerUUIDFrom(File playerFile) {
-        return playerFile.getName()
-                         .substring(0, playerFile.getName()
-                                                 .length() - 4);
+        return playerFile.getName().substring(0, playerFile.getName().length() - 4);
     }
 }

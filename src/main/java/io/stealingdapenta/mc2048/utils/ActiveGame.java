@@ -7,16 +7,15 @@ import org.bukkit.inventory.Inventory;
 public class ActiveGame {
 
     private final Player player;
-
     private final RepeatingUpdateTask relatedTask;
     private Inventory gameWindow;
     private final long gameOpenTime;
     private int score;
-    private final FileManager fileManager = FileManager.getInstance();
-    private int hiScore;
-    private int attempts;
-    private long totalPlayTime;
-    private double averageScore;
+    private final int hiScore;
+    private final int attempts;
+    private final long totalPlayTime;
+    private final double averageScore;
+    private int undoLastMoveCounter = 1;
 
     public ActiveGame(Player player, RepeatingUpdateTask relatedTask) {
         this.player = player;
@@ -24,7 +23,8 @@ public class ActiveGame {
         this.score = 0;
         this.gameOpenTime = System.currentTimeMillis();
 
-        this.hiScore = fileManager.getIntByKey(player, ConfigField.HISCORE.getKey());
+        FileManager fileManager = FileManager.getInstance();
+        this.hiScore = fileManager.getIntByKey(player, ConfigField.HIGH_SCORE.getKey());
         this.attempts = fileManager.getIntByKey(player, ConfigField.ATTEMPTS.getKey());
         this.totalPlayTime = fileManager.getLongByKey(player, ConfigField.TOTAL_PLAYTIME.getKey());
         this.averageScore = fileManager.getDoubleByKey(player, ConfigField.AVERAGE_SCORE.getKey());
@@ -93,5 +93,17 @@ public class ActiveGame {
 
     public double getAverageScore() {
         return averageScore;
+    }
+
+    public int getUndoLastMoveCounter() {
+        return undoLastMoveCounter;
+    }
+
+    public void resetUndoLastMoveCounter() {
+        undoLastMoveCounter = 1;
+    }
+
+    public void decrementUndoLastMoveCounter() {
+        undoLastMoveCounter--;
     }
 }

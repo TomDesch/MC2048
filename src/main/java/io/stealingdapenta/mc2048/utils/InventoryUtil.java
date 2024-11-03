@@ -75,8 +75,7 @@ public class InventoryUtil {
     }
 
     private ItemStack getStainedGlassPaneItem() {
-        return new ItemBuilder(new ItemStack(Material.WHITE_STAINED_GLASS_PANE, 1)).setDisplayName(" ")
-                                                                                   .create();
+        return new ItemBuilder(new ItemStack(Material.WHITE_STAINED_GLASS_PANE, 1)).setDisplayName(" ").create();
     }
 
     private void setButtonsAndStats(ActiveGame activeGame) {
@@ -88,9 +87,7 @@ public class InventoryUtil {
     }
 
     private ItemStack createButton(String buttonName) {
-        return new ItemBuilder(Material.LIGHTNING_ROD).setDisplayName(buttonName)
-                                                      .addLore("&aClick to move everything!")
-                                                      .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
+        return new ItemBuilder(Material.LIGHTNING_ROD).setDisplayName(buttonName).addLore("&aClick to move everything!").addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
                                                       .create();
     }
 
@@ -99,8 +96,7 @@ public class InventoryUtil {
     }
 
     public boolean isGameWindow(InventoryView inventoryView) {
-        return inventoryView.getTitle()
-                            .contains(ChatColor.translateAlternateColorCodes('&', GAME_TITLE.strip()));
+        return inventoryView.getTitle().contains(ChatColor.translateAlternateColorCodes('&', GAME_TITLE.strip()));
     }
 
     private void setLegend(Inventory gameWindow) {
@@ -127,6 +123,7 @@ public class InventoryUtil {
             case DOWN -> moveItemsDown(itemsInGame, activeGame);
             case LEFT -> moveItemsLeft(itemsInGame, activeGame);
             case RIGHT -> moveItemsRight(itemsInGame, activeGame);
+            case UNDO -> undoLastMove(itemsInGame, activeGame);
         };
 
         if (!anythingMoved) {
@@ -140,10 +137,8 @@ public class InventoryUtil {
     public boolean noValidMovesLeft(Inventory gameWindow) {
         ItemStack[][] itemsInGame = new ItemStack[ROW_AND_COLUMN_SIZE][ROW_AND_COLUMN_SIZE];
         copyGameContents(gameWindow, itemsInGame);
-        if (Arrays.stream(itemsInGame)
-                  .flatMap(Arrays::stream)
-                  .noneMatch(Objects::isNull)) {
-            return !hasValidMovesLeft(itemsInGame);
+        if (Arrays.stream(itemsInGame).flatMap(Arrays::stream).noneMatch(Objects::isNull)) {
+            return !hasValidMoves(itemsInGame);
         }
 
         return false;
@@ -155,7 +150,7 @@ public class InventoryUtil {
      * @param itemsInGame The 2D matrix representing the game state.
      * @return {@code true} if there are valid moves left, {@code false} otherwise.
      */
-    private boolean hasValidMovesLeft(ItemStack[][] itemsInGame) {
+    private boolean hasValidMoves(ItemStack[][] itemsInGame) {
         for (int row = 0; row < ROW_AND_COLUMN_SIZE; row++) {
             for (int column = 0; column < ROW_AND_COLUMN_SIZE; column++) {
                 // Check right and down for each position
@@ -195,6 +190,10 @@ public class InventoryUtil {
                 inventoryArray[row][column] = gameWindow.getItem(mergeSlots[row][column]);
             }
         }
+    }
+
+    private boolean undoLastMove(ItemStack[][] inventoryArray, ActiveGame activeGame) {
+        return true; // todo
     }
 
     private boolean moveItemsUp(ItemStack[][] inventoryArray, ActiveGame activeGame) {
@@ -344,15 +343,11 @@ public class InventoryUtil {
 
     private ItemStack getNextRepresentation(ItemStack itemStack) {
         int currentRepresentation = NumberRepresentation.getScoreFromItem(itemStack);
-        return NumberRepresentation.getNextRepresentation(currentRepresentation)
-                                   .getDisplayableBlock();
+        return NumberRepresentation.getNextRepresentation(currentRepresentation).getDisplayableBlock();
     }
 
     public void spawnNewBlock(Inventory inventory) {
-        List<Integer> emptySlots = IntStream.range(0, inventory.getSize())
-                                            .filter(i -> Objects.isNull(inventory.getItem(i)))
-                                            .boxed()
-                                            .toList();
+        List<Integer> emptySlots = IntStream.range(0, inventory.getSize()).filter(i -> Objects.isNull(inventory.getItem(i))).boxed().toList();
 
         if (!emptySlots.isEmpty()) {
             inventory.setItem(emptySlots.get(new Random().nextInt(emptySlots.size())), generateNewBlock());
@@ -378,21 +373,17 @@ public class InventoryUtil {
     }
 
     public void updateStatisticItem(ActiveGame activeGame) {
-        activeGame.getGameWindow()
-                  .setItem(SLOT_STATS, getPlayerStatsHead(activeGame));
+        activeGame.getGameWindow().setItem(SLOT_STATS, getPlayerStatsHead(activeGame));
     }
 
     private ItemStack getPlayerStatsHead(ActiveGame activeGame) {
         return (new ItemBuilder(getPlayerSkullItem(activeGame.getPlayer()))).addLore(
-                                                                                    "&bTotal playtime: &2%s".formatted(activeGame.getTotalPlusCurrentPlayTimeFormatted()))
-                                                                            .addLore("&bCurrent playtime: &2%s".formatted(
-                                                                                    activeGame.getCurrentPlayTimeFormatted()))
-                                                                            .addLore("&bHiScore: &2%s".formatted(activeGame.getHiScore()))
+                                                                                    "&bTotal playtime: &2%s".formatted(activeGame.getTotalPlusCurrentPlayTimeFormatted())).addLore(
+                                                                                    "&bCurrent playtime: &2%s".formatted(activeGame.getCurrentPlayTimeFormatted())).addLore("&bHiScore: &2%s".formatted(activeGame.getHiScore()))
                                                                             .addLore("&bCurrent score: &2%s".formatted(activeGame.getScore()))
                                                                             .addLore("&bAmount of games played: &2%s".formatted(activeGame.getAttempts()))
                                                                             .addLore(
                                                                                     "&bAverage Score: &2%s".formatted(Math.round(activeGame.getAverageScore())))
-                                                                            .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
-                                                                            .create();
+                                                                            .addItemFlags(ItemFlag.HIDE_ATTRIBUTES).create();
     }
 }

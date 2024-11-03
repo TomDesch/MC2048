@@ -61,10 +61,6 @@ public enum NumberRepresentation {
     }
 
 
-    public int getAmount() {
-        return amount;
-    }
-
     public int getScore() {
         return score;
     }

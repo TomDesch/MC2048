@@ -1,5 +1,6 @@
 package io.stealingdapenta.mc2048;
 
+import io.stealingdapenta.mc2048.commands.Command;
 import io.stealingdapenta.mc2048.commands.GameCommand;
 import io.stealingdapenta.mc2048.commands.HighScoreCommand;
 import io.stealingdapenta.mc2048.listeners.GameControlsListener;
@@ -33,16 +34,11 @@ public class MC2048 extends JavaPlugin {
         // Could also pause the game then upon close instead of ending it
         // 3. ...
         instance = this;
-        logger = this.getLogger();
+        logger = getLogger();
 
-        Objects.requireNonNull(this.getCommand("2048"))
-               .setExecutor(gameCommand);
-
-        Objects.requireNonNull(this.getCommand("top2048"))
-               .setExecutor(highScoreCommand);
-
-        Bukkit.getPluginManager()
-              .registerEvents(gameControlsListener, getInstance());
+        Objects.requireNonNull(getCommand(Command._2048.name())).setExecutor(gameCommand);
+        Objects.requireNonNull(getCommand(Command.TOP_2048.name())).setExecutor(highScoreCommand);
+        Bukkit.getPluginManager().registerEvents(gameControlsListener, getInstance());
 
         logger.info(ChatColor.GOLD + PLUGIN_ENABLED);
     }

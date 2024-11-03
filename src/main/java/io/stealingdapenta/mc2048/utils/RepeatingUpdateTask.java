@@ -8,13 +8,11 @@ public class RepeatingUpdateTask implements Runnable {
     private final int taskID;
 
     public RepeatingUpdateTask(long delay, long period) {
-        this.taskID = Bukkit.getScheduler()
-                            .scheduleSyncRepeatingTask(MC2048.getInstance(), this, delay, period);
+        this.taskID = Bukkit.getScheduler().scheduleSyncRepeatingTask(MC2048.getInstance(), this, delay, period);
     }
 
     public void cancel() {
-        Bukkit.getScheduler()
-              .cancelTask(taskID);
+        Bukkit.getScheduler().cancelTask(taskID);
     }
 
     @Override

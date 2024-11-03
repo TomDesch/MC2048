@@ -3,7 +3,7 @@ package io.stealingdapenta.mc2048;
 import static io.stealingdapenta.mc2048.MC2048.logger;
 import static io.stealingdapenta.mc2048.utils.ConfigField.ATTEMPTS;
 import static io.stealingdapenta.mc2048.utils.ConfigField.AVERAGE_SCORE;
-import static io.stealingdapenta.mc2048.utils.ConfigField.HISCORE;
+import static io.stealingdapenta.mc2048.utils.ConfigField.HIGH_SCORE;
 import static io.stealingdapenta.mc2048.utils.ConfigField.TOTAL_PLAYTIME;
 
 import io.stealingdapenta.mc2048.utils.ActiveGame;
@@ -19,9 +19,7 @@ public class GameManager {
 
     private static final HashMap<UUID, ActiveGame> activeGames = new HashMap<>();
     private final InventoryUtil inventoryUtil;
-
     private final FileManager fileManager = FileManager.getInstance();
-
     private static final String ATTEMPT_PROTECTION = "The game wasn't saved because you didn't do anything. Your average score & attempts were protected.";
     private static final String ERROR_DEACTIVATING = "Error deactivating game for %s; no active game found.";
 
@@ -30,8 +28,7 @@ public class GameManager {
     }
 
     public void activateGame(ActiveGame activeGame) {
-        activeGames.put(activeGame.getPlayer()
-                                  .getUniqueId(), activeGame);
+        activeGames.put(activeGame.getPlayer().getUniqueId(), activeGame);
     }
 
     public void deactivateGameFor(Player player) {
@@ -41,28 +38,24 @@ public class GameManager {
             return;
         }
         saveActiveGame(activeGame);
-        activeGame.getRelatedTask()
-                  .cancel();
+        activeGame.getRelatedTask().cancel();
 
         activeGames.remove(player.getUniqueId());
     }
 
     private void saveActiveGame(ActiveGame activeGame) {
         if (activeGame.getScore() < 1) {
-            activeGame.getPlayer()
-                      .sendMessage(ATTEMPT_PROTECTION);
+            activeGame.getPlayer().sendMessage(ATTEMPT_PROTECTION);
             return;
         }
         if (activeGame.getScore() >= activeGame.getHiScore()) {
-            fileManager.setValueByKey(activeGame.getPlayer(), HISCORE.getKey(), activeGame.getScore());
+            fileManager.setValueByKey(activeGame.getPlayer(), HIGH_SCORE.getKey(), activeGame.getScore());
             // todo new high score fireworks?
         }
 
         fileManager.setValueByKey(activeGame.getPlayer(), ATTEMPTS.getKey(), activeGame.getAttempts() + 1);
-        long totalPlayTime = activeGame.getTotalPlayTime() + activeGame.getMillisecondsSinceStart();
-        fileManager.setValueByKey(activeGame.getPlayer(), TOTAL_PLAYTIME.getKey(), totalPlayTime);
-        double average = calculateNewAverageScore(activeGame);
-        fileManager.setValueByKey(activeGame.getPlayer(), AVERAGE_SCORE.getKey(), average);
+        fileManager.setValueByKey(activeGame.getPlayer(), TOTAL_PLAYTIME.getKey(), (activeGame.getTotalPlayTime() + activeGame.getMillisecondsSinceStart()));
+        fileManager.setValueByKey(activeGame.getPlayer(), AVERAGE_SCORE.getKey(), calculateNewAverageScore(activeGame));
     }
 
     private double calculateNewAverageScore(ActiveGame activeGame) {

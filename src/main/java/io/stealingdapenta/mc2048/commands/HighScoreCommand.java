@@ -10,6 +10,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 public class HighScoreCommand implements CommandExecutor {
 
@@ -24,7 +25,7 @@ public class HighScoreCommand implements CommandExecutor {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (sender instanceof Player player) {
             int playersPosition = highScoreManager.getPlayerPosition(player);
             Map<String, Integer> highScores = highScoreManager.getTop10HiScores();
