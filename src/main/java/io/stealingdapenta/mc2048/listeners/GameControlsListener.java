@@ -4,6 +4,7 @@ import io.stealingdapenta.mc2048.GameManager;
 import io.stealingdapenta.mc2048.utils.ActiveGame;
 import io.stealingdapenta.mc2048.utils.Direction;
 import io.stealingdapenta.mc2048.utils.InventoryUtil;
+import java.util.Map;
 import java.util.Objects;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -19,8 +20,11 @@ import org.bukkit.inventory.meta.ItemMeta;
 public class GameControlsListener implements Listener {
 
     private static final String INVALID_MOVE = "Sorry! That's not a valid move.";
+    private static final String UNDID_LAST_MOVE = "Successfully undid the last move!";
     private static final String GAME_OVER = "Game over!";
     private static final String GAME_OVER_SUB = "Score: %s | Playtime: %s";
+    private static final Map<String, Direction> DIRECTION_MAP = Map.of("UP", Direction.UP, "LEFT", Direction.LEFT, "RIGHT", Direction.RIGHT, "DOWN",
+                                                                       Direction.DOWN, "UNDO", Direction.UNDO);
     private final InventoryUtil inventoryUtil;
     private final GameManager gameManager;
 
@@ -54,34 +58,33 @@ public class GameControlsListener implements Listener {
         }
 
         String displayName = itemMeta.getDisplayName();
-        boolean move;
-        if (displayName.contains("UP")) {
-            move = inventoryUtil.moveItemsInDirection(activeGame, Direction.UP);
-        } else if (displayName.contains("LEFT")) {
-            move = inventoryUtil.moveItemsInDirection(activeGame, Direction.LEFT);
-        } else if (displayName.contains("RIGHT")) {
-            move = inventoryUtil.moveItemsInDirection(activeGame, Direction.RIGHT);
-        } else if (displayName.contains("DOWN")) {
-            move = inventoryUtil.moveItemsInDirection(activeGame, Direction.DOWN);
-        } else {
+
+        Direction direction = DIRECTION_MAP.entrySet().stream().filter(entry -> displayName.contains(entry.getKey())).map(Map.Entry::getValue).findFirst()
+                                           .orElse(null);
+
+        if (Objects.isNull(direction)) {
+            player.sendMessage(ChatColor.DARK_PURPLE + INVALID_MOVE);
             return;
         }
 
-        if (move) {
-            inventoryUtil.spawnNewBlock(activeGame.getGameWindow());
-
-            if (inventoryUtil.noValidMovesLeft(activeGame.getGameWindow())) {
-                gameManager.deactivateGameFor(player);
-                activeGame.getPlayer()
-                          .getOpenInventory()
-                          .close();
-                doGameOver(activeGame);
-            }
-
-        } else {
+        boolean somethingMoved = inventoryUtil.moveItemsInDirection(activeGame, direction);
+        if (!somethingMoved) {
             player.sendMessage(ChatColor.DARK_PURPLE + INVALID_MOVE);
+            return;
         }
 
+        if (Direction.UNDO.equals(direction)) {
+            player.sendMessage(ChatColor.GOLD + UNDID_LAST_MOVE);
+            return;
+        }
+
+        inventoryUtil.spawnNewBlock(activeGame.getGameWindow());
+
+        if (inventoryUtil.noValidMovesLeft(activeGame.getGameWindow()) && activeGame.hasNoUndoLastMoveLeft()) {
+            gameManager.deactivateGameFor(player);
+            activeGame.getPlayer().getOpenInventory().close();
+            doGameOver(activeGame);
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -103,7 +106,6 @@ public class GameControlsListener implements Listener {
     }
 
     private void doGameOver(ActiveGame activeGame) {
-        activeGame.getPlayer()
-                  .sendTitle(GAME_OVER, GAME_OVER_SUB.formatted(activeGame.getScore(), activeGame.getCurrentPlayTimeFormatted()), 20, 40, 20);
+        activeGame.getPlayer().sendTitle(GAME_OVER, GAME_OVER_SUB.formatted(activeGame.getScore(), activeGame.getCurrentPlayTimeFormatted()), 20, 40, 20);
     }
 }

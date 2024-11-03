@@ -3,6 +3,7 @@ package io.stealingdapenta.mc2048.utils;
 
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 
 public class ActiveGame {
 
@@ -16,6 +17,8 @@ public class ActiveGame {
     private final long totalPlayTime;
     private final double averageScore;
     private int undoLastMoveCounter = 1;
+    private ItemStack[][] lastPosition;
+    private int scoreGainedAfterLastMove = 0;
 
     public ActiveGame(Player player, RepeatingUpdateTask relatedTask) {
         this.player = player;
@@ -95,15 +98,36 @@ public class ActiveGame {
         return averageScore;
     }
 
-    public int getUndoLastMoveCounter() {
-        return undoLastMoveCounter;
-    }
-
-    public void resetUndoLastMoveCounter() {
-        undoLastMoveCounter = 1;
-    }
-
     public void decrementUndoLastMoveCounter() {
         undoLastMoveCounter--;
     }
+
+    public boolean hasNoUndoLastMoveLeft() {
+        return undoLastMoveCounter <= 0;
+    }
+
+    public ItemStack[][] getLastPosition() {
+        return lastPosition;
+    }
+
+    public void setLastPosition(ItemStack[][] lastPosition) {
+        this.lastPosition = lastPosition;
+    }
+
+    public int getScoreGainedAfterLastMove() {
+        return scoreGainedAfterLastMove;
+    }
+
+    public void setScoreGainedAfterLastMove(int scoreGainedAfterLastMove) {
+        this.scoreGainedAfterLastMove = scoreGainedAfterLastMove;
+    }
+
+    public void resetGainedAfterLastMove() {
+        scoreGainedAfterLastMove = 0;
+    }
+
+    public void addToGainedAfterLastMove(int amount) {
+        setScoreGainedAfterLastMove(getScoreGainedAfterLastMove() + amount);
+    }
+
 }

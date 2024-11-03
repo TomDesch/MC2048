@@ -35,6 +35,7 @@ public class InventoryUtil {
     private static final int SLOT_RIGHT = 26;
     private static final int SLOT_DOWN = 34;
     private static final int SLOT_STATS = 25;
+    private static final int SLOT_UNDO = 52;
     private static final String ERROR_SKULL = "Error getting skull meta for %s.";
     private final Random random = new Random();
 
@@ -83,12 +84,23 @@ public class InventoryUtil {
         setItemInSlot(activeGame.getGameWindow(), SLOT_LEFT, createButton("&2&l          LEFT"));
         setItemInSlot(activeGame.getGameWindow(), SLOT_RIGHT, createButton("&2&l          RIGHT"));
         setItemInSlot(activeGame.getGameWindow(), SLOT_DOWN, createButton("&2&l          DOWN"));
+        setItemInSlot(activeGame.getGameWindow(), SLOT_UNDO, createUnusedUndoButton());
         updateStatisticItem(activeGame);
     }
 
     private ItemStack createButton(String buttonName) {
         return new ItemBuilder(Material.LIGHTNING_ROD).setDisplayName(buttonName).addLore("&aClick to move everything!").addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
                                                       .create();
+    }
+
+    private ItemStack createUnusedUndoButton() {
+        return new ItemBuilder(Material.AXOLOTL_BUCKET).setDisplayName("&2&l         UNDO").addLore("&aClick to undo the last move!")
+                                                       .addLore("&bUses left: &2 1").addItemFlags(ItemFlag.HIDE_ATTRIBUTES).create();
+    }
+
+    private ItemStack createUsedUndoButton() {
+        return new ItemBuilder(Material.BUCKET).setDisplayName("&2&l         UNDO").addLore("&aClick to undo the last move!").addLore("&bUses left: &2 0")
+                                               .addItemFlags(ItemFlag.HIDE_ATTRIBUTES).create();
     }
 
     private void setItemInSlot(Inventory inventory, int slot, ItemStack itemStack) {
@@ -116,7 +128,17 @@ public class InventoryUtil {
         Inventory gameWindow = activeGame.getGameWindow();
         ItemStack[][] itemsInGame = new ItemStack[ROW_AND_COLUMN_SIZE][ROW_AND_COLUMN_SIZE];
 
-        copyGameContents(gameWindow, itemsInGame);
+        copyGameWindowContentsToArray(gameWindow, itemsInGame);
+
+        if (!direction.equals(Direction.UNDO)) {
+            // Create a deep copy of the current state before making moves
+            ItemStack[][] lastPosition = new ItemStack[ROW_AND_COLUMN_SIZE][ROW_AND_COLUMN_SIZE];
+            for (int i = 0; i < itemsInGame.length; i++) {
+                lastPosition[i] = Arrays.copyOf(itemsInGame[i], itemsInGame[i].length);
+            }
+            activeGame.setLastPosition(lastPosition);
+            activeGame.resetGainedAfterLastMove();
+        }
 
         boolean anythingMoved = switch (direction) {
             case UP -> moveItemsUp(itemsInGame, activeGame);
@@ -130,13 +152,13 @@ public class InventoryUtil {
             return false;
         }
 
-        copyToGameWindow(gameWindow, itemsInGame);
+        copyItemArrayToGameWindow(gameWindow, itemsInGame);
         return true;
     }
 
     public boolean noValidMovesLeft(Inventory gameWindow) {
         ItemStack[][] itemsInGame = new ItemStack[ROW_AND_COLUMN_SIZE][ROW_AND_COLUMN_SIZE];
-        copyGameContents(gameWindow, itemsInGame);
+        copyGameWindowContentsToArray(gameWindow, itemsInGame);
         if (Arrays.stream(itemsInGame).flatMap(Arrays::stream).noneMatch(Objects::isNull)) {
             return !hasValidMoves(itemsInGame);
         }
@@ -175,7 +197,7 @@ public class InventoryUtil {
     }
 
     // Update the gameWindow inventory with the modified items arrays
-    private void copyToGameWindow(Inventory gameWindow, ItemStack[][] itemsInGame) {
+    private void copyItemArrayToGameWindow(Inventory gameWindow, ItemStack[][] itemsInGame) {
         for (int row = 0; row < ROW_AND_COLUMN_SIZE; row++) {
             for (int column = 0; column < ROW_AND_COLUMN_SIZE; column++) {
                 gameWindow.setItem(mergeSlots[row][column], itemsInGame[row][column]);
@@ -184,7 +206,7 @@ public class InventoryUtil {
     }
 
     // Copy contents from actual items to the 2D array based on mergeSlots numbers
-    private void copyGameContents(Inventory gameWindow, ItemStack[][] inventoryArray) {
+    private void copyGameWindowContentsToArray(Inventory gameWindow, ItemStack[][] inventoryArray) {
         for (int row = 0; row < ROW_AND_COLUMN_SIZE; row++) {
             for (int column = 0; column < ROW_AND_COLUMN_SIZE; column++) {
                 inventoryArray[row][column] = gameWindow.getItem(mergeSlots[row][column]);
@@ -193,7 +215,20 @@ public class InventoryUtil {
     }
 
     private boolean undoLastMove(ItemStack[][] inventoryArray, ActiveGame activeGame) {
-        return true; // todo
+        if (Objects.isNull(activeGame.getLastPosition()) || activeGame.hasNoUndoLastMoveLeft()) {
+            return false;
+        }
+
+        ItemStack[][] lastPosition = activeGame.getLastPosition();
+
+        for (int i = 0; i < inventoryArray.length; i++) {
+            System.arraycopy(lastPosition[i], 0, inventoryArray[i], 0, inventoryArray[i].length);
+        }
+
+        activeGame.decrementUndoLastMoveCounter();
+        activeGame.addToScore(-activeGame.getScoreGainedAfterLastMove());
+        setItemInSlot(activeGame.getGameWindow(), SLOT_UNDO, createUsedUndoButton());
+        return true;
     }
 
     private boolean moveItemsUp(ItemStack[][] inventoryArray, ActiveGame activeGame) {
@@ -223,6 +258,7 @@ public class InventoryUtil {
                                 inventoryArray[currentRowIndex][column] = null;
                                 moved = true;
                                 activeGame.addToScore(NumberRepresentation.getScoreFromItem(nextItem));
+                                activeGame.addToGainedAfterLastMove(NumberRepresentation.getScoreFromItem(nextItem));
                             }
                         }
                     }
@@ -259,6 +295,7 @@ public class InventoryUtil {
                                 inventoryArray[row][currentColumnIndex] = null;
                                 moved = true;
                                 activeGame.addToScore(NumberRepresentation.getScoreFromItem(nextItem));
+                                activeGame.addToGainedAfterLastMove(NumberRepresentation.getScoreFromItem(nextItem));
                             }
                         }
                     }
@@ -295,6 +332,7 @@ public class InventoryUtil {
                                 inventoryArray[row][currentColumnIndex] = null;
                                 moved = true;
                                 activeGame.addToScore(NumberRepresentation.getScoreFromItem(nextItem));
+                                activeGame.addToGainedAfterLastMove(NumberRepresentation.getScoreFromItem(nextItem));
                             }
                         }
                     }
@@ -332,6 +370,7 @@ public class InventoryUtil {
                                 inventoryArray[currentRowIndex][column] = null;
                                 moved = true;
                                 activeGame.addToScore(NumberRepresentation.getScoreFromItem(nextItem));
+                                activeGame.addToGainedAfterLastMove(NumberRepresentation.getScoreFromItem(nextItem));
                             }
                         }
                     }

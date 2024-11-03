@@ -6,6 +6,14 @@ public enum Command {
 
     _2048("2048");
 
-    Command(String name) {
+
+    private final String commandName;
+
+    Command(String commandName) {
+        this.commandName = commandName;
+    }
+
+    public String getCommandName() {
+        return commandName;
     }
 }
