@@ -14,7 +14,8 @@ public enum ConfigKey {
 
     NO_PERMISSION("You don't have the required %s to execute this command."),
     RELOADED("Successfully reloaded the DamageIndicator configuration file."),
-    PARSING_ERROR("Error parsing the value in the config file for ");
+    PARSING_ERROR("Error parsing the value in the config file for "),
+    NUMBER_OF_UNDO("1");
 
     private static final TextUtil textUtil = TextUtil.getInstance();
     private final String defaultValue;

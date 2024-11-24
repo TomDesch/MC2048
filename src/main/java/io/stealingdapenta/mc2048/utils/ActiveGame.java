@@ -1,6 +1,8 @@
 package io.stealingdapenta.mc2048.utils;
 
 
+import static io.stealingdapenta.mc2048.config.ConfigKey.NUMBER_OF_UNDO;
+
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -16,7 +18,7 @@ public class ActiveGame {
     private final int attempts;
     private final long totalPlayTime;
     private final double averageScore;
-    private int undoLastMoveCounter = 1;
+    private int undoLastMoveCounter;
     private ItemStack[][] lastPosition;
     private int scoreGainedAfterLastMove = 0;
 
@@ -31,6 +33,7 @@ public class ActiveGame {
         this.attempts = fileManager.getIntByKey(player, ConfigField.ATTEMPTS.getKey());
         this.totalPlayTime = fileManager.getLongByKey(player, ConfigField.TOTAL_PLAYTIME.getKey());
         this.averageScore = fileManager.getDoubleByKey(player, ConfigField.AVERAGE_SCORE.getKey());
+        this.undoLastMoveCounter = NUMBER_OF_UNDO.getIntValue();
     }
 
     private static String makeSecondsATimestamp(long totalMilliSeconds) {
