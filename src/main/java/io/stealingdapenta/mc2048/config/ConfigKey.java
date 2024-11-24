@@ -4,9 +4,9 @@ package io.stealingdapenta.mc2048.config;
 import static io.stealingdapenta.mc2048.MC2048.logger;
 
 import io.stealingdapenta.mc2048.MC2048;
-import io.stealingdapenta.mc2048.utils.TextUtil;
 import java.util.Objects;
-import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Material;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -43,8 +43,8 @@ public enum ConfigKey {
     MATERIAL_HUNDRED_THIRTY_ONE_THOUSAND_SEVENTY_TWO("DIAMOND_BLOCK"),
     MATERIAL_INFINITY("END_STONE");
 
-    private static final TextUtil textUtil = TextUtil.getInstance();
     private final String defaultValue;
+
 
     ConfigKey(String defaultValue) {
         this.defaultValue = defaultValue;
@@ -56,21 +56,16 @@ public enum ConfigKey {
 
 
     public Material getMaterialValue() {
-        return Material.valueOf(name());
+        return Material.valueOf(getStringValue());
     }
 
     public String getStringValue() {
         return MC2048.getInstance().getConfig().getString(name().toLowerCase());
     }
 
-    public TextComponent getFormattedValue() {
-        return textUtil.parseFormattedString(getStringValue());
+    public Component getFormattedValue() {
+        return MiniMessage.miniMessage().deserialize(getStringValue());
     }
-
-    public String getFormattedStringValue() {
-        return getFormattedValue().toString();
-    }
-
 
     public int getIntValue() {
         return getIntValue(name().toLowerCase());

@@ -8,6 +8,7 @@ import io.stealingdapenta.mc2048.GameManager;
 import io.stealingdapenta.mc2048.utils.ActiveGame;
 import io.stealingdapenta.mc2048.utils.Direction;
 import io.stealingdapenta.mc2048.utils.InventoryUtil;
+import io.stealingdapenta.mc2048.utils.MessageSender;
 import java.util.Map;
 import java.util.Objects;
 import org.bukkit.entity.Player;
@@ -27,6 +28,7 @@ public class GameControlsListener implements Listener {
                                                                        Direction.DOWN, "UNDO", Direction.UNDO);
     private final InventoryUtil inventoryUtil;
     private final GameManager gameManager;
+    private final MessageSender messageSender = MessageSender.getInstance();
 
     public GameControlsListener(InventoryUtil inventoryUtil, GameManager gameManager) {
         this.inventoryUtil = inventoryUtil;
@@ -74,7 +76,7 @@ public class GameControlsListener implements Listener {
         }
 
         if (Direction.UNDO.equals(direction)) {
-            player.sendMessage(UNDID_LAST_MOVE.getFormattedStringValue());
+            messageSender.sendMessage(player, UNDID_LAST_MOVE);
             return;
         }
 
@@ -88,7 +90,7 @@ public class GameControlsListener implements Listener {
     }
 
     private void invalidMoveMessage(Player player) {
-        player.sendMessage(INVALID_MOVE.getFormattedStringValue());
+        messageSender.sendMessage(player, INVALID_MOVE);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -110,8 +112,7 @@ public class GameControlsListener implements Listener {
     }
 
     private void doGameOver(ActiveGame activeGame) {
-        activeGame.getPlayer()
-                  .sendTitle(GAME_OVER.getFormattedStringValue(), GAME_OVER_SUB.formatted(activeGame.getScore(), activeGame.getCurrentPlayTimeFormatted()), 20,
-                             40, 20);
+        messageSender.sendMessage(activeGame.getPlayer(), GAME_OVER);
+        messageSender.sendTitle(activeGame.getPlayer(), GAME_OVER, GAME_OVER_SUB.formatted(activeGame.getScore(), activeGame.getCurrentPlayTimeFormatted()));
     }
 }
