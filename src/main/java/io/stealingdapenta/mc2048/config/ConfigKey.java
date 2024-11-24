@@ -12,9 +12,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public enum ConfigKey {
 
-    HEALTH_BAR_ALWAYS_VISIBLE("false"); // todo whatever I want as configs
+    NO_PERMISSION("You don't have the required %s to execute this command."),
+    RELOADED("Successfully reloaded the DamageIndicator configuration file."),
+    PARSING_ERROR("Error parsing the value in the config file for ");
 
-    private static final String PARSING_ERROR = "Error parsing the value in the config file for %s.";
     private static final TextUtil textUtil = TextUtil.getInstance();
     private final String defaultValue;
 
@@ -60,7 +61,7 @@ public enum ConfigKey {
         try {
             result = Double.parseDouble(valueAsString);
         } catch (NumberFormatException numberFormatException) {
-            logger.warning(PARSING_ERROR.formatted(key));
+            logger.warning(PARSING_ERROR.getStringValue() + key);
             result = 0;
         }
         return result;
@@ -80,7 +81,7 @@ public enum ConfigKey {
         try {
             result = Integer.parseInt(valueAsString);
         } catch (NumberFormatException numberFormatException) {
-            logger.warning(PARSING_ERROR.formatted(key));
+            logger.warning(PARSING_ERROR.getStringValue() + key);
             result = 0;
         }
         return result;

@@ -3,6 +3,8 @@ package io.stealingdapenta.mc2048;
 import io.stealingdapenta.mc2048.commands.Command;
 import io.stealingdapenta.mc2048.commands.GameCommand;
 import io.stealingdapenta.mc2048.commands.HighScoreCommand;
+import io.stealingdapenta.mc2048.commands.ReloadConfigCommand;
+import io.stealingdapenta.mc2048.config.ConfigurationFileManager;
 import io.stealingdapenta.mc2048.listeners.GameControlsListener;
 import io.stealingdapenta.mc2048.utils.HighScoreManager;
 import io.stealingdapenta.mc2048.utils.InventoryUtil;
@@ -25,6 +27,7 @@ public class MC2048 extends JavaPlugin {
     private final GameCommand gameCommand = new GameCommand(inventoryUtil, gameManager);
     private final HighScoreManager highScoreManager = new HighScoreManager();
     private final HighScoreCommand highScoreCommand = new HighScoreCommand(highScoreManager);
+    private final ReloadConfigCommand reloadConfigCommand = new ReloadConfigCommand();
 
     @Override
     public void onEnable() {
@@ -35,6 +38,10 @@ public class MC2048 extends JavaPlugin {
         // 3. ...
         instance = this;
         logger = getLogger();
+
+        ConfigurationFileManager.getInstance().loadConfig();
+
+        Objects.requireNonNull(this.getCommand("reload")).setExecutor(reloadConfigCommand);
 
         Objects.requireNonNull(getCommand(Command._2048.getCommandName())).setExecutor(gameCommand);
         Objects.requireNonNull(getCommand(Command.TOP_2048.getCommandName())).setExecutor(highScoreCommand);

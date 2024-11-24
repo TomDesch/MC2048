@@ -19,3 +19,13 @@ commands:
       - 2048hiscore
       - 2048score
       - score2048
+
+  reload:
+    description: Reload the configuration file without having to reboot the server.
+    usage: /<command>
+    aliases: [ config, load, restart ]
+
+permissions:
+  mc2048.reload:
+    description: Allow usage of /config
+    default: op
