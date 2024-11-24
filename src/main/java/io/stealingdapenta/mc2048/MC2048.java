@@ -1,5 +1,7 @@
 package io.stealingdapenta.mc2048;
 
+import static io.stealingdapenta.mc2048.commands.Command.RELOAD;
+
 import io.stealingdapenta.mc2048.commands.Command;
 import io.stealingdapenta.mc2048.commands.GameCommand;
 import io.stealingdapenta.mc2048.commands.HighScoreCommand;
@@ -41,10 +43,9 @@ public class MC2048 extends JavaPlugin {
 
         ConfigurationFileManager.getInstance().loadConfig();
 
-        Objects.requireNonNull(this.getCommand("reload")).setExecutor(reloadConfigCommand);
-
         Objects.requireNonNull(getCommand(Command._2048.getCommandName())).setExecutor(gameCommand);
         Objects.requireNonNull(getCommand(Command.TOP_2048.getCommandName())).setExecutor(highScoreCommand);
+        Objects.requireNonNull(getCommand(RELOAD.getCommandName())).setExecutor(reloadConfigCommand);
         Bukkit.getPluginManager().registerEvents(gameControlsListener, getInstance());
 
         logger.info(ChatColor.GOLD + PLUGIN_ENABLED);

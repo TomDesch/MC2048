@@ -1,50 +1,68 @@
 package io.stealingdapenta.mc2048.utils;
 
 import static io.stealingdapenta.mc2048.MC2048.logger;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_EIGHT;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_EIGHT_THOUSAND_ONE_HUNDRED_NINETY_TWO;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_FIVE_HUNDRED_TWELVE;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_FOUR;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_FOUR_THOUSAND_NINETY_SIX;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_HUNDRED_THIRTY_ONE_THOUSAND_SEVENTY_TWO;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_HUNDRED_TWENTY_EIGHT;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_INFINITY;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_ONE_THOUSAND_TWENTY_FOUR;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_SIXTEEN;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_SIXTEEN_THOUSAND_THREE_HUNDRED_EIGHTY_FOUR;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_SIXTY_FIVE_THOUSAND_FIVE_HUNDRED_THIRTY_SIX;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_SIXTY_FOUR;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_THIRTY_TWO;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_THIRTY_TWO_THOUSAND_SEVEN_HUNDRED_SIXTY_EIGHT;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_TWO;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_TWO_HUNDRED_FIFTY_SIX;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_TWO_THOUSAND_FORTY_EIGHT;
 
+import java.util.Arrays;
+import java.util.function.Supplier;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 public enum NumberRepresentation {
-    TWO(2, 2, Material.RAW_COPPER),
-    FOUR(4, 4, Material.COPPER_INGOT),
-    EIGHT(8, 8, Material.COPPER_BLOCK),
-    SIXTEEN(16, 16, Material.RAW_IRON),
-    THIRTY_TWO(32, 32, Material.IRON_NUGGET),
-    SIXTY_FOUR(64, 64, Material.IRON_INGOT),
-    HUNDRED_TWENTY_EIGHT(2, 128, Material.IRON_BLOCK),
-    TWO_HUNDRED_FIFTY_SIX(4, 256, Material.RAW_GOLD),
-    FIVE_HUNDRED_TWELVE(8, 512, Material.GOLD_NUGGET),
-    ONE_THOUSAND_TWENTY_FOUR(16, 1024, Material.GOLD_INGOT),
-    TWO_THOUSAND_FORTY_EIGHT(32, 2048, Material.GOLD_BLOCK),
-    FOUR_THOUSAND_NINETY_SIX(64, 4096, Material.EMERALD),
-    EIGHT_THOUSAND_ONE_HUNDRED_NINETY_TWO(2, 8192, Material.EMERALD_BLOCK),
-    SIXTEEN_THOUSAND_THREE_HUNDRED_EIGHTY_FOUR(4, 16384, Material.LAPIS_LAZULI),
-    THIRTY_TWO_THOUSAND_SEVEN_HUNDRED_SIXTY_EIGHT(8, 32768, Material.LAPIS_BLOCK),
-    SIXTY_FIVE_THOUSAND_FIVE_HUNDRED_THIRTY_SIX(16, 65536, Material.DIAMOND),
-    HUNDRED_THIRTY_ONE_THOUSAND_SEVENTY_TWO(32, 131072, Material.DIAMOND_BLOCK),
-    INFINITY(64, Integer.MAX_VALUE, Material.END_STONE);
+    TWO(2, 2, MATERIAL_TWO::getMaterialValue),
+    FOUR(4, 4, MATERIAL_FOUR::getMaterialValue),
+    EIGHT(8, 8, MATERIAL_EIGHT::getMaterialValue),
+    SIXTEEN(16, 16, MATERIAL_SIXTEEN::getMaterialValue),
+    THIRTY_TWO(32, 32, MATERIAL_THIRTY_TWO::getMaterialValue),
+    SIXTY_FOUR(64, 64, MATERIAL_SIXTY_FOUR::getMaterialValue),
+    HUNDRED_TWENTY_EIGHT(2, 128, MATERIAL_HUNDRED_TWENTY_EIGHT::getMaterialValue),
+    TWO_HUNDRED_FIFTY_SIX(4, 256, MATERIAL_TWO_HUNDRED_FIFTY_SIX::getMaterialValue),
+    FIVE_HUNDRED_TWELVE(8, 512, MATERIAL_FIVE_HUNDRED_TWELVE::getMaterialValue),
+    ONE_THOUSAND_TWENTY_FOUR(16, 1024, MATERIAL_ONE_THOUSAND_TWENTY_FOUR::getMaterialValue),
+    TWO_THOUSAND_FORTY_EIGHT(32, 2048, MATERIAL_TWO_THOUSAND_FORTY_EIGHT::getMaterialValue),
+    FOUR_THOUSAND_NINETY_SIX(64, 4096, MATERIAL_FOUR_THOUSAND_NINETY_SIX::getMaterialValue),
+    EIGHT_THOUSAND_ONE_HUNDRED_NINETY_TWO(2, 8192, MATERIAL_EIGHT_THOUSAND_ONE_HUNDRED_NINETY_TWO::getMaterialValue),
+    SIXTEEN_THOUSAND_THREE_HUNDRED_EIGHTY_FOUR(4, 16384, MATERIAL_SIXTEEN_THOUSAND_THREE_HUNDRED_EIGHTY_FOUR::getMaterialValue),
+    THIRTY_TWO_THOUSAND_SEVEN_HUNDRED_SIXTY_EIGHT(8, 32768, MATERIAL_THIRTY_TWO_THOUSAND_SEVEN_HUNDRED_SIXTY_EIGHT::getMaterialValue),
+    SIXTY_FIVE_THOUSAND_FIVE_HUNDRED_THIRTY_SIX(16, 65536, MATERIAL_SIXTY_FIVE_THOUSAND_FIVE_HUNDRED_THIRTY_SIX::getMaterialValue),
+    HUNDRED_THIRTY_ONE_THOUSAND_SEVENTY_TWO(32, 131072, MATERIAL_HUNDRED_THIRTY_ONE_THOUSAND_SEVENTY_TWO::getMaterialValue),
+    INFINITY(64, Integer.MAX_VALUE, MATERIAL_INFINITY::getMaterialValue);
 
     private static final String ERROR_REPRESENTATION = "Error getting representation for %s. Returning 0!";
     private static final String ERROR_NEXT_REPRESENTATION = "Error getting next representation for %s. Returning TWO!";
     private final int amount;
     private final int score;
-    private final Material representation;
+    private final Supplier<Material> materialSupplier;
 
-    NumberRepresentation(int amount, int score, Material representation) {
+    NumberRepresentation(int amount, int score, Supplier<Material> materialSupplier) {
         this.amount = amount;
         this.score = score;
-        this.representation = representation;
+        this.materialSupplier = materialSupplier;
     }
 
     public static int getScoreFromItem(ItemStack itemStack) {
-        for (NumberRepresentation representation : NumberRepresentation.values()) {
-            if (representation.getRepresentation() == itemStack.getType()) {
-                return representation.getScore();
-            }
-        }
-        logger.severe(ERROR_REPRESENTATION.formatted(itemStack.getType()));
-        return 0;
+        return Arrays.stream(NumberRepresentation.values()).filter(representation -> representation.getRepresentation() == itemStack.getType()).findFirst()
+                     .map(NumberRepresentation::getScore).orElseGet(() -> {
+                    logger.severe(ERROR_REPRESENTATION.formatted(itemStack.getType()));
+                    return 0;
+                });
     }
 
     public static NumberRepresentation getNextRepresentation(int currentRepresentation) {
@@ -66,10 +84,10 @@ public enum NumberRepresentation {
     }
 
     public Material getRepresentation() {
-        return representation;
+        return materialSupplier.get();
     }
 
     public ItemStack getDisplayableBlock() {
-        return new ItemStack(representation, amount);
+        return new ItemStack(getRepresentation(), amount);
     }
 }

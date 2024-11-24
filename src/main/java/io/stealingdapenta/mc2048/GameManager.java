@@ -1,10 +1,11 @@
 package io.stealingdapenta.mc2048;
 
 import static io.stealingdapenta.mc2048.MC2048.logger;
-import static io.stealingdapenta.mc2048.utils.ConfigField.ATTEMPTS;
-import static io.stealingdapenta.mc2048.utils.ConfigField.AVERAGE_SCORE;
-import static io.stealingdapenta.mc2048.utils.ConfigField.HIGH_SCORE;
-import static io.stealingdapenta.mc2048.utils.ConfigField.TOTAL_PLAYTIME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.ATTEMPT_PROTECTION;
+import static io.stealingdapenta.mc2048.utils.PlayerConfigField.ATTEMPTS;
+import static io.stealingdapenta.mc2048.utils.PlayerConfigField.AVERAGE_SCORE;
+import static io.stealingdapenta.mc2048.utils.PlayerConfigField.HIGH_SCORE;
+import static io.stealingdapenta.mc2048.utils.PlayerConfigField.TOTAL_PLAYTIME;
 
 import io.stealingdapenta.mc2048.utils.ActiveGame;
 import io.stealingdapenta.mc2048.utils.FileManager;
@@ -20,7 +21,6 @@ public class GameManager {
     private static final HashMap<UUID, ActiveGame> activeGames = new HashMap<>();
     private final InventoryUtil inventoryUtil;
     private final FileManager fileManager = FileManager.getInstance();
-    private static final String ATTEMPT_PROTECTION = "The game wasn't saved because you didn't do anything. Your average score & attempts were protected.";
     private static final String ERROR_DEACTIVATING = "Error deactivating game for %s; no active game found.";
 
     public GameManager(InventoryUtil inventoryUtil) {
@@ -45,7 +45,7 @@ public class GameManager {
 
     private void saveActiveGame(ActiveGame activeGame) {
         if (activeGame.getScore() < 1) {
-            activeGame.getPlayer().sendMessage(ATTEMPT_PROTECTION);
+            activeGame.getPlayer().sendMessage(ATTEMPT_PROTECTION.getFormattedStringValue());
             return;
         }
         if (activeGame.getScore() >= activeGame.getHiScore()) {

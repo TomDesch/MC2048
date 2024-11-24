@@ -29,10 +29,10 @@ public class ActiveGame {
         this.gameOpenTime = System.currentTimeMillis();
 
         FileManager fileManager = FileManager.getInstance();
-        this.hiScore = fileManager.getIntByKey(player, ConfigField.HIGH_SCORE.getKey());
-        this.attempts = fileManager.getIntByKey(player, ConfigField.ATTEMPTS.getKey());
-        this.totalPlayTime = fileManager.getLongByKey(player, ConfigField.TOTAL_PLAYTIME.getKey());
-        this.averageScore = fileManager.getDoubleByKey(player, ConfigField.AVERAGE_SCORE.getKey());
+        this.hiScore = fileManager.getIntByKey(player, PlayerConfigField.HIGH_SCORE.getKey());
+        this.attempts = fileManager.getIntByKey(player, PlayerConfigField.ATTEMPTS.getKey());
+        this.totalPlayTime = fileManager.getLongByKey(player, PlayerConfigField.TOTAL_PLAYTIME.getKey());
+        this.averageScore = fileManager.getDoubleByKey(player, PlayerConfigField.AVERAGE_SCORE.getKey());
         this.undoLastMoveCounter = NUMBER_OF_UNDO.getIntValue();
     }
 

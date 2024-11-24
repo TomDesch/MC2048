@@ -1,9 +1,11 @@
 package io.stealingdapenta.mc2048.commands;
 
+import static io.stealingdapenta.mc2048.config.ConfigKey.GOOD_LUCK;
+import static io.stealingdapenta.mc2048.config.ConfigKey.NOT_PLAYER;
+
 import io.stealingdapenta.mc2048.GameManager;
 import io.stealingdapenta.mc2048.utils.ActiveGame;
 import io.stealingdapenta.mc2048.utils.InventoryUtil;
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -15,8 +17,6 @@ public class GameCommand implements CommandExecutor {
 
     private final InventoryUtil inventoryUtil;
     private final GameManager gameManager;
-    private static final String NOT_PLAYER = "You can only execute this command as a player.";
-    private static final String GOOD_LUCK = "Good luck & have fun!";
 
     public GameCommand(InventoryUtil inventoryUtil, GameManager gameManager) {
         this.inventoryUtil = inventoryUtil;
@@ -26,7 +26,7 @@ public class GameCommand implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (sender instanceof Player player) {
-            player.sendMessage(ChatColor.GREEN + GOOD_LUCK);
+            player.sendMessage(GOOD_LUCK.getFormattedStringValue());
 
             ActiveGame activeGame = new ActiveGame(player, gameManager.createTask(player));
             Inventory gameWindow = inventoryUtil.createGameInventory(activeGame);
@@ -40,7 +40,7 @@ public class GameCommand implements CommandExecutor {
             return true;
         }
 
-        sender.sendMessage(ChatColor.RED + NOT_PLAYER);
+        sender.sendMessage(NOT_PLAYER.getFormattedStringValue());
 
         return true;
     }

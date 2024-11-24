@@ -1,6 +1,6 @@
 package io.stealingdapenta.mc2048.utils;
 
-public enum ConfigField {
+public enum PlayerConfigField {
     HIGH_SCORE("high-score"),
     ATTEMPTS("Attempts"),
     TOTAL_PLAYTIME("playtime"),
@@ -8,7 +8,7 @@ public enum ConfigField {
 
     private final String key;
 
-    ConfigField(String key) {
+    PlayerConfigField(String key) {
         this.key = key;
     }
 

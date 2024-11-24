@@ -63,7 +63,7 @@ public class HighScoreManager {
         String uuid = getPlayerUUIDFrom(playerFile);
         String playerName = getPlayerName(uuid);
         if (Objects.nonNull(playerName)) {
-            int hiScore = fileManager.getIntByKey(uuid, ConfigField.HIGH_SCORE.getKey());
+            int hiScore = fileManager.getIntByKey(uuid, PlayerConfigField.HIGH_SCORE.getKey());
             return new AbstractMap.SimpleEntry<>(playerName, hiScore);
         }
         return null;

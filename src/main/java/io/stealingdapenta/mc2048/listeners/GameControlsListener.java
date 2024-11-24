@@ -1,12 +1,15 @@
 package io.stealingdapenta.mc2048.listeners;
 
+import static io.stealingdapenta.mc2048.config.ConfigKey.GAME_OVER;
+import static io.stealingdapenta.mc2048.config.ConfigKey.INVALID_MOVE;
+import static io.stealingdapenta.mc2048.config.ConfigKey.UNDID_LAST_MOVE;
+
 import io.stealingdapenta.mc2048.GameManager;
 import io.stealingdapenta.mc2048.utils.ActiveGame;
 import io.stealingdapenta.mc2048.utils.Direction;
 import io.stealingdapenta.mc2048.utils.InventoryUtil;
 import java.util.Map;
 import java.util.Objects;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -19,9 +22,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 public class GameControlsListener implements Listener {
 
-    private static final String INVALID_MOVE = "Sorry! That's not a valid move.";
-    private static final String UNDID_LAST_MOVE = "Successfully undid the last move!";
-    private static final String GAME_OVER = "Game over!";
     private static final String GAME_OVER_SUB = "Score: %s | Playtime: %s";
     private static final Map<String, Direction> DIRECTION_MAP = Map.of("UP", Direction.UP, "LEFT", Direction.LEFT, "RIGHT", Direction.RIGHT, "DOWN",
                                                                        Direction.DOWN, "UNDO", Direction.UNDO);
@@ -63,18 +63,18 @@ public class GameControlsListener implements Listener {
                                            .orElse(null);
 
         if (Objects.isNull(direction)) {
-            player.sendMessage(ChatColor.DARK_PURPLE + INVALID_MOVE);
+            invalidMoveMessage(player);
             return;
         }
 
         boolean somethingMoved = inventoryUtil.moveItemsInDirection(activeGame, direction);
         if (!somethingMoved) {
-            player.sendMessage(ChatColor.DARK_PURPLE + INVALID_MOVE);
+            invalidMoveMessage(player);
             return;
         }
 
         if (Direction.UNDO.equals(direction)) {
-            player.sendMessage(ChatColor.GOLD + UNDID_LAST_MOVE);
+            player.sendMessage(UNDID_LAST_MOVE.getFormattedStringValue());
             return;
         }
 
@@ -85,6 +85,10 @@ public class GameControlsListener implements Listener {
             activeGame.getPlayer().getOpenInventory().close();
             doGameOver(activeGame);
         }
+    }
+
+    private void invalidMoveMessage(Player player) {
+        player.sendMessage(INVALID_MOVE.getFormattedStringValue());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -106,6 +110,8 @@ public class GameControlsListener implements Listener {
     }
 
     private void doGameOver(ActiveGame activeGame) {
-        activeGame.getPlayer().sendTitle(GAME_OVER, GAME_OVER_SUB.formatted(activeGame.getScore(), activeGame.getCurrentPlayTimeFormatted()), 20, 40, 20);
+        activeGame.getPlayer()
+                  .sendTitle(GAME_OVER.getFormattedStringValue(), GAME_OVER_SUB.formatted(activeGame.getScore(), activeGame.getCurrentPlayTimeFormatted()), 20,
+                             40, 20);
     }
 }

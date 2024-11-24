@@ -3,12 +3,9 @@ package io.stealingdapenta.mc2048.utils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.function.Consumer;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -38,15 +35,10 @@ public class ItemBuilder {
         return this;
     }
 
-    public ItemBuilder modifyMeta(Consumer<ItemMeta> consumer) {
-        consumer.accept(itemMeta);
-        return this;
-    }
-
     public ItemBuilder addLore(String... lore) {
         setItemMeta();
         List<String> temp = Arrays.asList(lore);
-        temp.forEach(s -> loreList.add(ChatColor.translateAlternateColorCodes('&', s)));
+        temp.forEach(this::addColorCodedLore);
         itemMeta.setLore(loreList);
         return this;
     }
@@ -61,34 +53,13 @@ public class ItemBuilder {
         return this;
     }
 
-    public ItemBuilder setEnchantments(Map<Enchantment, Integer> enchants) {
-        enchants.forEach(itemStack::addUnsafeEnchantment);
-        return this;
-    }
-
-    public ItemBuilder addEnchantment(Enchantment enchantment, Integer level) {
-        itemMeta.addEnchant(enchantment, level, true);
-        return this;
-    }
-
-    public ItemBuilder setGlowing(boolean glow) {
-        if (!glow) {
-            return this;
-        }
-        setItemMeta();
-        itemMeta.addEnchant(Enchantment.LURE, 1, true);
-        itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-        return this;
-    }
-
-    public ItemBuilder setGlowing() {
-        setGlowing(true);
-        return this;
-    }
-
     public ItemStack create() {
         setItemMeta();
         itemStack.setItemMeta(itemMeta);
         return itemStack;
+    }
+
+    private void addColorCodedLore(String s) {
+        loreList.add(ChatColor.translateAlternateColorCodes('&', s));
     }
 }
