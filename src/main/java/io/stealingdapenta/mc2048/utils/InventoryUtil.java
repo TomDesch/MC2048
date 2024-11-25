@@ -182,7 +182,10 @@ public class InventoryUtil {
             return false;
         }
 
-        activeGame.setLastMoveUndo(false);
+        if (!direction.equals(Direction.UNDO)) {
+            activeGame.setLastMoveUndo(false);
+        }
+
         copyItemArrayToGameWindow(gameWindow, itemsInGame);
         return true;
     }
@@ -257,8 +260,8 @@ public class InventoryUtil {
             System.arraycopy(lastPosition[i], 0, inventoryArray[i], 0, inventoryArray[i].length);
         }
 
-        activeGame.decrementUndoLastMoveCounter();
         activeGame.addToScore(-activeGame.getScoreGainedAfterLastMove());
+        activeGame.decrementUndoLastMoveCounter();
         setItemInSlot(activeGame.getGameWindow(), SLOT_UNDO, activeGame.hasNoUndoLastMoveLeft() ? createUsedUndoButton() : createUndoButton(activeGame.getUndoLastMoveCounter()));
         activeGame.setLastMoveUndo(true);
         return true;
