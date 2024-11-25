@@ -52,7 +52,14 @@ public enum ConfigKey {
     UNDO_BUTTON_UNUSED_USES("<blue>Uses left: "),
     UNDO_BUTTON_USED_LORE("<aqua>Click to undo the <bold>last move</bold>!</aqua>"),
     UNDO_BUTTON_USED_USES("<blue>Uses left: <red>0</red></blue>"),
-    MOVE_BUTTON_LORE("<aqua>Click to move <bold>everything!</bold></aqua>");
+    MOVE_BUTTON_LORE("<aqua>Click to move <bold>everything!</bold></aqua>"),
+    PLAYER_STATS_TITLE("<gold><bold>%s's Statistics</bold></gold>"),
+    TOTAL_PLAYTIME("<b>Total playtime: <green>%s</green></b>"),
+    CURRENT_PLAYTIME("<b>Current playtime: <green>%s</green></b>"),
+    HIGH_SCORE("<b>HiScore: <green>%s</green></b>"),
+    CURRENT_SCORE("<b>Current score: <green>%s</green></b>"),
+    GAMES_PLAYED("<b>Amount of games played: <green>%s</green></b>"),
+    AVERAGE_SCORE("<b>Average Score: <green>%s</green></b>");
 
     private final String defaultValue;
 
@@ -74,6 +81,18 @@ public enum ConfigKey {
 
     public Component getFormattedValue() {
         return MiniMessage.miniMessage().deserialize(getStringValue());
+    }
+
+
+    /**
+     * Replace %s in the component with the provided replacement value
+     *
+     * @param replacementOfPercentS the desired replacement text
+     * @return the original formatted component but with %s replaced
+     */
+    public Component getFormattedValue(String replacementOfPercentS) {
+        return getFormattedValue().replaceText(builder -> builder.match("%s")
+                                                                 .replacement(replacementOfPercentS));
     }
 
     public int getIntValue() {

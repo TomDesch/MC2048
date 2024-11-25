@@ -1,11 +1,18 @@
 package io.stealingdapenta.mc2048.utils;
 
 import static io.stealingdapenta.mc2048.MC2048.logger;
+import static io.stealingdapenta.mc2048.config.ConfigKey.AVERAGE_SCORE;
+import static io.stealingdapenta.mc2048.config.ConfigKey.CURRENT_PLAYTIME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.CURRENT_SCORE;
 import static io.stealingdapenta.mc2048.config.ConfigKey.DOWN_BUTTON_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.GAMES_PLAYED;
+import static io.stealingdapenta.mc2048.config.ConfigKey.HIGH_SCORE;
 import static io.stealingdapenta.mc2048.config.ConfigKey.LEFT_BUTTON_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_LORE;
 import static io.stealingdapenta.mc2048.config.ConfigKey.NUMBER_OF_UNDO;
+import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_STATS_TITLE;
 import static io.stealingdapenta.mc2048.config.ConfigKey.RIGHT_BUTTON_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.TOTAL_PLAYTIME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_UNUSED_LORE;
 import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_USED_USES;
@@ -18,6 +25,7 @@ import java.util.Objects;
 import java.util.Random;
 import java.util.stream.IntStream;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -435,7 +443,8 @@ public class InventoryUtil {
             return playerHead;
         }
         skullMeta.setOwningPlayer(player);
-        skullMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&6%s's Statistics".formatted(player.getName())));
+        skullMeta.setDisplayName(LegacyComponentSerializer.legacySection()
+                                                          .serialize(PLAYER_STATS_TITLE.getFormattedValue(player.getName())));
         playerHead.setItemMeta(skullMeta);
         return playerHead;
     }
@@ -446,12 +455,12 @@ public class InventoryUtil {
     }
 
     private ItemStack getPlayerStatsHead(ActiveGame activeGame) {
-        return (new ItemBuilder(getPlayerSkullItem(activeGame.getPlayer()))).addLore("&bTotal playtime: &2%s".formatted(activeGame.getTotalPlusCurrentPlayTimeFormatted()))
-                                                                            .addLore("&bCurrent playtime: &2%s".formatted(activeGame.getCurrentPlayTimeFormatted()))
-                                                                            .addLore("&bHiScore: &2%s".formatted(activeGame.getHiScore()))
-                                                                            .addLore("&bCurrent score: &2%s".formatted(activeGame.getScore()))
-                                                                            .addLore("&bAmount of games played: &2%s".formatted(activeGame.getAttempts()))
-                                                                            .addLore("&bAverage Score: &2%s".formatted(Math.round(activeGame.getAverageScore())))
+        return (new ItemBuilder(getPlayerSkullItem(activeGame.getPlayer()))).addLore(TOTAL_PLAYTIME.getFormattedValue(activeGame.getTotalPlusCurrentPlayTimeFormatted()))
+                                                                            .addLore(CURRENT_PLAYTIME.getFormattedValue(activeGame.getCurrentPlayTimeFormatted()))
+                                                                            .addLore(HIGH_SCORE.getFormattedValue(String.valueOf(activeGame.getHiScore())))
+                                                                            .addLore(CURRENT_SCORE.getFormattedValue(String.valueOf(activeGame.getScore())))
+                                                                            .addLore(GAMES_PLAYED.getFormattedValue(String.valueOf(activeGame.getAttempts())))
+                                                                            .addLore(AVERAGE_SCORE.getFormattedValue(String.valueOf(Math.round(activeGame.getAverageScore()))))
                                                                             .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
                                                                             .create();
     }
