@@ -13,7 +13,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public enum ConfigKey {
 
     NO_PERMISSION("<red>You don't have the required <bold>permission</bold> to execute this command.</red>"),
-    RELOADED("<green>Successfully reloaded the <italic>DamageIndicator</italic> configuration file.</green>"),
+    RELOADED("<green>Successfully reloaded the <italic>MC2048</italic> configuration file.</green>"),
     PARSING_ERROR("<yellow>Error parsing the value in the config file for <red><bold>%s</bold></red></yellow>"),
     NOT_PLAYER("<light_purple>You can only execute this command as a <bold>player</bold>.</light_purple>"),
     GOOD_LUCK("<aqua>Good luck and <bold>have fun</bold>!</aqua>"),
