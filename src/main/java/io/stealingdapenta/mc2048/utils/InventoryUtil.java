@@ -29,8 +29,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 
 /**
- * Dear visitor If you've found this class, and you're a programmer yourself, then I challenge you to rewrite the moveItem functions (e.g. moveItemsUp) to be
- * DRY instead of this hot mess. (And make a pull request) I promise the current version works, but man is it ugly. Kind regards.
+ * Dear visitor If you've found this class, and you're a programmer yourself, then I challenge you to rewrite the moveItem functions (e.g. moveItemsUp) to be DRY instead of this hot mess. (And make a pull request) I promise the current version works,
+ * but man is it ugly. Kind regards.
  */
 public class InventoryUtil {
 
@@ -87,7 +87,8 @@ public class InventoryUtil {
     }
 
     private ItemStack getStainedGlassPaneItem() {
-        return new ItemBuilder(new ItemStack(Material.WHITE_STAINED_GLASS_PANE, 1)).setDisplayName(" ").create();
+        return new ItemBuilder(new ItemStack(Material.WHITE_STAINED_GLASS_PANE, 1)).setDisplayName(" ")
+                                                                                   .create();
     }
 
     private void setButtonsAndStats(ActiveGame activeGame) {
@@ -100,19 +101,27 @@ public class InventoryUtil {
     }
 
     private ItemStack createButton(ConfigKey buttonName) {
-        return new ItemBuilder(Material.LIGHTNING_ROD).setDisplayName(buttonName.getFormattedValue()).addLore(MOVE_BUTTON_LORE)
-                                                      .addItemFlags(ItemFlag.HIDE_ATTRIBUTES).create();
+        return new ItemBuilder(Material.LIGHTNING_ROD).setDisplayName(buttonName.getFormattedValue())
+                                                      .addLore(MOVE_BUTTON_LORE)
+                                                      .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
+                                                      .create();
     }
 
     private ItemStack createUndoButton(int numberOfUndoLeft) {
-        return new ItemBuilder(Material.AXOLOTL_BUCKET).setDisplayName(UNDO_BUTTON_NAME).addLore(UNDO_BUTTON_UNUSED_LORE)
-                                                       .addLore(ConfigKey.UNDO_BUTTON_UNUSED_USES.getFormattedValue().append(Component.text(numberOfUndoLeft)))
-                                                       .addItemFlags(ItemFlag.HIDE_ATTRIBUTES).create();
+        return new ItemBuilder(Material.AXOLOTL_BUCKET).setDisplayName(UNDO_BUTTON_NAME)
+                                                       .addLore(UNDO_BUTTON_UNUSED_LORE)
+                                                       .addLore(ConfigKey.UNDO_BUTTON_UNUSED_USES.getFormattedValue()
+                                                                                                 .append(Component.text(numberOfUndoLeft)))
+                                                       .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
+                                                       .create();
     }
 
     private ItemStack createUsedUndoButton() {
-        return new ItemBuilder(Material.BUCKET).setDisplayName(UNDO_BUTTON_NAME).addLore(UNDO_BUTTON_UNUSED_LORE).addLore(UNDO_BUTTON_USED_USES)
-                                               .addItemFlags(ItemFlag.HIDE_ATTRIBUTES).create();
+        return new ItemBuilder(Material.BUCKET).setDisplayName(UNDO_BUTTON_NAME)
+                                               .addLore(UNDO_BUTTON_UNUSED_LORE)
+                                               .addLore(UNDO_BUTTON_USED_USES)
+                                               .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
+                                               .create();
     }
 
     private void setItemInSlot(Inventory inventory, int slot, ItemStack itemStack) {
@@ -120,7 +129,8 @@ public class InventoryUtil {
     }
 
     public boolean isGameWindow(InventoryView inventoryView) {
-        return inventoryView.getTitle().contains(ChatColor.translateAlternateColorCodes('&', GAME_TITLE.strip()));
+        return inventoryView.getTitle()
+                            .contains(ChatColor.translateAlternateColorCodes('&', GAME_TITLE.strip()));
     }
 
     private void setLegend(Inventory gameWindow) {
@@ -171,7 +181,9 @@ public class InventoryUtil {
     public boolean noValidMovesLeft(Inventory gameWindow) {
         ItemStack[][] itemsInGame = new ItemStack[ROW_AND_COLUMN_SIZE][ROW_AND_COLUMN_SIZE];
         copyGameWindowContentsToArray(gameWindow, itemsInGame);
-        if (Arrays.stream(itemsInGame).flatMap(Arrays::stream).noneMatch(Objects::isNull)) {
+        if (Arrays.stream(itemsInGame)
+                  .flatMap(Arrays::stream)
+                  .noneMatch(Objects::isNull)) {
             return !hasValidMoves(itemsInGame);
         }
 
@@ -199,8 +211,7 @@ public class InventoryUtil {
                     belowItem = itemsInGame[row + 1][column];
                 }
 
-                if ((column < ROW_AND_COLUMN_SIZE - 1 && currentItem.isSimilar(rightItem)) || (row < ROW_AND_COLUMN_SIZE - 1 && currentItem.isSimilar(
-                        belowItem))) {
+                if ((column < ROW_AND_COLUMN_SIZE - 1 && currentItem.isSimilar(rightItem)) || (row < ROW_AND_COLUMN_SIZE - 1 && currentItem.isSimilar(belowItem))) {
                     return true;
                 }
             }
@@ -239,8 +250,7 @@ public class InventoryUtil {
 
         activeGame.decrementUndoLastMoveCounter();
         activeGame.addToScore(-activeGame.getScoreGainedAfterLastMove());
-        setItemInSlot(activeGame.getGameWindow(), SLOT_UNDO,
-                      activeGame.hasNoUndoLastMoveLeft() ? createUsedUndoButton() : createUndoButton(activeGame.getUndoLastMoveCounter()));
+        setItemInSlot(activeGame.getGameWindow(), SLOT_UNDO, activeGame.hasNoUndoLastMoveLeft() ? createUsedUndoButton() : createUndoButton(activeGame.getUndoLastMoveCounter()));
 
         return true;
     }
@@ -396,11 +406,15 @@ public class InventoryUtil {
 
     private ItemStack getNextRepresentation(ItemStack itemStack) {
         int currentRepresentation = NumberRepresentation.getScoreFromItem(itemStack);
-        return NumberRepresentation.getNextRepresentation(currentRepresentation).getDisplayableBlock();
+        return NumberRepresentation.getNextRepresentation(currentRepresentation)
+                                   .getDisplayableBlock();
     }
 
     public void spawnNewBlock(Inventory inventory) {
-        List<Integer> emptySlots = IntStream.range(0, inventory.getSize()).filter(i -> Objects.isNull(inventory.getItem(i))).boxed().toList();
+        List<Integer> emptySlots = IntStream.range(0, inventory.getSize())
+                                            .filter(i -> Objects.isNull(inventory.getItem(i)))
+                                            .boxed()
+                                            .toList();
 
         if (!emptySlots.isEmpty()) {
             inventory.setItem(emptySlots.get(new Random().nextInt(emptySlots.size())), generateNewBlock());
@@ -426,17 +440,18 @@ public class InventoryUtil {
     }
 
     public void updateStatisticItem(ActiveGame activeGame) {
-        activeGame.getGameWindow().setItem(SLOT_STATS, getPlayerStatsHead(activeGame));
+        activeGame.getGameWindow()
+                  .setItem(SLOT_STATS, getPlayerStatsHead(activeGame));
     }
 
     private ItemStack getPlayerStatsHead(ActiveGame activeGame) {
-        return (new ItemBuilder(getPlayerSkullItem(activeGame.getPlayer()))).addLore(
-                                                                                    "&bTotal playtime: &2%s".formatted(activeGame.getTotalPlusCurrentPlayTimeFormatted())).addLore(
-                                                                                    "&bCurrent playtime: &2%s".formatted(activeGame.getCurrentPlayTimeFormatted())).addLore("&bHiScore: &2%s".formatted(activeGame.getHiScore()))
+        return (new ItemBuilder(getPlayerSkullItem(activeGame.getPlayer()))).addLore("&bTotal playtime: &2%s".formatted(activeGame.getTotalPlusCurrentPlayTimeFormatted()))
+                                                                            .addLore("&bCurrent playtime: &2%s".formatted(activeGame.getCurrentPlayTimeFormatted()))
+                                                                            .addLore("&bHiScore: &2%s".formatted(activeGame.getHiScore()))
                                                                             .addLore("&bCurrent score: &2%s".formatted(activeGame.getScore()))
                                                                             .addLore("&bAmount of games played: &2%s".formatted(activeGame.getAttempts()))
-                                                                            .addLore(
-                                                                                    "&bAverage Score: &2%s".formatted(Math.round(activeGame.getAverageScore())))
-                                                                            .addItemFlags(ItemFlag.HIDE_ATTRIBUTES).create();
+                                                                            .addLore("&bAverage Score: &2%s".formatted(Math.round(activeGame.getAverageScore())))
+                                                                            .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
+                                                                            .create();
     }
 }
