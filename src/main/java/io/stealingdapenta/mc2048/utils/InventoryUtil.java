@@ -237,7 +237,9 @@ public class InventoryUtil {
 
         activeGame.decrementUndoLastMoveCounter();
         activeGame.addToScore(-activeGame.getScoreGainedAfterLastMove());
-        setItemInSlot(activeGame.getGameWindow(), SLOT_UNDO, createUsedUndoButton());
+        if (activeGame.hasNoUndoLastMoveLeft()) {
+            setItemInSlot(activeGame.getGameWindow(), SLOT_UNDO, createUsedUndoButton());
+        }
         return true;
     }
 
