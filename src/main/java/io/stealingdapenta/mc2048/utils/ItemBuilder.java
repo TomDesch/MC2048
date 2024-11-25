@@ -2,7 +2,6 @@ package io.stealingdapenta.mc2048.utils;
 
 import io.stealingdapenta.mc2048.config.ConfigKey;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import net.kyori.adventure.text.Component;
@@ -61,10 +60,9 @@ public class ItemBuilder {
         return itemStack;
     }
 
-    public ItemBuilder addLore(Object... lore) {
+    public ItemBuilder addLore(Object lore) {
         setItemMeta();
-        Arrays.stream(lore).map(this::convertToString)  // Convert each input to String
-              .forEach(loreList::add);     // Add to lore list
+        loreList.add(convertToString(lore));   // Add to lore list
         itemMeta.setLore(loreList);
         return this;
     }

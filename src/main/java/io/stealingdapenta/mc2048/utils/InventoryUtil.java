@@ -3,6 +3,7 @@ package io.stealingdapenta.mc2048.utils;
 import static io.stealingdapenta.mc2048.MC2048.logger;
 import static io.stealingdapenta.mc2048.config.ConfigKey.DOWN_BUTTON_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.LEFT_BUTTON_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_LORE;
 import static io.stealingdapenta.mc2048.config.ConfigKey.NUMBER_OF_UNDO;
 import static io.stealingdapenta.mc2048.config.ConfigKey.RIGHT_BUTTON_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_NAME;
@@ -99,7 +100,7 @@ public class InventoryUtil {
     }
 
     private ItemStack createButton(ConfigKey buttonName) {
-        return new ItemBuilder(Material.LIGHTNING_ROD).setDisplayName(buttonName.getFormattedValue()).addLore("&aClick to move everything!")
+        return new ItemBuilder(Material.LIGHTNING_ROD).setDisplayName(buttonName.getFormattedValue()).addLore(MOVE_BUTTON_LORE)
                                                       .addItemFlags(ItemFlag.HIDE_ATTRIBUTES).create();
     }
 
