@@ -1,10 +1,12 @@
 package io.stealingdapenta.mc2048.utils;
 
+import io.stealingdapenta.mc2048.config.ConfigKey;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -29,16 +31,32 @@ public class ItemBuilder {
         this(new ItemStack(material, 1));
     }
 
+    public ItemBuilder setDisplayName(ConfigKey name) {
+        return setDisplayName(name.getFormattedValue());
+    }
+
+    public ItemBuilder setDisplayName(Component name) {
+        return setDisplayName(LegacyComponentSerializer.legacySection().serialize(name));
+    }
+
     public ItemBuilder setDisplayName(String name) {
         setItemMeta();
-        itemMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', name));
+        itemMeta.setDisplayName(name);
+        return this;
+    }
+
+    public ItemBuilder addLore(ConfigKey... lore) {
+        setItemMeta();
+        List<ConfigKey> temp = Arrays.asList(lore);
+        temp.forEach(this::addLore);
+        itemMeta.setLore(loreList);
         return this;
     }
 
     public ItemBuilder addLore(String... lore) {
         setItemMeta();
         List<String> temp = Arrays.asList(lore);
-        temp.forEach(this::addColorCodedLore);
+        temp.forEach(this::addLore);
         itemMeta.setLore(loreList);
         return this;
     }
@@ -59,7 +77,15 @@ public class ItemBuilder {
         return itemStack;
     }
 
-    private void addColorCodedLore(String s) {
-        loreList.add(ChatColor.translateAlternateColorCodes('&', s));
+    private void addLore(ConfigKey configKey) {
+        addLore(configKey.getFormattedValue());
+    }
+
+    private void addLore(Component component) {
+        loreList.add(LegacyComponentSerializer.legacySection().serialize(component));
+    }
+
+    private void addLore(String s) {
+        loreList.add(s);
     }
 }

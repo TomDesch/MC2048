@@ -21,10 +21,57 @@
         <executions>
           <execution>
             <configuration>
+              <artifactSet>
+                <excludes>
+                  <exclude>org.jetbrains:annotations</exclude>
+                </excludes>
+              </artifactSet>
+              <createDependencyReducedPom>true</createDependencyReducedPom>
+              <filters>
+                <filter>
+                  <artifact>*:*</artifact>
+                  <excludes>
+                    <exclude>META-INF/*.SF</exclude>
+                    <exclude>META-INF/*.DSA</exclude>
+                    <exclude>META-INF/*.RSA</exclude>
+                    <exclude>META-INF/MANIFEST.MF</exclude>
+                    <exclude>META-INF/maven/**</exclude>
+                    <exclude>META-INF/versions/**</exclude>
+                    <exclude>module-info.class</exclude>
+                  </excludes>
+                </filter>
+                <filter>
+                  <artifact>org.jetbrains:annotations</artifact>
+                  <excludes>
+                    <exclude>org/intellij/lang/annotations/**</exclude>
+                  </excludes>
+                </filter>
+              </filters>
+              <minimizeJar>true</minimizeJar>
               <relocations>
                 <relocation>
                   <pattern>net.kyori</pattern>
-                  <shadedPattern>io.stealingdapenta.shaded.net.kyori</shadedPattern>
+                  <shadedPattern>io.mc2048.shaded.net.kyori</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>org.joml</pattern>
+                  <shadedPattern>io.mc2048.shaded.org.joml</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>org.yaml.snakeyaml</pattern>
+                  <shadedPattern>io.mc2048.shaded.org.yaml.snakeyaml</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>net.md_5.bungee</pattern>
+                  <shadedPattern>io.mc2048.shaded.net.md_5.bungee</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>org.jetbrains.annotations</pattern>
+                  <shadedPattern>io.mc2048.shaded.org.jetbrains.annotations</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>org.intellij.lang.annotations</pattern>
+                  <shadedPattern>io.mc2048.shaded.org.intellij.lang.annotations</shadedPattern>
                 </relocation>
               </relocations>
             </configuration>
@@ -34,47 +81,46 @@
             <phase>package</phase>
           </execution>
         </executions>
-        <groupId>org.apache.maven.plugins</groupId>
         <version>3.4.0</version>
       </plugin>
     </plugins>
   </build>
 
-
   <dependencies>
     <dependency>
-      <artifactId>spigot-api</artifactId>
       <groupId>org.spigotmc</groupId>
+      <artifactId>spigot-api</artifactId>
       <version>1.20.2-R0.1-SNAPSHOT</version>
+      <exclusions>
+        <exclusion>
+          <artifactId>*</artifactId>
+          <groupId>*</groupId>
+        </exclusion>
+      </exclusions>
+      <scope>provided</scope>
     </dependency>
     <dependency>
-      <artifactId>adventure-api</artifactId>
       <groupId>net.kyori</groupId>
-      <version>4.14.0</version>
+      <artifactId>adventure-platform-bukkit</artifactId>
+      <version>4.3.4</version>
     </dependency>
     <dependency>
+      <groupId>net.kyori</groupId>
       <artifactId>adventure-text-minimessage</artifactId>
-      <groupId>net.kyori</groupId>
       <version>4.17.0</version>
     </dependency>
     <dependency>
-      <artifactId>adventure-platform-bukkit</artifactId>
       <groupId>net.kyori</groupId>
-      <version>4.3.4</version>
-    </dependency>
-
-    <!--    test-->
-    <dependency>
-      <artifactId>junit-jupiter-engine</artifactId>
-      <groupId>org.junit.jupiter</groupId>
-      <scope>test</scope>
-      <version>5.9.1</version>
-    </dependency>
-    <dependency>
-      <artifactId>mockito-core</artifactId>
-      <groupId>org.mockito</groupId>
-      <scope>test</scope>
-      <version>5.14.2</version>
+      <artifactId>adventure-api</artifactId>
+      <version>4.17.0</version>
     </dependency>
   </dependencies>
+
+  <repositories>
+    <repository>
+      <id>spigot-repo</id>
+      <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+    </repository>
+  </repositories>
+
 </project>

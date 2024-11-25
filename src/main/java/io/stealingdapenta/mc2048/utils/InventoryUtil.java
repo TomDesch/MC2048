@@ -1,7 +1,16 @@
 package io.stealingdapenta.mc2048.utils;
 
 import static io.stealingdapenta.mc2048.MC2048.logger;
+import static io.stealingdapenta.mc2048.config.ConfigKey.DOWN_BUTTON_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.LEFT_BUTTON_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.RIGHT_BUTTON_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_UNUSED_LORE;
+import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_UNUSED_USES;
+import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_USED_USES;
+import static io.stealingdapenta.mc2048.config.ConfigKey.UP_BUTTON_NAME;
 
+import io.stealingdapenta.mc2048.config.ConfigKey;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -80,26 +89,27 @@ public class InventoryUtil {
     }
 
     private void setButtonsAndStats(ActiveGame activeGame) {
-        setItemInSlot(activeGame.getGameWindow(), SLOT_UP, createButton("&2&l            UP"));
-        setItemInSlot(activeGame.getGameWindow(), SLOT_LEFT, createButton("&2&l          LEFT"));
-        setItemInSlot(activeGame.getGameWindow(), SLOT_RIGHT, createButton("&2&l          RIGHT"));
-        setItemInSlot(activeGame.getGameWindow(), SLOT_DOWN, createButton("&2&l          DOWN"));
+        setItemInSlot(activeGame.getGameWindow(), SLOT_UP, createButton(UP_BUTTON_NAME));
+        setItemInSlot(activeGame.getGameWindow(), SLOT_LEFT, createButton(LEFT_BUTTON_NAME));
+        setItemInSlot(activeGame.getGameWindow(), SLOT_RIGHT, createButton(RIGHT_BUTTON_NAME));
+        setItemInSlot(activeGame.getGameWindow(), SLOT_DOWN, createButton(DOWN_BUTTON_NAME));
         setItemInSlot(activeGame.getGameWindow(), SLOT_UNDO, createUnusedUndoButton());
         updateStatisticItem(activeGame);
     }
 
-    private ItemStack createButton(String buttonName) {
-        return new ItemBuilder(Material.LIGHTNING_ROD).setDisplayName(buttonName).addLore("&aClick to move everything!").addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
-                                                      .create();
+    private ItemStack createButton(ConfigKey buttonName) {
+        return new ItemBuilder(Material.LIGHTNING_ROD).setDisplayName(buttonName.getFormattedValue()).addLore("&aClick to move everything!")
+                                                      .addItemFlags(ItemFlag.HIDE_ATTRIBUTES).create();
     }
 
     private ItemStack createUnusedUndoButton() {
-        return new ItemBuilder(Material.AXOLOTL_BUCKET).setDisplayName("&2&l         UNDO").addLore("&aClick to undo the last move!")
-                                                       .addLore("&bUses left: &2 1").addItemFlags(ItemFlag.HIDE_ATTRIBUTES).create();
+        return new ItemBuilder(Material.AXOLOTL_BUCKET).setDisplayName(UNDO_BUTTON_NAME).addLore(UNDO_BUTTON_UNUSED_LORE)
+                                                       .addLore(UNDO_BUTTON_UNUSED_USES + ConfigKey.NUMBER_OF_UNDO.getStringValue())
+                                                       .addItemFlags(ItemFlag.HIDE_ATTRIBUTES).create();
     }
 
     private ItemStack createUsedUndoButton() {
-        return new ItemBuilder(Material.BUCKET).setDisplayName("&2&l         UNDO").addLore("&aClick to undo the last move!").addLore("&bUses left: &2 0")
+        return new ItemBuilder(Material.BUCKET).setDisplayName(UNDO_BUTTON_NAME).addLore(UNDO_BUTTON_UNUSED_LORE).addLore(UNDO_BUTTON_USED_USES)
                                                .addItemFlags(ItemFlag.HIDE_ATTRIBUTES).create();
     }
 
