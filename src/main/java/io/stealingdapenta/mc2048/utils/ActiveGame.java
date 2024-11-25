@@ -109,6 +109,10 @@ public class ActiveGame {
         return undoLastMoveCounter <= 0;
     }
 
+    public int getUndoLastMoveCounter() {
+        return undoLastMoveCounter;
+    }
+
     public ItemStack[][] getLastPosition() {
         return lastPosition;
     }

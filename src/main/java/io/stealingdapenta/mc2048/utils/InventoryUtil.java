@@ -7,7 +7,6 @@ import static io.stealingdapenta.mc2048.config.ConfigKey.NUMBER_OF_UNDO;
 import static io.stealingdapenta.mc2048.config.ConfigKey.RIGHT_BUTTON_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_UNUSED_LORE;
-import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_UNUSED_USES;
 import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_USED_USES;
 import static io.stealingdapenta.mc2048.config.ConfigKey.UP_BUTTON_NAME;
 
@@ -17,6 +16,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 import java.util.stream.IntStream;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -94,7 +94,7 @@ public class InventoryUtil {
         setItemInSlot(activeGame.getGameWindow(), SLOT_LEFT, createButton(LEFT_BUTTON_NAME));
         setItemInSlot(activeGame.getGameWindow(), SLOT_RIGHT, createButton(RIGHT_BUTTON_NAME));
         setItemInSlot(activeGame.getGameWindow(), SLOT_DOWN, createButton(DOWN_BUTTON_NAME));
-        setItemInSlot(activeGame.getGameWindow(), SLOT_UNDO, createUnusedUndoButton());
+        setItemInSlot(activeGame.getGameWindow(), SLOT_UNDO, createUndoButton(NUMBER_OF_UNDO.getIntValue()));
         updateStatisticItem(activeGame);
     }
 
@@ -103,10 +103,9 @@ public class InventoryUtil {
                                                       .addItemFlags(ItemFlag.HIDE_ATTRIBUTES).create();
     }
 
-    private ItemStack createUnusedUndoButton() {
-        return new ItemBuilder(Material.AXOLOTL_BUCKET).setDisplayName(UNDO_BUTTON_NAME).addLore(UNDO_BUTTON_UNUSED_LORE).addLore(
-                                                               ConfigKey.UNDO_BUTTON_UNUSED_USES.getFormattedValue().append(ConfigKey.NUMBER_OF_UNDO.getFormattedValue()))
-                                                       .addLore(UNDO_BUTTON_UNUSED_USES + NUMBER_OF_UNDO.getStringValue())
+    private ItemStack createUndoButton(int numberOfUndoLeft) {
+        return new ItemBuilder(Material.AXOLOTL_BUCKET).setDisplayName(UNDO_BUTTON_NAME).addLore(UNDO_BUTTON_UNUSED_LORE)
+                                                       .addLore(ConfigKey.UNDO_BUTTON_UNUSED_USES.getFormattedValue().append(Component.text(numberOfUndoLeft)))
                                                        .addItemFlags(ItemFlag.HIDE_ATTRIBUTES).create();
     }
 
@@ -239,9 +238,9 @@ public class InventoryUtil {
 
         activeGame.decrementUndoLastMoveCounter();
         activeGame.addToScore(-activeGame.getScoreGainedAfterLastMove());
-        if (activeGame.hasNoUndoLastMoveLeft()) {
-            setItemInSlot(activeGame.getGameWindow(), SLOT_UNDO, createUsedUndoButton());
-        }
+        setItemInSlot(activeGame.getGameWindow(), SLOT_UNDO,
+                      activeGame.hasNoUndoLastMoveLeft() ? createUsedUndoButton() : createUndoButton(activeGame.getUndoLastMoveCounter()));
+
         return true;
     }
 
