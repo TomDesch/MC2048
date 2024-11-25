@@ -457,7 +457,7 @@ public class InventoryUtil {
     private ItemStack getPlayerStatsHead(ActiveGame activeGame) {
         return (new ItemBuilder(getPlayerSkullItem(activeGame.getPlayer()))).addLore(TOTAL_PLAYTIME.getFormattedValue(activeGame.getTotalPlusCurrentPlayTimeFormatted()))
                                                                             .addLore(CURRENT_PLAYTIME.getFormattedValue(activeGame.getCurrentPlayTimeFormatted()))
-                                                                            .addLore(HIGH_SCORE.getFormattedValue(String.valueOf(activeGame.getHiScore())))
+                                                                            .addLore(HIGH_SCORE.getFormattedValue(String.valueOf(activeGame.getHighScore())))
                                                                             .addLore(CURRENT_SCORE.getFormattedValue(String.valueOf(activeGame.getScore())))
                                                                             .addLore(GAMES_PLAYED.getFormattedValue(String.valueOf(activeGame.getAttempts())))
                                                                             .addLore(AVERAGE_SCORE.getFormattedValue(String.valueOf(Math.round(activeGame.getAverageScore()))))

@@ -27,10 +27,12 @@ public class ConfigurationFileManager {
 
         // set default configurations
         for (ConfigKey defaultConfig : ConfigKey.values()) {
-            configuration.addDefault(defaultConfig.name().toLowerCase(), defaultConfig.getDefaultValue());
+            configuration.addDefault(defaultConfig.name()
+                                                  .toLowerCase(), defaultConfig.getDefaultValue());
         }
 
-        configuration.options().copyDefaults(true);
+        configuration.options()
+                     .copyDefaults(true);
         plugin.saveConfig();
     }
 

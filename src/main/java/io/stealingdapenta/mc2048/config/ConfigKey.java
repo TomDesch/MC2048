@@ -22,8 +22,7 @@ public enum ConfigKey {
     INVALID_MOVE("<red>Sorry! <bold>That's not a valid move</bold>.</red>"),
     UNDID_LAST_MOVE("<green>Successfully undid the <bold>last move</bold>!</green>"),
     GAME_OVER("<dark_red><bold>Game over!</bold></dark_red>"),
-    ATTEMPT_PROTECTION(
-            "<gray>The game wasn't saved because you didn't do anything. Your <bold>average score</bold> and <italic>attempts</italic> were protected.</gray>"),
+    ATTEMPT_PROTECTION("<gray>The game wasn't saved because you didn't do anything. Your <bold>average score</bold> and <italic>attempts</italic> were protected.</gray>"),
     NUMBER_OF_UNDO("1"),
     MATERIAL_TWO("RAW_COPPER"),
     MATERIAL_FOUR("COPPER_INGOT"),
@@ -76,11 +75,14 @@ public enum ConfigKey {
     }
 
     public String getStringValue() {
-        return MC2048.getInstance().getConfig().getString(name().toLowerCase());
+        return MC2048.getInstance()
+                     .getConfig()
+                     .getString(name().toLowerCase());
     }
 
     public Component getFormattedValue() {
-        return MiniMessage.miniMessage().deserialize(getStringValue());
+        return MiniMessage.miniMessage()
+                          .deserialize(getStringValue());
     }
 
 
@@ -101,7 +103,8 @@ public enum ConfigKey {
 
     private int getIntValue(String key) {
         JavaPlugin plugin = MC2048.getInstance();
-        String valueAsString = plugin.getConfig().getString(key);
+        String valueAsString = plugin.getConfig()
+                                     .getString(key);
         int result;
         if (Objects.isNull(valueAsString)) {
             valueAsString = "0";

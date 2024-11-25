@@ -24,7 +24,8 @@ public class ReloadConfigCommand implements CommandExecutor {
             return true;
         }
 
-        ConfigurationFileManager.getInstance().reloadConfig();
+        ConfigurationFileManager.getInstance()
+                                .reloadConfig();
         messageSender.sendMessage(sender, RELOADED);
         return true;
     }

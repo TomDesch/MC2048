@@ -41,12 +41,17 @@ public class MC2048 extends JavaPlugin {
         instance = this;
         logger = getLogger();
 
-        ConfigurationFileManager.getInstance().loadConfig();
+        ConfigurationFileManager.getInstance()
+                                .loadConfig();
 
-        Objects.requireNonNull(getCommand(Command._2048.getCommandName())).setExecutor(gameCommand);
-        Objects.requireNonNull(getCommand(Command.TOP_2048.getCommandName())).setExecutor(highScoreCommand);
-        Objects.requireNonNull(getCommand(RELOAD.getCommandName())).setExecutor(reloadConfigCommand);
-        Bukkit.getPluginManager().registerEvents(gameControlsListener, getInstance());
+        Objects.requireNonNull(getCommand(Command._2048.getCommandName()))
+               .setExecutor(gameCommand);
+        Objects.requireNonNull(getCommand(Command.TOP_2048.getCommandName()))
+               .setExecutor(highScoreCommand);
+        Objects.requireNonNull(getCommand(RELOAD.getCommandName()))
+               .setExecutor(reloadConfigCommand);
+        Bukkit.getPluginManager()
+              .registerEvents(gameControlsListener, getInstance());
 
         logger.info(ChatColor.GOLD + PLUGIN_ENABLED);
     }

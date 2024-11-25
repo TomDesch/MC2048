@@ -58,11 +58,14 @@ public enum NumberRepresentation {
     }
 
     public static int getScoreFromItem(ItemStack itemStack) {
-        return Arrays.stream(NumberRepresentation.values()).filter(representation -> representation.getRepresentation() == itemStack.getType()).findFirst()
-                     .map(NumberRepresentation::getScore).orElseGet(() -> {
-                    logger.severe(ERROR_REPRESENTATION.formatted(itemStack.getType()));
-                    return 0;
-                });
+        return Arrays.stream(NumberRepresentation.values())
+                     .filter(representation -> representation.getRepresentation() == itemStack.getType())
+                     .findFirst()
+                     .map(NumberRepresentation::getScore)
+                     .orElseGet(() -> {
+                         logger.severe(ERROR_REPRESENTATION.formatted(itemStack.getType()));
+                         return 0;
+                     });
     }
 
     public static NumberRepresentation getNextRepresentation(int currentRepresentation) {

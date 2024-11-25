@@ -14,7 +14,7 @@ public class ActiveGame {
     private Inventory gameWindow;
     private final long gameOpenTime;
     private int score;
-    private final int hiScore;
+    private final int highScore;
     private final int attempts;
     private final long totalPlayTime;
     private final double averageScore;
@@ -30,7 +30,7 @@ public class ActiveGame {
         this.gameOpenTime = System.currentTimeMillis();
 
         FileManager fileManager = FileManager.getInstance();
-        this.hiScore = fileManager.getIntByKey(player, PlayerConfigField.HIGH_SCORE.getKey());
+        this.highScore = fileManager.getIntByKey(player, PlayerConfigField.HIGH_SCORE.getKey());
         this.attempts = fileManager.getIntByKey(player, PlayerConfigField.ATTEMPTS.getKey());
         this.totalPlayTime = fileManager.getLongByKey(player, PlayerConfigField.TOTAL_PLAYTIME.getKey());
         this.averageScore = fileManager.getDoubleByKey(player, PlayerConfigField.AVERAGE_SCORE.getKey());
@@ -86,8 +86,8 @@ public class ActiveGame {
         return makeSecondsATimestamp(getMillisecondsSinceStart() + getTotalPlayTime());
     }
 
-    public int getHiScore() {
-        return hiScore;
+    public int getHighScore() {
+        return highScore;
     }
 
     public int getAttempts() {

@@ -35,7 +35,8 @@ public class ItemBuilder {
     }
 
     public ItemBuilder setDisplayName(Component name) {
-        return setDisplayName(LegacyComponentSerializer.legacySection().serialize(name));
+        return setDisplayName(LegacyComponentSerializer.legacySection()
+                                                       .serialize(name));
     }
 
     public ItemBuilder setDisplayName(String name) {
@@ -69,8 +70,10 @@ public class ItemBuilder {
 
     private String convertToString(Object obj) {
         return switch (obj) {
-            case ConfigKey configKey -> LegacyComponentSerializer.legacySection().serialize(configKey.getFormattedValue());
-            case Component component -> LegacyComponentSerializer.legacySection().serialize(component);
+            case ConfigKey configKey -> LegacyComponentSerializer.legacySection()
+                                                                 .serialize(configKey.getFormattedValue());
+            case Component component -> LegacyComponentSerializer.legacySection()
+                                                                 .serialize(component);
             case String str -> str;
             default -> throw new IllegalArgumentException("Unsupported lore type: " + obj.getClass());
         };

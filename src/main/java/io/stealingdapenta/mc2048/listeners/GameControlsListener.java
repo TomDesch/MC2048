@@ -24,8 +24,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 public class GameControlsListener implements Listener {
 
     private static final String GAME_OVER_SUB = "Score: %s | Playtime: %s";
-    private static final Map<String, Direction> DIRECTION_MAP = Map.of("UP", Direction.UP, "LEFT", Direction.LEFT, "RIGHT", Direction.RIGHT, "DOWN",
-                                                                       Direction.DOWN, "UNDO", Direction.UNDO);
+    private static final Map<String, Direction> DIRECTION_MAP = Map.of("UP", Direction.UP, "LEFT", Direction.LEFT, "RIGHT", Direction.RIGHT, "DOWN", Direction.DOWN, "UNDO", Direction.UNDO);
     private final InventoryUtil inventoryUtil;
     private final GameManager gameManager;
     private final MessageSender messageSender = MessageSender.getInstance();
@@ -61,7 +60,11 @@ public class GameControlsListener implements Listener {
 
         String displayName = itemMeta.getDisplayName();
 
-        Direction direction = DIRECTION_MAP.entrySet().stream().filter(entry -> displayName.contains(entry.getKey())).map(Map.Entry::getValue).findFirst()
+        Direction direction = DIRECTION_MAP.entrySet()
+                                           .stream()
+                                           .filter(entry -> displayName.contains(entry.getKey()))
+                                           .map(Map.Entry::getValue)
+                                           .findFirst()
                                            .orElse(null);
 
         if (Objects.isNull(direction)) {
@@ -84,7 +87,9 @@ public class GameControlsListener implements Listener {
 
         if (inventoryUtil.noValidMovesLeft(activeGame.getGameWindow()) && activeGame.hasNoUndoLastMoveLeft()) {
             gameManager.deactivateGameFor(player);
-            activeGame.getPlayer().getOpenInventory().close();
+            activeGame.getPlayer()
+                      .getOpenInventory()
+                      .close();
             doGameOver(activeGame);
         }
     }

@@ -30,7 +30,8 @@ public class GameManager {
     }
 
     public void activateGame(ActiveGame activeGame) {
-        activeGames.put(activeGame.getPlayer().getUniqueId(), activeGame);
+        activeGames.put(activeGame.getPlayer()
+                                  .getUniqueId(), activeGame);
     }
 
     public void deactivateGameFor(Player player) {
@@ -40,7 +41,8 @@ public class GameManager {
             return;
         }
         saveActiveGame(activeGame);
-        activeGame.getRelatedTask().cancel();
+        activeGame.getRelatedTask()
+                  .cancel();
 
         activeGames.remove(player.getUniqueId());
     }
@@ -50,7 +52,7 @@ public class GameManager {
             messageSender.sendMessage(activeGame.getPlayer(), ATTEMPT_PROTECTION);
             return;
         }
-        if (activeGame.getScore() >= activeGame.getHiScore()) {
+        if (activeGame.getScore() >= activeGame.getHighScore()) {
             fileManager.setValueByKey(activeGame.getPlayer(), HIGH_SCORE.getKey(), activeGame.getScore());
             // todo new high score fireworks?
         }

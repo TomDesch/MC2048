@@ -7,7 +7,6 @@ public enum Command {
     _2048("2048"),
     RELOAD("reload");
 
-
     private final String commandName;
 
     Command(String commandName) {

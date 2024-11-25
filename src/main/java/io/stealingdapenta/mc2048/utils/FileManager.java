@@ -66,7 +66,8 @@ public class FileManager {
     }
 
     private String getFileName(Player player) {
-        return getFileName(player.getUniqueId().toString());
+        return getFileName(player.getUniqueId()
+                                 .toString());
     }
 
     private String getFileName(String uuid) {
@@ -115,7 +116,8 @@ public class FileManager {
     }
 
     public File getUserFiles() {
-        File userFiles = new File(MC2048.getInstance().getDataFolder() + File.separator + MC2048_STRING);
+        File userFiles = new File(MC2048.getInstance()
+                                        .getDataFolder() + File.separator + MC2048_STRING);
         userFiles.mkdirs();
         return userFiles;
     }
@@ -126,7 +128,8 @@ public class FileManager {
             createFile(player);
         }
         try {
-            YamlConfiguration.loadConfiguration(file).save(file);
+            YamlConfiguration.loadConfiguration(file)
+                             .save(file);
         } catch (IOException e) {
             logger.warning(EXCEPTION);
             logger.warning(e.getMessage());
