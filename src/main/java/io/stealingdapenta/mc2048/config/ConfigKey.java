@@ -56,7 +56,6 @@ public enum ConfigKey {
 
     private final String defaultValue;
 
-
     ConfigKey(String defaultValue) {
         this.defaultValue = defaultValue;
     }
@@ -64,7 +63,6 @@ public enum ConfigKey {
     public String getDefaultValue() {
         return defaultValue;
     }
-
 
     public Material getMaterialValue() {
         return Material.valueOf(getStringValue());

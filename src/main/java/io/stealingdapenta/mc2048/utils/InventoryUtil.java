@@ -174,6 +174,7 @@ public class InventoryUtil {
             return false;
         }
 
+        activeGame.setLastMoveUndo(false);
         copyItemArrayToGameWindow(gameWindow, itemsInGame);
         return true;
     }
@@ -238,7 +239,7 @@ public class InventoryUtil {
     }
 
     private boolean undoLastMove(ItemStack[][] inventoryArray, ActiveGame activeGame) {
-        if (Objects.isNull(activeGame.getLastPosition()) || activeGame.hasNoUndoLastMoveLeft()) {
+        if (Objects.isNull(activeGame.getLastPosition()) || activeGame.hasNoUndoLastMoveLeft() || activeGame.isLastMoveUndo()) {
             return false;
         }
 
@@ -251,7 +252,7 @@ public class InventoryUtil {
         activeGame.decrementUndoLastMoveCounter();
         activeGame.addToScore(-activeGame.getScoreGainedAfterLastMove());
         setItemInSlot(activeGame.getGameWindow(), SLOT_UNDO, activeGame.hasNoUndoLastMoveLeft() ? createUsedUndoButton() : createUndoButton(activeGame.getUndoLastMoveCounter()));
-
+        activeGame.setLastMoveUndo(true);
         return true;
     }
 

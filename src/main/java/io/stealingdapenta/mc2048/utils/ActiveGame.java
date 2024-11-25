@@ -21,6 +21,7 @@ public class ActiveGame {
     private int undoLastMoveCounter;
     private ItemStack[][] lastPosition;
     private int scoreGainedAfterLastMove = 0;
+    private boolean lastMoveUndo = false;
 
     public ActiveGame(Player player, RepeatingUpdateTask relatedTask) {
         this.player = player;
@@ -137,4 +138,11 @@ public class ActiveGame {
         setScoreGainedAfterLastMove(getScoreGainedAfterLastMove() + amount);
     }
 
+    public boolean isLastMoveUndo() {
+        return lastMoveUndo;
+    }
+
+    public void setLastMoveUndo(boolean lastMoveUndo) {
+        this.lastMoveUndo = lastMoveUndo;
+    }
 }
