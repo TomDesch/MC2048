@@ -8,12 +8,6 @@
   <artifactId>MC2048</artifactId>
   <version>1.1.0</version>
 
-  <properties>
-    <maven.compiler.source>17</maven.compiler.source>
-    <maven.compiler.target>17</maven.compiler.target>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>
-
   <build>
     <plugins>
       <plugin>
@@ -81,7 +75,7 @@
             <phase>package</phase>
           </execution>
         </executions>
-        <version>3.4.0</version>
+        <version>3.5.2</version>
       </plugin>
     </plugins>
   </build>
@@ -90,7 +84,7 @@
     <dependency>
       <groupId>org.spigotmc</groupId>
       <artifactId>spigot-api</artifactId>
-      <version>1.20.2-R0.1-SNAPSHOT</version>
+      <version>1.21.1-R0.1-SNAPSHOT</version>
       <exclusions>
         <exclusion>
           <artifactId>*</artifactId>
@@ -115,6 +109,12 @@
       <version>4.17.0</version>
     </dependency>
   </dependencies>
+
+  <properties>
+    <maven.compiler.source>21</maven.compiler.source>
+    <maven.compiler.target>21</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
 
   <repositories>
     <repository>

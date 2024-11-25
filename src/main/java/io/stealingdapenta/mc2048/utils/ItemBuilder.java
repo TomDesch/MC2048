@@ -45,22 +45,6 @@ public class ItemBuilder {
         return this;
     }
 
-    public ItemBuilder addLore(ConfigKey... lore) {
-        setItemMeta();
-        List<ConfigKey> temp = Arrays.asList(lore);
-        temp.forEach(this::addLore);
-        itemMeta.setLore(loreList);
-        return this;
-    }
-
-    public ItemBuilder addLore(String... lore) {
-        setItemMeta();
-        List<String> temp = Arrays.asList(lore);
-        temp.forEach(this::addLore);
-        itemMeta.setLore(loreList);
-        return this;
-    }
-
     private void setItemMeta() {
         itemMeta = (Objects.isNull(itemMeta)) ? itemStack.getItemMeta() : itemMeta;
     }
@@ -77,15 +61,20 @@ public class ItemBuilder {
         return itemStack;
     }
 
-    private void addLore(ConfigKey configKey) {
-        addLore(configKey.getFormattedValue());
+    public ItemBuilder addLore(Object... lore) {
+        setItemMeta();
+        Arrays.stream(lore).map(this::convertToString)  // Convert each input to String
+              .forEach(loreList::add);     // Add to lore list
+        itemMeta.setLore(loreList);
+        return this;
     }
 
-    private void addLore(Component component) {
-        loreList.add(LegacyComponentSerializer.legacySection().serialize(component));
-    }
-
-    private void addLore(String s) {
-        loreList.add(s);
+    private String convertToString(Object obj) {
+        return switch (obj) {
+            case ConfigKey configKey -> LegacyComponentSerializer.legacySection().serialize(configKey.getFormattedValue());
+            case Component component -> LegacyComponentSerializer.legacySection().serialize(component);
+            case String str -> str;
+            default -> throw new IllegalArgumentException("Unsupported lore type: " + obj.getClass());
+        };
     }
 }

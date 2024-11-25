@@ -3,6 +3,7 @@ package io.stealingdapenta.mc2048.utils;
 import static io.stealingdapenta.mc2048.MC2048.logger;
 import static io.stealingdapenta.mc2048.config.ConfigKey.DOWN_BUTTON_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.LEFT_BUTTON_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.NUMBER_OF_UNDO;
 import static io.stealingdapenta.mc2048.config.ConfigKey.RIGHT_BUTTON_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_UNUSED_LORE;
@@ -103,8 +104,9 @@ public class InventoryUtil {
     }
 
     private ItemStack createUnusedUndoButton() {
-        return new ItemBuilder(Material.AXOLOTL_BUCKET).setDisplayName(UNDO_BUTTON_NAME).addLore(UNDO_BUTTON_UNUSED_LORE)
-                                                       .addLore(UNDO_BUTTON_UNUSED_USES + ConfigKey.NUMBER_OF_UNDO.getStringValue())
+        return new ItemBuilder(Material.AXOLOTL_BUCKET).setDisplayName(UNDO_BUTTON_NAME).addLore(UNDO_BUTTON_UNUSED_LORE).addLore(
+                                                               ConfigKey.UNDO_BUTTON_UNUSED_USES.getFormattedValue().append(ConfigKey.NUMBER_OF_UNDO.getFormattedValue()))
+                                                       .addLore(UNDO_BUTTON_UNUSED_USES + NUMBER_OF_UNDO.getStringValue())
                                                        .addItemFlags(ItemFlag.HIDE_ATTRIBUTES).create();
     }
 
