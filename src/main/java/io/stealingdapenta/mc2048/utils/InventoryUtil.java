@@ -6,6 +6,7 @@ import static io.stealingdapenta.mc2048.config.ConfigKey.CURRENT_PLAYTIME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.CURRENT_SCORE;
 import static io.stealingdapenta.mc2048.config.ConfigKey.DOWN_BUTTON_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.GAMES_PLAYED;
+import static io.stealingdapenta.mc2048.config.ConfigKey.GAME_TITLE;
 import static io.stealingdapenta.mc2048.config.ConfigKey.HIGH_SCORE;
 import static io.stealingdapenta.mc2048.config.ConfigKey.LEFT_BUTTON_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_LORE;
@@ -15,6 +16,7 @@ import static io.stealingdapenta.mc2048.config.ConfigKey.RIGHT_BUTTON_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.TOTAL_PLAYTIME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_UNUSED_LORE;
+import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_UNUSED_USES;
 import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_USED_USES;
 import static io.stealingdapenta.mc2048.config.ConfigKey.UP_BUTTON_NAME;
 
@@ -27,7 +29,6 @@ import java.util.stream.IntStream;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -48,7 +49,6 @@ public class InventoryUtil {
     public static final int REQUIRED_SIZE = INVENTORY_ROWS * INVENTORY_COLUMNS;
     private static final int[][] mergeSlots = {{10, 11, 12, 13}, {19, 20, 21, 22}, {28, 29, 30, 31}, {37, 38, 39, 40}};
     private static final String WRONG_SIZE = "Error filling sides of inventory: wrong size!";
-    private static final String GAME_TITLE = "               &4&lMC 2048";
     private static final int SLOT_UP = 16;
     private static final int SLOT_LEFT = 24;
     private static final int SLOT_RIGHT = 26;
@@ -67,7 +67,8 @@ public class InventoryUtil {
     }
 
     private Inventory createChestInventory(Player player) {
-        return Bukkit.createInventory(player, REQUIRED_SIZE, ChatColor.translateAlternateColorCodes('&', GAME_TITLE));
+        return Bukkit.createInventory(player, REQUIRED_SIZE, LegacyComponentSerializer.legacySection()
+                                                                                      .serialize(GAME_TITLE.getFormattedValue()));
     }
 
     private void fillSides(Inventory inventory) {
@@ -118,8 +119,8 @@ public class InventoryUtil {
     private ItemStack createUndoButton(int numberOfUndoLeft) {
         return new ItemBuilder(Material.AXOLOTL_BUCKET).setDisplayName(UNDO_BUTTON_NAME)
                                                        .addLore(UNDO_BUTTON_UNUSED_LORE)
-                                                       .addLore(ConfigKey.UNDO_BUTTON_UNUSED_USES.getFormattedValue()
-                                                                                                 .append(Component.text(numberOfUndoLeft)))
+                                                       .addLore(UNDO_BUTTON_UNUSED_USES.getFormattedValue()
+                                                                                       .append(Component.text(numberOfUndoLeft)))
                                                        .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
                                                        .create();
     }
@@ -138,7 +139,8 @@ public class InventoryUtil {
 
     public boolean isGameWindow(InventoryView inventoryView) {
         return inventoryView.getTitle()
-                            .contains(ChatColor.translateAlternateColorCodes('&', GAME_TITLE.strip()));
+                            .contains(LegacyComponentSerializer.legacySection()
+                                                               .serialize(GAME_TITLE.getFormattedValue()));
     }
 
     private void setLegend(Inventory gameWindow) {

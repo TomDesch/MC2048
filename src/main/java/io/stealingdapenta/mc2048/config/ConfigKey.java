@@ -58,7 +58,8 @@ public enum ConfigKey {
     HIGH_SCORE("<b>HiScore: <green>%s</green></b>"),
     CURRENT_SCORE("<b>Current score: <green>%s</green></b>"),
     GAMES_PLAYED("<b>Amount of games played: <green>%s</green></b>"),
-    AVERAGE_SCORE("<b>Average Score: <green>%s</green></b>");
+    AVERAGE_SCORE("<b>Average Score: <green>%s</green></b>"),
+    GAME_TITLE("              <blue><bold>MC 2048");
 
     private final String defaultValue;
 
