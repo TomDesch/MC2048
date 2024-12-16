@@ -1,23 +1,12 @@
 package io.stealingdapenta.mc2048.config;
 
 import io.stealingdapenta.mc2048.MC2048;
-import java.util.Objects;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class ConfigurationFileManager {
+public enum ConfigurationFileManager {
 
-    private static ConfigurationFileManager instance;
-
-    private ConfigurationFileManager() {
-    }
-
-    public static ConfigurationFileManager getInstance() {
-        if (Objects.isNull(instance)) {
-            instance = new ConfigurationFileManager();
-        }
-        return instance;
-    }
+    CONFIGURATION_FILE_MANAGER;
 
     public void loadConfig() {
         JavaPlugin plugin = MC2048.getInstance();

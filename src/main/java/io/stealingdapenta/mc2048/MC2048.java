@@ -1,12 +1,12 @@
 package io.stealingdapenta.mc2048;
 
 import static io.stealingdapenta.mc2048.commands.Command.RELOAD;
+import static io.stealingdapenta.mc2048.config.ConfigurationFileManager.CONFIGURATION_FILE_MANAGER;
 
 import io.stealingdapenta.mc2048.commands.Command;
 import io.stealingdapenta.mc2048.commands.GameCommand;
 import io.stealingdapenta.mc2048.commands.HighScoreCommand;
 import io.stealingdapenta.mc2048.commands.ReloadConfigCommand;
-import io.stealingdapenta.mc2048.config.ConfigurationFileManager;
 import io.stealingdapenta.mc2048.listeners.GameControlsListener;
 import io.stealingdapenta.mc2048.utils.HighScoreManager;
 import io.stealingdapenta.mc2048.utils.InventoryUtil;
@@ -41,8 +41,7 @@ public class MC2048 extends JavaPlugin {
         instance = this;
         logger = getLogger();
 
-        ConfigurationFileManager.getInstance()
-                                .loadConfig();
+        CONFIGURATION_FILE_MANAGER.loadConfig();
 
         Objects.requireNonNull(getCommand(Command._2048.getCommandName()))
                .setExecutor(gameCommand);

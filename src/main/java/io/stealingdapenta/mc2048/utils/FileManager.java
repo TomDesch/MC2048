@@ -10,21 +10,15 @@ import java.io.PrintWriter;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
-public class FileManager {
+public enum FileManager {
+
+    FILE_MANAGER;
 
     private static final String EXCEPTION = "Error in file manager.";
     private static final String MC2048_STRING = "mc2048";
     private static final String FILE_CREATED = "MC 2048: YML file created for %s.";
     private static final String FILE_NOT_CREATED = "MC 2048: YML file failed to create for %s.";
     private static final String FILE_SHOULD_EXIST_ERROR = "Error fetching player file by UUID that should exist!";
-    private static FileManager fileManager;
-
-    public static FileManager getInstance() {
-        if (fileManager == null) {
-            fileManager = new FileManager();
-        }
-        return fileManager;
-    }
 
     public YamlConfiguration getConfig(Player player) {
         return YamlConfiguration.loadConfiguration(getPlayerFile(player));

@@ -15,18 +15,11 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 
-public class MessageSender {
+public enum MessageSender {
+    MESSAGE_SENDER;
 
     public static final String PLAYER_OR_MESSAGE_IS_NULL = "Error sending message, player or message is null.";
-    private static MessageSender instance = null;
     private BukkitAudiences audiences;
-
-    public static MessageSender getInstance() {
-        if (Objects.isNull(instance)) {
-            instance = new MessageSender();
-        }
-        return instance;
-    }
 
     private BukkitAudiences getAudiences() {
         lazyInitAudiences();

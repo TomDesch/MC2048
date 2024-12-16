@@ -2,11 +2,11 @@ package io.stealingdapenta.mc2048.commands;
 
 import static io.stealingdapenta.mc2048.config.ConfigKey.GOOD_LUCK;
 import static io.stealingdapenta.mc2048.config.ConfigKey.NOT_PLAYER;
+import static io.stealingdapenta.mc2048.utils.MessageSender.MESSAGE_SENDER;
 
 import io.stealingdapenta.mc2048.GameManager;
 import io.stealingdapenta.mc2048.utils.ActiveGame;
 import io.stealingdapenta.mc2048.utils.InventoryUtil;
-import io.stealingdapenta.mc2048.utils.MessageSender;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -18,7 +18,6 @@ public class GameCommand implements CommandExecutor {
 
     private final InventoryUtil inventoryUtil;
     private final GameManager gameManager;
-    private final MessageSender messageSender = MessageSender.getInstance();
 
     public GameCommand(InventoryUtil inventoryUtil, GameManager gameManager) {
         this.inventoryUtil = inventoryUtil;
@@ -28,7 +27,7 @@ public class GameCommand implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (sender instanceof Player player) {
-            messageSender.sendMessage(player, GOOD_LUCK);
+            MESSAGE_SENDER.sendMessage(player, GOOD_LUCK);
 
             ActiveGame activeGame = new ActiveGame(player, gameManager.createTask(player));
             Inventory gameWindow = inventoryUtil.createGameInventory(activeGame);
@@ -42,7 +41,7 @@ public class GameCommand implements CommandExecutor {
             return true;
         }
 
-        messageSender.sendMessage(sender, NOT_PLAYER);
+        MESSAGE_SENDER.sendMessage(sender, NOT_PLAYER);
         return true;
     }
 }

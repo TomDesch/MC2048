@@ -1,6 +1,7 @@
 package io.stealingdapenta.mc2048.utils;
 
 import static io.stealingdapenta.mc2048.MC2048.logger;
+import static io.stealingdapenta.mc2048.utils.FileManager.FILE_MANAGER;
 
 import java.io.File;
 import java.util.AbstractMap;
@@ -20,7 +21,6 @@ import org.bukkit.entity.Player;
 
 public class HighScoreManager {
 
-    private static final FileManager fileManager = FileManager.getInstance();
     private static final String ERROR_FETCHING_FILES = "Something went wrong fetching the player files. Returning empty list.";
     private static final String DOT_YML = ".yml";
 
@@ -33,7 +33,7 @@ public class HighScoreManager {
     }
 
     public Map<String, Integer> getHighScores() {
-        File userFilesFolder = fileManager.getUserFiles();
+        File userFilesFolder = FILE_MANAGER.getUserFiles();
         File[] playerFiles = userFilesFolder.listFiles();
 
         if (Objects.isNull(playerFiles) || playerFiles.length == 0) {
@@ -76,7 +76,7 @@ public class HighScoreManager {
         String uuid = getPlayerUUIDFrom(playerFile);
         String playerName = getPlayerName(uuid);
         if (Objects.nonNull(playerName)) {
-            int hiScore = fileManager.getIntByKey(uuid, PlayerConfigField.HIGH_SCORE.getKey());
+            int hiScore = FILE_MANAGER.getIntByKey(uuid, PlayerConfigField.HIGH_SCORE.getKey());
             return new AbstractMap.SimpleEntry<>(playerName, hiScore);
         }
         return null;

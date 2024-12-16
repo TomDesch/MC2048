@@ -3,12 +3,12 @@ package io.stealingdapenta.mc2048.listeners;
 import static io.stealingdapenta.mc2048.config.ConfigKey.GAME_OVER;
 import static io.stealingdapenta.mc2048.config.ConfigKey.INVALID_MOVE;
 import static io.stealingdapenta.mc2048.config.ConfigKey.UNDID_LAST_MOVE;
+import static io.stealingdapenta.mc2048.utils.MessageSender.MESSAGE_SENDER;
 
 import io.stealingdapenta.mc2048.GameManager;
 import io.stealingdapenta.mc2048.utils.ActiveGame;
 import io.stealingdapenta.mc2048.utils.Direction;
 import io.stealingdapenta.mc2048.utils.InventoryUtil;
-import io.stealingdapenta.mc2048.utils.MessageSender;
 import java.util.Map;
 import java.util.Objects;
 import org.bukkit.entity.Player;
@@ -27,7 +27,6 @@ public class GameControlsListener implements Listener {
     private static final Map<String, Direction> DIRECTION_MAP = Map.of("UP", Direction.UP, "LEFT", Direction.LEFT, "RIGHT", Direction.RIGHT, "DOWN", Direction.DOWN, "UNDO", Direction.UNDO);
     private final InventoryUtil inventoryUtil;
     private final GameManager gameManager;
-    private final MessageSender messageSender = MessageSender.getInstance();
 
     public GameControlsListener(InventoryUtil inventoryUtil, GameManager gameManager) {
         this.inventoryUtil = inventoryUtil;
@@ -79,7 +78,7 @@ public class GameControlsListener implements Listener {
         }
 
         if (Direction.UNDO.equals(direction)) {
-            messageSender.sendMessage(player, UNDID_LAST_MOVE);
+            MESSAGE_SENDER.sendMessage(player, UNDID_LAST_MOVE);
             return;
         }
 
@@ -95,7 +94,7 @@ public class GameControlsListener implements Listener {
     }
 
     private void invalidMoveMessage(Player player) {
-        messageSender.sendMessage(player, INVALID_MOVE);
+        MESSAGE_SENDER.sendMessage(player, INVALID_MOVE);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -117,7 +116,7 @@ public class GameControlsListener implements Listener {
     }
 
     private void doGameOver(ActiveGame activeGame) {
-        messageSender.sendMessage(activeGame.getPlayer(), GAME_OVER);
-        messageSender.sendTitle(activeGame.getPlayer(), GAME_OVER, GAME_OVER_SUB.formatted(activeGame.getScore(), activeGame.getCurrentPlayTimeFormatted()));
+        MESSAGE_SENDER.sendMessage(activeGame.getPlayer(), GAME_OVER);
+        MESSAGE_SENDER.sendTitle(activeGame.getPlayer(), GAME_OVER, GAME_OVER_SUB.formatted(activeGame.getScore(), activeGame.getCurrentPlayTimeFormatted()));
     }
 }
