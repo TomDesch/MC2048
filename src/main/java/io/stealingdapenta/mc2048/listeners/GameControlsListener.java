@@ -1,8 +1,13 @@
 package io.stealingdapenta.mc2048.listeners;
 
+import static io.stealingdapenta.mc2048.config.ConfigKey.DOWN_BUTTON_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.GAME_OVER;
 import static io.stealingdapenta.mc2048.config.ConfigKey.INVALID_MOVE;
+import static io.stealingdapenta.mc2048.config.ConfigKey.LEFT_BUTTON_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.RIGHT_BUTTON_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.UNDID_LAST_MOVE;
+import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.UP_BUTTON_NAME;
 import static io.stealingdapenta.mc2048.utils.MessageSender.MESSAGE_SENDER;
 
 import io.stealingdapenta.mc2048.GameManager;
@@ -11,6 +16,7 @@ import io.stealingdapenta.mc2048.utils.Direction;
 import io.stealingdapenta.mc2048.utils.InventoryUtil;
 import java.util.Map;
 import java.util.Objects;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -24,13 +30,24 @@ import org.bukkit.inventory.meta.ItemMeta;
 public class GameControlsListener implements Listener {
 
     private static final String GAME_OVER_SUB = "Score: %s | Playtime: %s";
-    private static final Map<String, Direction> DIRECTION_MAP = Map.of("UP", Direction.UP, "LEFT", Direction.LEFT, "RIGHT", Direction.RIGHT, "DOWN", Direction.DOWN, "UNDO", Direction.UNDO);
+    private Map<String, Direction> DIRECTION_MAP;
     private final InventoryUtil inventoryUtil;
     private final GameManager gameManager;
 
     public GameControlsListener(InventoryUtil inventoryUtil, GameManager gameManager) {
         this.inventoryUtil = inventoryUtil;
         this.gameManager = gameManager;
+    }
+
+    private void initDirectionMap() {
+        DIRECTION_MAP = Map.of(LegacyComponentSerializer.legacySection()
+                                                        .serialize(UP_BUTTON_NAME.getFormattedValue()), Direction.UP, LegacyComponentSerializer.legacySection()
+                                                                                                                                               .serialize(LEFT_BUTTON_NAME.getFormattedValue()), Direction.LEFT, LegacyComponentSerializer.legacySection()
+                                                                                                                                                                                                                                          .serialize(
+                                                                                                                                                                                                                                                  RIGHT_BUTTON_NAME.getFormattedValue()),
+                               Direction.RIGHT, LegacyComponentSerializer.legacySection()
+                                                                         .serialize(DOWN_BUTTON_NAME.getFormattedValue()), Direction.DOWN, LegacyComponentSerializer.legacySection()
+                                                                                                                                                                    .serialize(UNDO_BUTTON_NAME.getFormattedValue()), Direction.UNDO);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -59,6 +76,7 @@ public class GameControlsListener implements Listener {
 
         String displayName = itemMeta.getDisplayName();
 
+        initDirectionMap();
         Direction direction = DIRECTION_MAP.entrySet()
                                            .stream()
                                            .filter(entry -> displayName.contains(entry.getKey()))
