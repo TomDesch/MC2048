@@ -9,6 +9,14 @@ import static io.stealingdapenta.mc2048.config.ConfigKey.GAMES_PLAYED;
 import static io.stealingdapenta.mc2048.config.ConfigKey.GAME_TITLE;
 import static io.stealingdapenta.mc2048.config.ConfigKey.HIGH_SCORE;
 import static io.stealingdapenta.mc2048.config.ConfigKey.LEFT_BUTTON_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_BUTTON_DOWN;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_BUTTON_LEFT;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_BUTTON_RIGHT;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_BUTTON_UNDO;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_BUTTON_UNDO_USED;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_BUTTON_UP;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_GUI_FILLER;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_GUI_PLAYER;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_LORE;
 import static io.stealingdapenta.mc2048.config.ConfigKey.NUMBER_OF_UNDO;
 import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_STATS_TITLE;
@@ -96,41 +104,41 @@ public class InventoryUtil {
     }
 
     private ItemStack getStainedGlassPaneItem() {
-        return new ItemBuilder(new ItemStack(Material.WHITE_STAINED_GLASS_PANE, 1)).setDisplayName(" ")
-                                                                                   .create();
+        return new ItemBuilder(new ItemStack(MATERIAL_GUI_FILLER.getMaterialValue(), 1)).setDisplayName(" ")
+                                                                                        .create();
     }
 
     private void setButtonsAndStats(ActiveGame activeGame) {
-        setItemInSlot(activeGame.getGameWindow(), SLOT_UP, createButton(UP_BUTTON_NAME));
-        setItemInSlot(activeGame.getGameWindow(), SLOT_LEFT, createButton(LEFT_BUTTON_NAME));
-        setItemInSlot(activeGame.getGameWindow(), SLOT_RIGHT, createButton(RIGHT_BUTTON_NAME));
-        setItemInSlot(activeGame.getGameWindow(), SLOT_DOWN, createButton(DOWN_BUTTON_NAME));
+        setItemInSlot(activeGame.getGameWindow(), SLOT_UP, createButton(UP_BUTTON_NAME, MATERIAL_BUTTON_UP.getMaterialValue()));
+        setItemInSlot(activeGame.getGameWindow(), SLOT_LEFT, createButton(LEFT_BUTTON_NAME, MATERIAL_BUTTON_LEFT.getMaterialValue()));
+        setItemInSlot(activeGame.getGameWindow(), SLOT_RIGHT, createButton(RIGHT_BUTTON_NAME, MATERIAL_BUTTON_RIGHT.getMaterialValue()));
+        setItemInSlot(activeGame.getGameWindow(), SLOT_DOWN, createButton(DOWN_BUTTON_NAME, MATERIAL_BUTTON_DOWN.getMaterialValue()));
         setItemInSlot(activeGame.getGameWindow(), SLOT_UNDO, createUndoButton(NUMBER_OF_UNDO.getIntValue()));
         updateStatisticItem(activeGame);
     }
 
-    private ItemStack createButton(ConfigKey buttonName) {
-        return new ItemBuilder(Material.LIGHTNING_ROD).setDisplayName(buttonName.getFormattedValue())
-                                                      .addLore(MOVE_BUTTON_LORE)
-                                                      .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
-                                                      .create();
+    private ItemStack createButton(ConfigKey buttonName, Material material) {
+        return new ItemBuilder(material).setDisplayName(buttonName.getFormattedValue())
+                                        .addLore(MOVE_BUTTON_LORE)
+                                        .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
+                                        .create();
     }
 
     private ItemStack createUndoButton(int numberOfUndoLeft) {
-        return new ItemBuilder(Material.AXOLOTL_BUCKET).setDisplayName(UNDO_BUTTON_NAME)
-                                                       .addLore(UNDO_BUTTON_UNUSED_LORE)
-                                                       .addLore(UNDO_BUTTON_UNUSED_USES.getFormattedValue()
-                                                                                       .append(Component.text(numberOfUndoLeft)))
-                                                       .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
-                                                       .create();
+        return new ItemBuilder(MATERIAL_BUTTON_UNDO.getMaterialValue()).setDisplayName(UNDO_BUTTON_NAME)
+                                                                       .addLore(UNDO_BUTTON_UNUSED_LORE)
+                                                                       .addLore(UNDO_BUTTON_UNUSED_USES.getFormattedValue()
+                                                                                                       .append(Component.text(numberOfUndoLeft)))
+                                                                       .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
+                                                                       .create();
     }
 
     private ItemStack createUsedUndoButton() {
-        return new ItemBuilder(Material.BUCKET).setDisplayName(UNDO_BUTTON_NAME)
-                                               .addLore(UNDO_BUTTON_UNUSED_LORE)
-                                               .addLore(UNDO_BUTTON_USED_USES)
-                                               .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
-                                               .create();
+        return new ItemBuilder(MATERIAL_BUTTON_UNDO_USED.getMaterialValue()).setDisplayName(UNDO_BUTTON_NAME)
+                                                                            .addLore(UNDO_BUTTON_UNUSED_LORE)
+                                                                            .addLore(UNDO_BUTTON_USED_USES)
+                                                                            .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
+                                                                            .create();
     }
 
     private void setItemInSlot(Inventory inventory, int slot, ItemStack itemStack) {
@@ -441,10 +449,10 @@ public class InventoryUtil {
     }
 
     public ItemStack getPlayerSkullItem(Player player) {
-        ItemStack playerHead = (new ItemBuilder(Material.PLAYER_HEAD)).create();
+        ItemStack playerHead = (new ItemBuilder(MATERIAL_GUI_PLAYER.getMaterialValue())).create();
         SkullMeta skullMeta = (SkullMeta) playerHead.getItemMeta();
         if (Objects.isNull(skullMeta)) {
-            logger.severe(ERROR_SKULL.formatted(player.getName()));
+            logger.warning(ERROR_SKULL.formatted(player.getName()));
             return playerHead;
         }
         skullMeta.setOwningPlayer(player);
