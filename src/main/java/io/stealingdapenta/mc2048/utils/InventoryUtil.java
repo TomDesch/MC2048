@@ -10,13 +10,21 @@ import static io.stealingdapenta.mc2048.config.ConfigKey.GAME_TITLE;
 import static io.stealingdapenta.mc2048.config.ConfigKey.HIGH_SCORE;
 import static io.stealingdapenta.mc2048.config.ConfigKey.LEFT_BUTTON_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_BUTTON_DOWN;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_BUTTON_DOWN_CMD;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_BUTTON_LEFT;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_BUTTON_LEFT_CMD;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_BUTTON_RIGHT;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_BUTTON_RIGHT_CMD;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_BUTTON_UNDO;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_BUTTON_UNDO_CMD;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_BUTTON_UNDO_USED;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_BUTTON_UNDO_USED_CMD;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_BUTTON_UP;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_BUTTON_UP_CMD;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_GUI_FILLER;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_GUI_FILLER_CMD;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_GUI_PLAYER;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_GUI_PLAYER_CMD;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_LORE;
 import static io.stealingdapenta.mc2048.config.ConfigKey.NUMBER_OF_UNDO;
 import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_STATS_TITLE;
@@ -27,6 +35,7 @@ import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_UNUSED_LORE
 import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_UNUSED_USES;
 import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_USED_USES;
 import static io.stealingdapenta.mc2048.config.ConfigKey.UP_BUTTON_NAME;
+import static io.stealingdapenta.mc2048.utils.ItemBuilder.setCustomModelDataTo;
 
 import io.stealingdapenta.mc2048.config.ConfigKey;
 import java.util.Arrays;
@@ -37,7 +46,6 @@ import java.util.stream.IntStream;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
@@ -104,41 +112,41 @@ public class InventoryUtil {
     }
 
     private ItemStack getStainedGlassPaneItem() {
-        return new ItemBuilder(new ItemStack(MATERIAL_GUI_FILLER.getMaterialValue(), 1)).setDisplayName(" ")
-                                                                                        .create();
+        return new ItemBuilder(setCustomModelDataTo(new ItemStack(MATERIAL_GUI_FILLER.getMaterialValue(), 1), MATERIAL_GUI_FILLER_CMD)).setDisplayName(" ")
+                                                                                                                                       .create();
     }
 
     private void setButtonsAndStats(ActiveGame activeGame) {
-        setItemInSlot(activeGame.getGameWindow(), SLOT_UP, createButton(UP_BUTTON_NAME, MATERIAL_BUTTON_UP.getMaterialValue()));
-        setItemInSlot(activeGame.getGameWindow(), SLOT_LEFT, createButton(LEFT_BUTTON_NAME, MATERIAL_BUTTON_LEFT.getMaterialValue()));
-        setItemInSlot(activeGame.getGameWindow(), SLOT_RIGHT, createButton(RIGHT_BUTTON_NAME, MATERIAL_BUTTON_RIGHT.getMaterialValue()));
-        setItemInSlot(activeGame.getGameWindow(), SLOT_DOWN, createButton(DOWN_BUTTON_NAME, MATERIAL_BUTTON_DOWN.getMaterialValue()));
+        setItemInSlot(activeGame.getGameWindow(), SLOT_UP, createButton(UP_BUTTON_NAME, MATERIAL_BUTTON_UP, MATERIAL_BUTTON_UP_CMD));
+        setItemInSlot(activeGame.getGameWindow(), SLOT_LEFT, createButton(LEFT_BUTTON_NAME, MATERIAL_BUTTON_LEFT, MATERIAL_BUTTON_LEFT_CMD));
+        setItemInSlot(activeGame.getGameWindow(), SLOT_RIGHT, createButton(RIGHT_BUTTON_NAME, MATERIAL_BUTTON_RIGHT, MATERIAL_BUTTON_RIGHT_CMD));
+        setItemInSlot(activeGame.getGameWindow(), SLOT_DOWN, createButton(DOWN_BUTTON_NAME, MATERIAL_BUTTON_DOWN, MATERIAL_BUTTON_DOWN_CMD));
         setItemInSlot(activeGame.getGameWindow(), SLOT_UNDO, createUndoButton(NUMBER_OF_UNDO.getIntValue()));
         updateStatisticItem(activeGame);
     }
 
-    private ItemStack createButton(ConfigKey buttonName, Material material) {
-        return new ItemBuilder(material).setDisplayName(buttonName.getFormattedValue())
-                                        .addLore(MOVE_BUTTON_LORE)
-                                        .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
-                                        .create();
+    private ItemStack createButton(ConfigKey buttonName, ConfigKey materialName, ConfigKey customMetaData) {
+        return setCustomModelDataTo(new ItemBuilder(materialName.getMaterialValue()).setDisplayName(buttonName.getFormattedValue())
+                                                                                    .addLore(MOVE_BUTTON_LORE)
+                                                                                    .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
+                                                                                    .create(), customMetaData);
     }
 
     private ItemStack createUndoButton(int numberOfUndoLeft) {
-        return new ItemBuilder(MATERIAL_BUTTON_UNDO.getMaterialValue()).setDisplayName(UNDO_BUTTON_NAME)
-                                                                       .addLore(UNDO_BUTTON_UNUSED_LORE)
-                                                                       .addLore(UNDO_BUTTON_UNUSED_USES.getFormattedValue()
-                                                                                                       .append(Component.text(numberOfUndoLeft)))
-                                                                       .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
-                                                                       .create();
+        return setCustomModelDataTo(new ItemBuilder(MATERIAL_BUTTON_UNDO.getMaterialValue()).setDisplayName(UNDO_BUTTON_NAME)
+                                                                                            .addLore(UNDO_BUTTON_UNUSED_LORE)
+                                                                                            .addLore(UNDO_BUTTON_UNUSED_USES.getFormattedValue()
+                                                                                                                            .append(Component.text(numberOfUndoLeft)))
+                                                                                            .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
+                                                                                            .create(), MATERIAL_BUTTON_UNDO_CMD);
     }
 
     private ItemStack createUsedUndoButton() {
-        return new ItemBuilder(MATERIAL_BUTTON_UNDO_USED.getMaterialValue()).setDisplayName(UNDO_BUTTON_NAME)
-                                                                            .addLore(UNDO_BUTTON_UNUSED_LORE)
-                                                                            .addLore(UNDO_BUTTON_USED_USES)
-                                                                            .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
-                                                                            .create();
+        return setCustomModelDataTo(new ItemBuilder(MATERIAL_BUTTON_UNDO_USED.getMaterialValue()).setDisplayName(UNDO_BUTTON_NAME)
+                                                                                                 .addLore(UNDO_BUTTON_UNUSED_LORE)
+                                                                                                 .addLore(UNDO_BUTTON_USED_USES)
+                                                                                                 .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
+                                                                                                 .create(), MATERIAL_BUTTON_UNDO_USED_CMD);
     }
 
     private void setItemInSlot(Inventory inventory, int slot, ItemStack itemStack) {
@@ -449,7 +457,7 @@ public class InventoryUtil {
     }
 
     public ItemStack getPlayerSkullItem(Player player) {
-        ItemStack playerHead = (new ItemBuilder(MATERIAL_GUI_PLAYER.getMaterialValue())).create();
+        ItemStack playerHead = setCustomModelDataTo((new ItemBuilder(MATERIAL_GUI_PLAYER.getMaterialValue())).create(), MATERIAL_GUI_PLAYER_CMD);
         SkullMeta skullMeta = (SkullMeta) playerHead.getItemMeta();
         if (Objects.isNull(skullMeta)) {
             logger.warning(ERROR_SKULL.formatted(player.getName()));

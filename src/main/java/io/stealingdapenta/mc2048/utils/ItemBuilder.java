@@ -19,6 +19,8 @@ public class ItemBuilder {
     private final ItemStack itemStack;
     private final List<String> loreList;
     private ItemMeta itemMeta;
+    public static final String ERROR_SETTING_CMD = "Error setting custom model data for %s";
+
 
     public ItemBuilder(ItemStack itemStack) {
         this.itemStack = itemStack.clone();
@@ -77,5 +79,20 @@ public class ItemBuilder {
             case String str -> str;
             default -> throw new IllegalArgumentException("Unsupported lore type: " + obj.getClass());
         };
+    }
+
+    public static ItemStack setCustomModelDataTo(ItemStack itemStack, ConfigKey configKey) {
+        return setCustomModelDataTo(itemStack, configKey.getIntValue());
+    }
+
+    public static ItemStack setCustomModelDataTo(ItemStack itemStack, NumberRepresentation numberRepresentation) {
+        return setCustomModelDataTo(itemStack, numberRepresentation.getCustomModelData()
+                                                                   .get());
+    }
+
+    public static ItemStack setCustomModelDataTo(ItemStack itemStack, Integer amount) {
+        Objects.requireNonNull(itemStack.getItemMeta(), ERROR_SETTING_CMD.formatted(itemStack))
+               .setCustomModelData(amount);
+        return itemStack;
     }
 }
