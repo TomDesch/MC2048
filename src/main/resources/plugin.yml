@@ -10,20 +10,13 @@ commands:
     description: Launch a new game.
     usage: /<command>
 
-  top2048:
+  top:
     description: Check out the top 10 best players!
     usage: /<command>
-    aliases:
-      - 2048top
-      - hiscore2048
-      - 2048hiscore
-      - 2048score
-      - score2048
 
   reload:
     description: Reload the configuration file without having to reboot the server.
     usage: /<command>
-    aliases: [ config, load, restart ]
 
 permissions:
   mc2048.reload:

@@ -37,7 +37,11 @@ public class MC2048 extends JavaPlugin {
         // 1. Make the legend displayable so people know the progression
         // 2. pause feature? <- toggleable that "hides" the game screen until toggle back ?
         // Could also pause the game then upon close instead of ending it
-        // 3. ...
+        // 3. PAPI support
+        // 4. A reward system for reaching a certain score
+        // 5. Sounds for successful and unsuccessful moves (customisable sound effects)
+        // 6. Opportunity to COMPLETELY change the high score / top / score lines
+
         instance = this;
         logger = getLogger();
 
@@ -45,7 +49,7 @@ public class MC2048 extends JavaPlugin {
 
         Objects.requireNonNull(getCommand(Command._2048.getCommandName()))
                .setExecutor(gameCommand);
-        Objects.requireNonNull(getCommand(Command.TOP_2048.getCommandName()))
+        Objects.requireNonNull(getCommand(Command.TOP.getCommandName()))
                .setExecutor(highScoreCommand);
         Objects.requireNonNull(getCommand(RELOAD.getCommandName()))
                .setExecutor(reloadConfigCommand);
