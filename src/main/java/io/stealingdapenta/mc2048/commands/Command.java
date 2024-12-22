@@ -4,7 +4,8 @@ public enum Command {
 
     TOP("top"),
     _2048("2048"),
-    RELOAD("reload");
+    RELOAD("reload"),
+    HELP("help");
 
     private final String commandName;
 

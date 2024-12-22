@@ -56,6 +56,7 @@ import org.bukkit.inventory.meta.SkullMeta;
 /**
  * Dear visitor If you've found this class, and you're a programmer yourself, then I challenge you to rewrite the moveItem functions (e.g. moveItemsUp) to be DRY instead of this hot mess. (And make a pull request) I promise the current version works,
  * but man is it ugly. Kind regards.
+ * Edit: rewrite it whole. This is not SRP nor good Java in general.
  */
 public class InventoryUtil {
 
@@ -79,6 +80,12 @@ public class InventoryUtil {
         fillSides(inventory);
         activeGame.setGameWindow(inventory);
         setButtonsAndStats(activeGame);
+        return inventory;
+    }
+
+    public Inventory createHelpInventory(Player player) {
+        Inventory inventory = Bukkit.createInventory(player, REQUIRED_SIZE, LegacyComponentSerializer.legacySection()
+                                                                                                     .serialize(GAME_TITLE.getFormattedValue()));
         return inventory;
     }
 

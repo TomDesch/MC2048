@@ -1,10 +1,12 @@
 package io.stealingdapenta.mc2048;
 
+import static io.stealingdapenta.mc2048.commands.Command.HELP;
 import static io.stealingdapenta.mc2048.commands.Command.RELOAD;
 import static io.stealingdapenta.mc2048.config.ConfigurationFileManager.CONFIGURATION_FILE_MANAGER;
 
 import io.stealingdapenta.mc2048.commands.Command;
 import io.stealingdapenta.mc2048.commands.GameCommand;
+import io.stealingdapenta.mc2048.commands.HelpCommand;
 import io.stealingdapenta.mc2048.commands.HighScoreCommand;
 import io.stealingdapenta.mc2048.commands.ReloadConfigCommand;
 import io.stealingdapenta.mc2048.listeners.GameControlsListener;
@@ -30,6 +32,7 @@ public class MC2048 extends JavaPlugin {
     private final HighScoreManager highScoreManager = new HighScoreManager();
     private final HighScoreCommand highScoreCommand = new HighScoreCommand(highScoreManager);
     private final ReloadConfigCommand reloadConfigCommand = new ReloadConfigCommand();
+    private final HelpCommand helpCommand = new HelpCommand(inventoryUtil);
 
     @Override
     public void onEnable() {
@@ -47,12 +50,17 @@ public class MC2048 extends JavaPlugin {
 
         CONFIGURATION_FILE_MANAGER.loadConfig();
 
+        // Register Commands
         Objects.requireNonNull(getCommand(Command._2048.getCommandName()))
                .setExecutor(gameCommand);
         Objects.requireNonNull(getCommand(Command.TOP.getCommandName()))
                .setExecutor(highScoreCommand);
         Objects.requireNonNull(getCommand(RELOAD.getCommandName()))
                .setExecutor(reloadConfigCommand);
+        Objects.requireNonNull(getCommand(HELP.getCommandName()))
+               .setExecutor(helpCommand);
+
+        // Register Events
         Bukkit.getPluginManager()
               .registerEvents(gameControlsListener, getInstance());
 
