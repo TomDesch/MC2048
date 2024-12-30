@@ -4,11 +4,9 @@ package io.stealingdapenta.mc2048.config;
 import static io.stealingdapenta.mc2048.MC2048.logger;
 
 import io.stealingdapenta.mc2048.MC2048;
-import java.util.Objects;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Material;
-import org.bukkit.plugin.java.JavaPlugin;
 
 public enum ConfigKey {
 
@@ -145,24 +143,13 @@ public enum ConfigKey {
     }
 
     public int getIntValue() {
-        return getIntValue(name().toLowerCase());
-    }
-
-    private int getIntValue(String key) {
-        // todo rewrite this... getConfig has a .getInt function...
-        JavaPlugin plugin = MC2048.getInstance();
-        String valueAsString = plugin.getConfig()
-                                     .getString(key);
-        int result;
-        if (Objects.isNull(valueAsString)) {
-            valueAsString = "0";
-        }
         try {
-            result = Integer.parseInt(valueAsString);
+            return MC2048.getInstance()
+                         .getConfig()
+                         .getInt(name().toLowerCase());
         } catch (NumberFormatException numberFormatException) {
-            logger.warning(PARSING_ERROR.getStringValue() + key);
-            result = 0;
+            logger.warning(PARSING_ERROR.getStringValue() + name().toLowerCase());
+            return 0;
         }
-        return result;
     }
 }
