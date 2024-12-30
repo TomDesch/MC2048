@@ -37,7 +37,7 @@ public class ActiveGame {
         this.undoLastMoveCounter = NUMBER_OF_UNDO.getIntValue();
     }
 
-    private static String makeSecondsATimestamp(long totalMilliSeconds) {
+    public static String makeSecondsATimestamp(long totalMilliSeconds) {
         int totalSeconds = (int) (totalMilliSeconds / 1000);
         int hours = totalSeconds / 3600;
         int remainder = totalSeconds % 3600;

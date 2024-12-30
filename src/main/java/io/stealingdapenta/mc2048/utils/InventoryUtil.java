@@ -7,6 +7,9 @@ import static io.stealingdapenta.mc2048.config.ConfigKey.CURRENT_SCORE;
 import static io.stealingdapenta.mc2048.config.ConfigKey.DOWN_BUTTON_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.GAMES_PLAYED;
 import static io.stealingdapenta.mc2048.config.ConfigKey.GAME_TITLE;
+import static io.stealingdapenta.mc2048.config.ConfigKey.HELP_GUI_INFO_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.HELP_GUI_PLAY_BUTTON_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.HELP_GUI_TITLE;
 import static io.stealingdapenta.mc2048.config.ConfigKey.HIGH_SCORE;
 import static io.stealingdapenta.mc2048.config.ConfigKey.LEFT_BUTTON_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_BUTTON_DOWN;
@@ -25,6 +28,13 @@ import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_GUI_FILLER;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_GUI_FILLER_CMD;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_GUI_PLAYER;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_GUI_PLAYER_CMD;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_HELP_GUI_FILLER;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_HELP_GUI_FILLER_CMD;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_HELP_GUI_HIGH_SCORE;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_HELP_GUI_INFO;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_HELP_GUI_INFO_CMD;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_HELP_GUI_PLAY_BUTTON;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_HELP_GUI_PLAY_BUTTON_CMD;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_LORE;
 import static io.stealingdapenta.mc2048.config.ConfigKey.NUMBER_OF_UNDO;
 import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_STATS_TITLE;
@@ -35,6 +45,8 @@ import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_UNUSED_LORE
 import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_UNUSED_USES;
 import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_USED_USES;
 import static io.stealingdapenta.mc2048.config.ConfigKey.UP_BUTTON_NAME;
+import static io.stealingdapenta.mc2048.utils.ActiveGame.makeSecondsATimestamp;
+import static io.stealingdapenta.mc2048.utils.FileManager.FILE_MANAGER;
 import static io.stealingdapenta.mc2048.utils.ItemBuilder.setCustomModelDataTo;
 
 import io.stealingdapenta.mc2048.config.ConfigKey;
@@ -55,8 +67,7 @@ import org.bukkit.inventory.meta.SkullMeta;
 
 /**
  * Dear visitor If you've found this class, and you're a programmer yourself, then I challenge you to rewrite the moveItem functions (e.g. moveItemsUp) to be DRY instead of this hot mess. (And make a pull request) I promise the current version works,
- * but man is it ugly. Kind regards.
- * Edit: rewrite it whole. This is not SRP nor good Java in general.
+ * but man is it ugly. Kind regards. Edit: rewrite it whole. This is not SRP nor good Java in general.
  */
 public class InventoryUtil {
 
@@ -84,9 +95,44 @@ public class InventoryUtil {
     }
 
     public Inventory createHelpInventory(Player player) {
-        Inventory inventory = Bukkit.createInventory(player, REQUIRED_SIZE, LegacyComponentSerializer.legacySection()
-                                                                                                     .serialize(GAME_TITLE.getFormattedValue()));
-        return inventory;
+        Inventory helpGUI = Bukkit.createInventory(player, REQUIRED_SIZE, LegacyComponentSerializer.legacySection()
+                                                                                                   .serialize(HELP_GUI_TITLE.getFormattedValue()));
+
+        fillWithLegend(helpGUI);
+        // set player stat item
+        helpGUI.setItem(28, getHelpGUIPlayerStatsHead(player));
+        // set high scores list item
+        helpGUI.setItem(34, getHighScoresItem());
+
+        setHelpButtonsAndStats(helpGUI);
+
+        fillEmptySlots(helpGUI);
+
+        return helpGUI;
+    }
+
+
+    private void fillEmptySlots(Inventory inventory) {
+        if (inventory.getSize() != REQUIRED_SIZE) {
+            logger.warning(WRONG_SIZE);
+            return;
+        }
+
+        for (int i = 0; i < REQUIRED_SIZE; i++) {
+            if (Objects.isNull(inventory.getItem(i))) {
+                inventory.setItem(i, getHelpGuiFillerItem());
+            }
+        }
+    }
+
+    private void fillWithLegend(Inventory inventory) {
+        Arrays.stream(NumberRepresentation.values())
+              .forEach(numberRepresentation -> inventory.setItem(numberRepresentation.ordinal(), numberRepresentation.getDisplayableBlock()));
+    }
+
+    private void setHelpButtonsAndStats(Inventory helpGUI) {
+        setItemInSlot(helpGUI, 31, createButton(HELP_GUI_INFO_NAME, MATERIAL_HELP_GUI_INFO, MATERIAL_HELP_GUI_INFO_CMD));
+        setItemInSlot(helpGUI, 49, createButton(HELP_GUI_PLAY_BUTTON_NAME, MATERIAL_HELP_GUI_PLAY_BUTTON, MATERIAL_HELP_GUI_PLAY_BUTTON_CMD));
     }
 
     private Inventory createChestInventory(Player player) {
@@ -102,7 +148,7 @@ public class InventoryUtil {
 
         for (int i = 0; i < REQUIRED_SIZE; i++) {
             if (isInvalidGameSlot(i)) {
-                inventory.setItem(i, getStainedGlassPaneItem());
+                inventory.setItem(i, getGameFillerItem());
             }
         }
     }
@@ -118,9 +164,14 @@ public class InventoryUtil {
         return true;
     }
 
-    private ItemStack getStainedGlassPaneItem() {
+    private ItemStack getGameFillerItem() {
         return new ItemBuilder(setCustomModelDataTo(new ItemStack(MATERIAL_GUI_FILLER.getMaterialValue(), 1), MATERIAL_GUI_FILLER_CMD)).setDisplayName(" ")
                                                                                                                                        .create();
+    }
+
+    private ItemStack getHelpGuiFillerItem() {
+        return new ItemBuilder(setCustomModelDataTo(new ItemStack(MATERIAL_HELP_GUI_FILLER.getMaterialValue(), 1), MATERIAL_HELP_GUI_FILLER_CMD)).setDisplayName(" ")
+                                                                                                                                                 .create();
     }
 
     private void setButtonsAndStats(ActiveGame activeGame) {
@@ -164,19 +215,6 @@ public class InventoryUtil {
         return inventoryView.getTitle()
                             .contains(LegacyComponentSerializer.legacySection()
                                                                .serialize(GAME_TITLE.getFormattedValue()));
-    }
-
-    private void setLegend(Inventory gameWindow) {
-        // todo alter this in a new window.
-        ItemStack currentItem = NumberRepresentation.TWO.getDisplayableBlock();
-
-        for (int row = INVENTORY_ROWS - 2; row < INVENTORY_ROWS; row++) {
-            for (int column = 0; column < INVENTORY_COLUMNS; column++) {
-                int slot = row * 9 + column;
-                gameWindow.setItem(slot, currentItem);
-                currentItem = getNextRepresentation(currentItem);
-            }
-        }
     }
 
     public boolean moveItemsInDirection(ActiveGame activeGame, Direction direction) {
@@ -491,5 +529,20 @@ public class InventoryUtil {
                                                                             .addLore(AVERAGE_SCORE.getFormattedValue(String.valueOf(Math.round(activeGame.getAverageScore()))))
                                                                             .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
                                                                             .create();
+    }
+
+    private ItemStack getHelpGUIPlayerStatsHead(Player player) {
+        return (new ItemBuilder(getPlayerSkullItem(player))).addLore(TOTAL_PLAYTIME.getFormattedValue(makeSecondsATimestamp(FILE_MANAGER.getLongByKey(player, PlayerConfigField.TOTAL_PLAYTIME.getKey()))))
+                                                            .addLore(HIGH_SCORE.getFormattedValue(String.valueOf(FILE_MANAGER.getLongByKey(player, PlayerConfigField.HIGH_SCORE.getKey()))))
+                                                            .addLore(GAMES_PLAYED.getFormattedValue(String.valueOf(FILE_MANAGER.getLongByKey(player, PlayerConfigField.ATTEMPTS.getKey()))))
+                                                            .addLore(AVERAGE_SCORE.getFormattedValue(String.valueOf(Math.round(FILE_MANAGER.getLongByKey(player, PlayerConfigField.AVERAGE_SCORE.getKey())))))
+                                                            .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
+                                                            .create();
+    }
+
+    private ItemStack getHighScoresItem() {
+        return (new ItemBuilder(MATERIAL_HELP_GUI_HIGH_SCORE.getMaterialValue())).addLore("poopoo test")
+                                                                                 .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
+                                                                                 .create();
     }
 }

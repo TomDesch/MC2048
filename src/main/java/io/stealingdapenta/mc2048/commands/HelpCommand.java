@@ -22,10 +22,8 @@ public class HelpCommand implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (sender instanceof Player player) {
-            // todo finish this.
             Inventory gameWindow = inventoryUtil.createHelpInventory(player);
             player.openInventory(gameWindow);
-
             return true;
         }
 
