@@ -1,5 +1,6 @@
 package io.stealingdapenta.mc2048.listeners;
 
+import static io.stealingdapenta.mc2048.MC2048.logger;
 import static io.stealingdapenta.mc2048.config.ConfigKey.DOWN_BUTTON_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.GAME_OVER;
 import static io.stealingdapenta.mc2048.config.ConfigKey.INVALID_MOVE;
@@ -29,7 +30,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 public class GameControlsListener implements Listener {
 
-    private static final String GAME_OVER_SUB = "Score: %s | Playtime: %s";
+    private static final String GAME_OVER_SUB = "Score: %s | Playtime: %s"; // fixme potentially move this to configs
     private Map<String, Direction> DIRECTION_MAP;
     private final InventoryUtil inventoryUtil;
     private final GameManager gameManager;
@@ -58,10 +59,25 @@ public class GameControlsListener implements Listener {
         if (!inventoryUtil.isAnyGameWindow(clickedInventoryView)) {
             return;
         }
-        Player player = (Player) event.getWhoClicked();
 
         // Cancel all default interaction behaviour if it's any game window
         event.setCancelled(true);
+
+        if (inventoryUtil.isGameWindow(clickedInventoryView)) {
+            handleGameWindowActions(event);
+        } else if (inventoryUtil.isHelpWindow(clickedInventoryView)) {
+            handleHelpWindowAction(event);
+        } else {
+            logger.warning("Is an MC2048 window, yet not recognized: %s".formatted(clickedInventoryView.toString()));
+        }
+    }
+
+    private void handleHelpWindowAction(InventoryClickEvent event) {
+        // something todo
+    }
+
+    private void handleGameWindowActions(InventoryClickEvent event) {
+        Player player = (Player) event.getWhoClicked();
 
         ItemStack clickedItem = event.getCurrentItem();
         if (Objects.isNull(clickedItem)) {

@@ -213,7 +213,7 @@ public class InventoryUtil {
                                                                .serialize(GAME_TITLE.getFormattedValue()));
     }
 
-    private boolean isHelpWindow(InventoryView inventoryView) {
+    public boolean isHelpWindow(InventoryView inventoryView) {
         return inventoryView.getTitle()
                             .contains(LegacyComponentSerializer.legacySection()
                                                                .serialize(HELP_GUI_TITLE.getFormattedValue()));
