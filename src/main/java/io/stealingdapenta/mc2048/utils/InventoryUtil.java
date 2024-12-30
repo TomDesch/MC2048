@@ -48,6 +48,7 @@ import static io.stealingdapenta.mc2048.config.ConfigKey.UP_BUTTON_NAME;
 import static io.stealingdapenta.mc2048.utils.ActiveGame.makeSecondsATimestamp;
 import static io.stealingdapenta.mc2048.utils.FileManager.FILE_MANAGER;
 import static io.stealingdapenta.mc2048.utils.ItemBuilder.setCustomModelDataTo;
+import static org.bukkit.Bukkit.createInventory;
 
 import io.stealingdapenta.mc2048.config.ConfigKey;
 import java.util.Arrays;
@@ -57,7 +58,6 @@ import java.util.Random;
 import java.util.stream.IntStream;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
@@ -95,17 +95,19 @@ public class InventoryUtil {
     }
 
     public Inventory createHelpInventory(Player player) {
-        Inventory helpGUI = Bukkit.createInventory(player, REQUIRED_SIZE, LegacyComponentSerializer.legacySection()
-                                                                                                   .serialize(HELP_GUI_TITLE.getFormattedValue()));
+        Inventory helpGUI = createInventory(player, REQUIRED_SIZE, LegacyComponentSerializer.legacySection()
+                                                                                            .serialize(HELP_GUI_TITLE.getFormattedValue()));
+
+        final int playerStatsSlot = 28;
+        final int highScoreSlot = 34;
+        final int infoSlot = 31;
+        final int playButtonSlot = 49;
 
         fillWithLegend(helpGUI);
-        // set player stat item
-        helpGUI.setItem(28, getHelpGUIPlayerStatsHead(player));
-        // set high scores list item
-        helpGUI.setItem(34, getHighScoresItem());
-
-        setHelpButtonsAndStats(helpGUI);
-
+        setItemInSlot(helpGUI, playerStatsSlot, getHelpGUIPlayerStatsHead(player));
+        setItemInSlot(helpGUI, highScoreSlot, getHighScoresItem());
+        setItemInSlot(helpGUI, infoSlot, createButton(HELP_GUI_INFO_NAME, MATERIAL_HELP_GUI_INFO, MATERIAL_HELP_GUI_INFO_CMD));
+        setItemInSlot(helpGUI, playButtonSlot, createButton(HELP_GUI_PLAY_BUTTON_NAME, MATERIAL_HELP_GUI_PLAY_BUTTON, MATERIAL_HELP_GUI_PLAY_BUTTON_CMD));
         fillEmptySlots(helpGUI);
 
         return helpGUI;
@@ -130,14 +132,9 @@ public class InventoryUtil {
               .forEach(numberRepresentation -> inventory.setItem(numberRepresentation.ordinal(), numberRepresentation.getDisplayableBlock()));
     }
 
-    private void setHelpButtonsAndStats(Inventory helpGUI) {
-        setItemInSlot(helpGUI, 31, createButton(HELP_GUI_INFO_NAME, MATERIAL_HELP_GUI_INFO, MATERIAL_HELP_GUI_INFO_CMD));
-        setItemInSlot(helpGUI, 49, createButton(HELP_GUI_PLAY_BUTTON_NAME, MATERIAL_HELP_GUI_PLAY_BUTTON, MATERIAL_HELP_GUI_PLAY_BUTTON_CMD));
-    }
-
     private Inventory createChestInventory(Player player) {
-        return Bukkit.createInventory(player, REQUIRED_SIZE, LegacyComponentSerializer.legacySection()
-                                                                                      .serialize(GAME_TITLE.getFormattedValue()));
+        return createInventory(player, REQUIRED_SIZE, LegacyComponentSerializer.legacySection()
+                                                                               .serialize(GAME_TITLE.getFormattedValue()));
     }
 
     private void fillSides(Inventory inventory) {
