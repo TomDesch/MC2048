@@ -2,8 +2,6 @@ package io.stealingdapenta.mc2048.utils;
 
 import static io.stealingdapenta.mc2048.MC2048.logger;
 import static io.stealingdapenta.mc2048.config.ConfigKey.AVERAGE_SCORE;
-import static io.stealingdapenta.mc2048.config.ConfigKey.CURRENT_PLAYTIME;
-import static io.stealingdapenta.mc2048.config.ConfigKey.CURRENT_SCORE;
 import static io.stealingdapenta.mc2048.config.ConfigKey.DOWN_BUTTON_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.GAMES_PLAYED;
 import static io.stealingdapenta.mc2048.config.ConfigKey.GAME_TITLE;
@@ -30,7 +28,6 @@ import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_GUI_PLAYER;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_GUI_PLAYER_CMD;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_HELP_GUI_FILLER;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_HELP_GUI_FILLER_CMD;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_HELP_GUI_HIGH_SCORE;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_HELP_GUI_INFO;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_HELP_GUI_INFO_CMD;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_HELP_GUI_PLAY_BUTTON;
@@ -71,6 +68,8 @@ import org.bukkit.inventory.meta.SkullMeta;
  */
 public class InventoryUtil {
 
+    private final HighScoreManager highScoreManager;
+
     public static final int INVENTORY_ROWS = 6;
     public static final int INVENTORY_COLUMNS = 9;
     public static final int ROW_AND_COLUMN_SIZE = 4;
@@ -81,8 +80,26 @@ public class InventoryUtil {
     private static final String ERROR_SKULL = "Error getting skull meta for %s.";
     private final Random random = new Random();
 
+    public InventoryUtil(HighScoreManager highScoreManager) {
+        this.highScoreManager = highScoreManager;
+    }
+
+    public static ItemStack getPlayerSkullItem(Player player) {
+        ItemStack playerHead = setCustomModelDataTo((new ItemBuilder(MATERIAL_GUI_PLAYER.getMaterialValue())).create(), MATERIAL_GUI_PLAYER_CMD);
+        SkullMeta skullMeta = (SkullMeta) playerHead.getItemMeta();
+        if (Objects.isNull(skullMeta)) {
+            logger.warning(ERROR_SKULL.formatted(player.getName()));
+            return playerHead;
+        }
+        skullMeta.setOwningPlayer(player);
+        skullMeta.setDisplayName(LegacyComponentSerializer.legacySection()
+                                                          .serialize(PLAYER_STATS_TITLE.getFormattedValue(player.getName())));
+        playerHead.setItemMeta(skullMeta);
+        return playerHead;
+    }
+
     public Inventory createGameInventory(ActiveGame activeGame) {
-        Inventory inventory = createChestInventory(activeGame.getPlayer());
+        Inventory inventory = createGUIWindow(activeGame.getPlayer(), GAME_TITLE);
         fillSides(inventory);
         activeGame.setGameWindow(inventory);
         setButtonsAndStats(activeGame);
@@ -90,8 +107,7 @@ public class InventoryUtil {
     }
 
     public Inventory createHelpInventory(Player player) {
-        Inventory helpGUI = createInventory(player, REQUIRED_SIZE, LegacyComponentSerializer.legacySection()
-                                                                                            .serialize(HELP_GUI_TITLE.getFormattedValue()));
+        Inventory helpGUI = createGUIWindow(player, HELP_GUI_TITLE);
 
         final int playerStatsSlot = 28;
         final int highScoreSlot = 34;
@@ -100,7 +116,7 @@ public class InventoryUtil {
 
         fillWithLegend(helpGUI);
         setItemInSlot(helpGUI, playerStatsSlot, getHelpGUIPlayerStatsHead(player));
-        setItemInSlot(helpGUI, highScoreSlot, getHighScoresItem());
+        setItemInSlot(helpGUI, highScoreSlot, highScoreManager.getHighScoresItem());
         setItemInSlot(helpGUI, infoSlot, createButton(HELP_GUI_INFO_NAME, MATERIAL_HELP_GUI_INFO, MATERIAL_HELP_GUI_INFO_CMD));
         setItemInSlot(helpGUI, playButtonSlot, createButton(HELP_GUI_PLAY_BUTTON_NAME, MATERIAL_HELP_GUI_PLAY_BUTTON, MATERIAL_HELP_GUI_PLAY_BUTTON_CMD));
         fillEmptySlots(helpGUI);
@@ -124,11 +140,6 @@ public class InventoryUtil {
     private void fillWithLegend(Inventory inventory) {
         Arrays.stream(NumberRepresentation.values())
               .forEach(numberRepresentation -> inventory.setItem(numberRepresentation.ordinal(), numberRepresentation.getDisplayableBlock()));
-    }
-
-    private Inventory createChestInventory(Player player) {
-        return createInventory(player, REQUIRED_SIZE, LegacyComponentSerializer.legacySection()
-                                                                               .serialize(GAME_TITLE.getFormattedValue()));
     }
 
     private void fillSides(Inventory inventory) {
@@ -176,7 +187,6 @@ public class InventoryUtil {
         setItemInSlot(activeGame.getGameWindow(), SLOT_RIGHT, createButton(RIGHT_BUTTON_NAME, MATERIAL_BUTTON_RIGHT, MATERIAL_BUTTON_RIGHT_CMD));
         setItemInSlot(activeGame.getGameWindow(), SLOT_DOWN, createButton(DOWN_BUTTON_NAME, MATERIAL_BUTTON_DOWN, MATERIAL_BUTTON_DOWN_CMD));
         setItemInSlot(activeGame.getGameWindow(), SLOT_UNDO, createUndoButton(NUMBER_OF_UNDO.getIntValue()));
-        updateStatisticItem(activeGame);
     }
 
     private ItemStack createButton(ConfigKey buttonName, ConfigKey materialName, ConfigKey customMetaData) {
@@ -207,16 +217,17 @@ public class InventoryUtil {
         inventory.setItem(slot, itemStack);
     }
 
+    private Inventory createGUIWindow(Player player, ConfigKey title) {
+        return createInventory(player, InventoryUtil.REQUIRED_SIZE, LegacyComponentSerializer.legacySection()
+                                                                                             .serialize(title.getFormattedValue()));
+    }
+
     public boolean isGameWindow(InventoryView inventoryView) {
-        return inventoryView.getTitle()
-                            .contains(LegacyComponentSerializer.legacySection()
-                                                               .serialize(GAME_TITLE.getFormattedValue()));
+        return isKnownWindow(inventoryView, GAME_TITLE);
     }
 
     public boolean isHelpWindow(InventoryView inventoryView) {
-        return inventoryView.getTitle()
-                            .contains(LegacyComponentSerializer.legacySection()
-                                                               .serialize(HELP_GUI_TITLE.getFormattedValue()));
+        return isKnownWindow(inventoryView, HELP_GUI_TITLE);
     }
 
     /**
@@ -521,35 +532,10 @@ public class InventoryUtil {
         return new ItemBuilder(chosenNumber.getDisplayableBlock()).create();
     }
 
-    public ItemStack getPlayerSkullItem(Player player) {
-        ItemStack playerHead = setCustomModelDataTo((new ItemBuilder(MATERIAL_GUI_PLAYER.getMaterialValue())).create(), MATERIAL_GUI_PLAYER_CMD);
-        SkullMeta skullMeta = (SkullMeta) playerHead.getItemMeta();
-        if (Objects.isNull(skullMeta)) {
-            logger.warning(ERROR_SKULL.formatted(player.getName()));
-            return playerHead;
-        }
-        skullMeta.setOwningPlayer(player);
-        skullMeta.setDisplayName(LegacyComponentSerializer.legacySection()
-                                                          .serialize(PLAYER_STATS_TITLE.getFormattedValue(player.getName())));
-        playerHead.setItemMeta(skullMeta);
-        return playerHead;
-    }
-
-    public void updateStatisticItem(ActiveGame activeGame) {
-        final int SLOT_STATS = 25;
-        activeGame.getGameWindow()
-                  .setItem(SLOT_STATS, getPlayerStatsHead(activeGame));
-    }
-
-    private ItemStack getPlayerStatsHead(ActiveGame activeGame) {
-        return (new ItemBuilder(getPlayerSkullItem(activeGame.getPlayer()))).addLore(TOTAL_PLAYTIME.getFormattedValue(activeGame.getTotalPlusCurrentPlayTimeFormatted()))
-                                                                            .addLore(CURRENT_PLAYTIME.getFormattedValue(activeGame.getCurrentPlayTimeFormatted()))
-                                                                            .addLore(HIGH_SCORE.getFormattedValue(String.valueOf(activeGame.getHighScore())))
-                                                                            .addLore(CURRENT_SCORE.getFormattedValue(String.valueOf(activeGame.getScore())))
-                                                                            .addLore(GAMES_PLAYED.getFormattedValue(String.valueOf(activeGame.getAttempts())))
-                                                                            .addLore(AVERAGE_SCORE.getFormattedValue(String.valueOf(Math.round(activeGame.getAverageScore()))))
-                                                                            .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
-                                                                            .create();
+    private boolean isKnownWindow(InventoryView inventoryView, ConfigKey titleKey) {
+        return inventoryView.getTitle()
+                            .contains(LegacyComponentSerializer.legacySection()
+                                                               .serialize(titleKey.getFormattedValue()));
     }
 
     private ItemStack getHelpGUIPlayerStatsHead(Player player) {
@@ -561,9 +547,5 @@ public class InventoryUtil {
                                                             .create();
     }
 
-    private ItemStack getHighScoresItem() {
-        return (new ItemBuilder(MATERIAL_HELP_GUI_HIGH_SCORE.getMaterialValue())).addLore("poopoo test")
-                                                                                 .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
-                                                                                 .create();
-    }
+
 }

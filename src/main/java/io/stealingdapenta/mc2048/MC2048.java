@@ -25,11 +25,12 @@ public class MC2048 extends JavaPlugin {
     public static Logger logger;
     private static MC2048 instance = null;
 
-    private final InventoryUtil inventoryUtil = new InventoryUtil();
+
+    private final HighScoreManager highScoreManager = new HighScoreManager();
+    private final InventoryUtil inventoryUtil = new InventoryUtil(highScoreManager);
     private final GameManager gameManager = new GameManager(inventoryUtil);
     private final GameControlsListener gameControlsListener = new GameControlsListener(inventoryUtil, gameManager);
     private final GameCommand gameCommand = new GameCommand(gameManager);
-    private final HighScoreManager highScoreManager = new HighScoreManager();
     private final HighScoreCommand highScoreCommand = new HighScoreCommand(highScoreManager);
     private final ReloadConfigCommand reloadConfigCommand = new ReloadConfigCommand();
     private final HelpCommand helpCommand = new HelpCommand(inventoryUtil);

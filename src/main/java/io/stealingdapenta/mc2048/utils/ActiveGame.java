@@ -1,11 +1,19 @@
 package io.stealingdapenta.mc2048.utils;
 
 
+import static io.stealingdapenta.mc2048.config.ConfigKey.AVERAGE_SCORE;
+import static io.stealingdapenta.mc2048.config.ConfigKey.CURRENT_PLAYTIME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.CURRENT_SCORE;
+import static io.stealingdapenta.mc2048.config.ConfigKey.GAMES_PLAYED;
+import static io.stealingdapenta.mc2048.config.ConfigKey.HIGH_SCORE;
 import static io.stealingdapenta.mc2048.config.ConfigKey.NUMBER_OF_UNDO;
+import static io.stealingdapenta.mc2048.config.ConfigKey.TOTAL_PLAYTIME;
 import static io.stealingdapenta.mc2048.utils.FileManager.FILE_MANAGER;
+import static io.stealingdapenta.mc2048.utils.InventoryUtil.getPlayerSkullItem;
 
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 
 public class ActiveGame {
@@ -144,5 +152,25 @@ public class ActiveGame {
 
     public void setLastMoveUndo(boolean lastMoveUndo) {
         this.lastMoveUndo = lastMoveUndo;
+    }
+
+    public double calculateNewAverageScore() {
+        return (getAttempts() * getAverageScore() + getScore()) / (getAttempts() + 1);
+    }
+
+    public void updateStatisticsItem() {
+        final int SLOT_STATS = 25;
+        getGameWindow().setItem(SLOT_STATS, getPlayerStatsHead());
+    }
+
+    private ItemStack getPlayerStatsHead() {
+        return (new ItemBuilder(getPlayerSkullItem(getPlayer()))).addLore(TOTAL_PLAYTIME.getFormattedValue(getTotalPlusCurrentPlayTimeFormatted()))
+                                                                 .addLore(CURRENT_PLAYTIME.getFormattedValue(getCurrentPlayTimeFormatted()))
+                                                                 .addLore(HIGH_SCORE.getFormattedValue(String.valueOf(getHighScore())))
+                                                                 .addLore(CURRENT_SCORE.getFormattedValue(String.valueOf(getScore())))
+                                                                 .addLore(GAMES_PLAYED.getFormattedValue(String.valueOf(getAttempts())))
+                                                                 .addLore(AVERAGE_SCORE.getFormattedValue(String.valueOf(Math.round(getAverageScore()))))
+                                                                 .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
+                                                                 .create();
     }
 }

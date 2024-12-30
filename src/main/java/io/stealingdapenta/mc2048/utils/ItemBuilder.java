@@ -63,6 +63,21 @@ public class ItemBuilder {
         return itemStack;
     }
 
+    public ItemBuilder addLoreList(List<Component> lore) {
+        setItemMeta();
+
+        List<String> currentLore = itemMeta.hasLore() ? itemMeta.getLore() : new ArrayList<>();
+
+        assert currentLore != null; // for IDE warnings... literally impossible
+        lore.stream()
+            .map(Component::toString)
+            .forEach(currentLore::add);
+
+        itemMeta.setLore(currentLore);
+        return this;
+    }
+
+
     public ItemBuilder addLore(Object lore) {
         setItemMeta();
         loreList.add(convertToString(lore));   // Add to lore list

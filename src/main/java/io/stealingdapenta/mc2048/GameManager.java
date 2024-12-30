@@ -24,6 +24,7 @@ public class GameManager {
     private static final HashMap<UUID, ActiveGame> activeGames = new HashMap<>();
     private final InventoryUtil inventoryUtil;
     private static final String ERROR_DEACTIVATING = "Error deactivating game for %s; no active game found.";
+    private static final long ONE_SECOND_IN_TICKS = 20L;
 
     public GameManager(InventoryUtil inventoryUtil) {
         this.inventoryUtil = inventoryUtil;
@@ -32,7 +33,7 @@ public class GameManager {
     public void activateGame(Player player) {
         MESSAGE_SENDER.sendMessage(player, GOOD_LUCK);
 
-        ActiveGame activeGame = new ActiveGame(player, createTask(player));
+        ActiveGame activeGame = new ActiveGame(player, createTaskUpdatingPlayerStatItem(player));
         Inventory gameWindow = inventoryUtil.createGameInventory(activeGame);
         player.openInventory(gameWindow);
 
@@ -68,22 +69,17 @@ public class GameManager {
 
         FILE_MANAGER.setValueByKey(activeGame.getPlayer(), ATTEMPTS.getKey(), activeGame.getAttempts() + 1);
         FILE_MANAGER.setValueByKey(activeGame.getPlayer(), TOTAL_PLAYTIME.getKey(), (activeGame.getTotalPlayTime() + activeGame.getMillisecondsSinceStart()));
-        FILE_MANAGER.setValueByKey(activeGame.getPlayer(), AVERAGE_SCORE.getKey(), calculateNewAverageScore(activeGame));
-    }
-
-    private double calculateNewAverageScore(ActiveGame activeGame) {
-        return (activeGame.getAttempts() * activeGame.getAverageScore() + activeGame.getScore()) / (activeGame.getAttempts() + 1);
+        FILE_MANAGER.setValueByKey(activeGame.getPlayer(), AVERAGE_SCORE.getKey(), activeGame.calculateNewAverageScore());
     }
 
     public ActiveGame getActiveGame(Player player) {
         return activeGames.get(player.getUniqueId());
     }
 
-    public RepeatingUpdateTask createTask(Player player) {
-        return new RepeatingUpdateTask(20L, 20L) {
+    public RepeatingUpdateTask createTaskUpdatingPlayerStatItem(Player player) {
+        return new RepeatingUpdateTask(0, ONE_SECOND_IN_TICKS) {
             public void run() {
-                ActiveGame activeGame = getActiveGame(player);
-                inventoryUtil.updateStatisticItem(activeGame);
+                getActiveGame(player).updateStatisticsItem();
             }
         };
     }

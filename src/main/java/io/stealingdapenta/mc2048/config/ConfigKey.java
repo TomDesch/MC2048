@@ -102,6 +102,7 @@ public enum ConfigKey {
     HELP_GUI_PLAY_BUTTON_NAME("Click to play!"),
     MATERIAL_HELP_GUI_HIGH_SCORE("SKULL_BANNER_PATTERN"),
     HELP_GUI_HIGH_SCORE_NAME("High scores"),
+    HELP_GUI_HIGH_SCORE_LORE_FORMAT("<blue>%s</blue>"),
     MATERIAL_HELP_GUI_HIGH_SCORE_CMD("1000"),
     HELP_GUI_TITLE("     <blue><bold>MC2048 HELP WINDOW");
 
