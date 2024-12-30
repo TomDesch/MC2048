@@ -213,6 +213,19 @@ public class InventoryUtil {
                                                                .serialize(GAME_TITLE.getFormattedValue()));
     }
 
+    private boolean isHelpWindow(InventoryView inventoryView) {
+        return inventoryView.getTitle()
+                            .contains(LegacyComponentSerializer.legacySection()
+                                                               .serialize(HELP_GUI_TITLE.getFormattedValue()));
+    }
+
+    /**
+     * @return whether the open inventory resembles ANY possible GUI window from this plugin
+     */
+    public boolean isAnyGameWindow(InventoryView inventoryView) {
+        return isGameWindow(inventoryView) || isHelpWindow(inventoryView);
+    }
+
     public boolean moveItemsInDirection(ActiveGame activeGame, Direction direction) {
         Inventory gameWindow = activeGame.getGameWindow();
         ItemStack[][] itemsInGame = new ItemStack[ROW_AND_COLUMN_SIZE][ROW_AND_COLUMN_SIZE];

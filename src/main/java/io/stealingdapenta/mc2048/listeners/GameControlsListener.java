@@ -53,11 +53,14 @@ public class GameControlsListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onButtonClick(InventoryClickEvent event) {
         InventoryView clickedInventoryView = event.getView();
-        if (!inventoryUtil.isGameWindow(clickedInventoryView)) {
+
+        // Don't care if it's not a game window
+        if (!inventoryUtil.isAnyGameWindow(clickedInventoryView)) {
             return;
         }
         Player player = (Player) event.getWhoClicked();
 
+        // Cancel all default interaction behaviour if it's any game window
         event.setCancelled(true);
 
         ItemStack clickedItem = event.getCurrentItem();
