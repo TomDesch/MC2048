@@ -28,7 +28,7 @@ public class MC2048 extends JavaPlugin {
     private final InventoryUtil inventoryUtil = new InventoryUtil();
     private final GameManager gameManager = new GameManager(inventoryUtil);
     private final GameControlsListener gameControlsListener = new GameControlsListener(inventoryUtil, gameManager);
-    private final GameCommand gameCommand = new GameCommand(inventoryUtil, gameManager);
+    private final GameCommand gameCommand = new GameCommand(gameManager);
     private final HighScoreManager highScoreManager = new HighScoreManager();
     private final HighScoreCommand highScoreCommand = new HighScoreCommand(highScoreManager);
     private final ReloadConfigCommand reloadConfigCommand = new ReloadConfigCommand();

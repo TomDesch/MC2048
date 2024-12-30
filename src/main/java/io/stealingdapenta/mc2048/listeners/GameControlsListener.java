@@ -3,6 +3,7 @@ package io.stealingdapenta.mc2048.listeners;
 import static io.stealingdapenta.mc2048.MC2048.logger;
 import static io.stealingdapenta.mc2048.config.ConfigKey.DOWN_BUTTON_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.GAME_OVER;
+import static io.stealingdapenta.mc2048.config.ConfigKey.HELP_GUI_PLAY_BUTTON_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.INVALID_MOVE;
 import static io.stealingdapenta.mc2048.config.ConfigKey.LEFT_BUTTON_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.RIGHT_BUTTON_NAME;
@@ -68,37 +69,56 @@ public class GameControlsListener implements Listener {
         } else if (inventoryUtil.isHelpWindow(clickedInventoryView)) {
             handleHelpWindowAction(event);
         } else {
-            logger.warning("Is an MC2048 window, yet not recognized: %s".formatted(clickedInventoryView.toString()));
+            logger.warning("The inventory is an MC2048 window, yet not recognized: %s".formatted(clickedInventoryView.toString()));
         }
     }
 
     private void handleHelpWindowAction(InventoryClickEvent event) {
-        // something todo
+        Player player = (Player) event.getWhoClicked();
+        String clickedItemDisplayName = getItemDisplayName(event.getCurrentItem());
+        if (Objects.isNull(clickedItemDisplayName)) {
+            return;
+        }
+
+        // Currently the only performable action in the help menu, is to launch the game
+        if (clickedItemDisplayName.contains(HELP_GUI_PLAY_BUTTON_NAME.getStringValue())) {
+            gameManager.activateGame(player);
+        }
+    }
+
+    /**
+     * @param itemStack the item to get the name from
+     * @return the items display name or null
+     */
+    private String getItemDisplayName(ItemStack itemStack) {
+        if (Objects.isNull(itemStack)) {
+            return null;
+        }
+
+        ItemMeta itemMeta = itemStack.getItemMeta();
+        if (Objects.isNull(itemMeta)) {
+            return null;
+        }
+
+        return itemMeta.getDisplayName();
     }
 
     private void handleGameWindowActions(InventoryClickEvent event) {
         Player player = (Player) event.getWhoClicked();
-
-        ItemStack clickedItem = event.getCurrentItem();
-        if (Objects.isNull(clickedItem)) {
-            return;
-        }
-        ItemMeta itemMeta = clickedItem.getItemMeta();
-        if (Objects.isNull(itemMeta)) {
-            return;
-        }
-
         ActiveGame activeGame = gameManager.getActiveGame(player);
         if (Objects.isNull(activeGame) || Objects.isNull(activeGame.getGameWindow())) {
             return;
         }
 
-        String displayName = itemMeta.getDisplayName();
+        String clickedItemDisplayName = getItemDisplayName(event.getCurrentItem());
+        if (Objects.isNull(clickedItemDisplayName)) {
+            return;
+        }
 
         initDirectionMap();
         Direction direction = DIRECTION_MAP.entrySet()
                                            .stream()
-                                           .filter(entry -> displayName.contains(entry.getKey()))
+                                           .filter(entry -> clickedItemDisplayName.contains(entry.getKey()))
                                            .map(Map.Entry::getValue)
                                            .findFirst()
                                            .orElse(null);

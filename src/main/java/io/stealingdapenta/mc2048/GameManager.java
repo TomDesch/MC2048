@@ -2,6 +2,7 @@ package io.stealingdapenta.mc2048;
 
 import static io.stealingdapenta.mc2048.MC2048.logger;
 import static io.stealingdapenta.mc2048.config.ConfigKey.ATTEMPT_PROTECTION;
+import static io.stealingdapenta.mc2048.config.ConfigKey.GOOD_LUCK;
 import static io.stealingdapenta.mc2048.utils.FileManager.FILE_MANAGER;
 import static io.stealingdapenta.mc2048.utils.MessageSender.MESSAGE_SENDER;
 import static io.stealingdapenta.mc2048.utils.PlayerConfigField.ATTEMPTS;
@@ -16,6 +17,7 @@ import java.util.HashMap;
 import java.util.Objects;
 import java.util.UUID;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 
 public class GameManager {
 
@@ -27,9 +29,18 @@ public class GameManager {
         this.inventoryUtil = inventoryUtil;
     }
 
-    public void activateGame(ActiveGame activeGame) {
+    public void activateGame(Player player) {
+        MESSAGE_SENDER.sendMessage(player, GOOD_LUCK);
+
+        ActiveGame activeGame = new ActiveGame(player, createTask(player));
+        Inventory gameWindow = inventoryUtil.createGameInventory(activeGame);
+        player.openInventory(gameWindow);
+
         activeGames.put(activeGame.getPlayer()
                                   .getUniqueId(), activeGame);
+        // 2 starting blocks
+        inventoryUtil.spawnNewBlock(gameWindow);
+        inventoryUtil.spawnNewBlock(gameWindow);
     }
 
     public void deactivateGameFor(Player player) {
