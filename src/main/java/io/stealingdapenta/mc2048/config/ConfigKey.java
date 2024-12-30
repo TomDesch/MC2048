@@ -111,20 +111,35 @@ public enum ConfigKey {
         this.defaultValue = defaultValue;
     }
 
+    /**
+     * Used for first time config initialisation
+     *
+     * @return the hardcoded value from this ENUM config
+     */
     public String getDefaultValue() {
         return defaultValue;
     }
 
+    /**
+     * @return the stored value from the config as a Material object
+     * @throws IllegalArgumentException if the Bukkit Material enum has no constant with the specified name
+     */
     public Material getMaterialValue() {
         return Material.valueOf(getStringValue());
     }
 
+    /**
+     * @return the stored value from the config as a String literal
+     */
     public String getStringValue() {
         return MC2048.getInstance()
                      .getConfig()
                      .getString(name().toLowerCase());
     }
 
+    /**
+     * @return the stored value from the config as a Spigot 1.18+ formatted component
+     */
     public Component getFormattedValue() {
         return MiniMessage.miniMessage()
                           .deserialize(getStringValue());
@@ -142,6 +157,9 @@ public enum ConfigKey {
                                                                  .replacement(replacementOfPercentS));
     }
 
+    /**
+     * @return the stored value from the config as an integer NumberFormatException safe
+     */
     public int getIntValue() {
         try {
             return MC2048.getInstance()
