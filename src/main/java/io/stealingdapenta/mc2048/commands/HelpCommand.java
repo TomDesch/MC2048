@@ -21,13 +21,13 @@ public class HelpCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
-        if (sender instanceof Player player) {
-            Inventory gameWindow = inventoryUtil.createHelpInventory(player);
-            player.openInventory(gameWindow);
+        if (!(sender instanceof Player player)) {
+            MESSAGE_SENDER.sendMessage(sender, NOT_PLAYER);
             return true;
         }
 
-        MESSAGE_SENDER.sendMessage(sender, NOT_PLAYER);
+        Inventory gameWindow = inventoryUtil.createHelpInventory(player);
+        player.openInventory(gameWindow);
         return true;
     }
 }
