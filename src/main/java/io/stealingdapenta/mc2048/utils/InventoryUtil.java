@@ -77,12 +77,7 @@ public class InventoryUtil {
     public static final int REQUIRED_SIZE = INVENTORY_ROWS * INVENTORY_COLUMNS;
     private static final int[][] mergeSlots = {{10, 11, 12, 13}, {19, 20, 21, 22}, {28, 29, 30, 31}, {37, 38, 39, 40}};
     private static final String WRONG_SIZE = "Error filling sides of inventory: wrong size!";
-    private static final int SLOT_UP = 16;
-    private static final int SLOT_LEFT = 24;
-    private static final int SLOT_RIGHT = 26;
-    private static final int SLOT_DOWN = 34;
-    private static final int SLOT_STATS = 25;
-    private static final int SLOT_UNDO = 52;
+
     private static final String ERROR_SKULL = "Error getting skull meta for %s.";
     private final Random random = new Random();
 
@@ -112,7 +107,6 @@ public class InventoryUtil {
 
         return helpGUI;
     }
-
 
     private void fillEmptySlots(Inventory inventory) {
         if (inventory.getSize() != REQUIRED_SIZE) {
@@ -172,6 +166,11 @@ public class InventoryUtil {
     }
 
     private void setButtonsAndStats(ActiveGame activeGame) {
+        final int SLOT_UP = 16;
+        final int SLOT_LEFT = 24;
+        final int SLOT_RIGHT = 26;
+        final int SLOT_DOWN = 34;
+        final int SLOT_UNDO = 52;
         setItemInSlot(activeGame.getGameWindow(), SLOT_UP, createButton(UP_BUTTON_NAME, MATERIAL_BUTTON_UP, MATERIAL_BUTTON_UP_CMD));
         setItemInSlot(activeGame.getGameWindow(), SLOT_LEFT, createButton(LEFT_BUTTON_NAME, MATERIAL_BUTTON_LEFT, MATERIAL_BUTTON_LEFT_CMD));
         setItemInSlot(activeGame.getGameWindow(), SLOT_RIGHT, createButton(RIGHT_BUTTON_NAME, MATERIAL_BUTTON_RIGHT, MATERIAL_BUTTON_RIGHT_CMD));
@@ -291,7 +290,9 @@ public class InventoryUtil {
         return false;
     }
 
-    // Update the gameWindow inventory with the modified items arrays
+    /**
+     * Update the gameWindow inventory with the modified items arrays
+     */
     private void copyItemArrayToGameWindow(Inventory gameWindow, ItemStack[][] itemsInGame) {
         for (int row = 0; row < ROW_AND_COLUMN_SIZE; row++) {
             for (int column = 0; column < ROW_AND_COLUMN_SIZE; column++) {
@@ -300,7 +301,9 @@ public class InventoryUtil {
         }
     }
 
-    // Copy contents from actual items to the 2D array based on mergeSlots numbers
+    /**
+     * Copy contents from actual items to the 2D array based on mergeSlots numbers
+     */
     private void copyGameWindowContentsToArray(Inventory gameWindow, ItemStack[][] inventoryArray) {
         for (int row = 0; row < ROW_AND_COLUMN_SIZE; row++) {
             for (int column = 0; column < ROW_AND_COLUMN_SIZE; column++) {
@@ -322,6 +325,8 @@ public class InventoryUtil {
 
         activeGame.addToScore(-activeGame.getScoreGainedAfterLastMove());
         activeGame.decrementUndoLastMoveCounter();
+
+        final int SLOT_UNDO = 52; // FIXME not DRY
         setItemInSlot(activeGame.getGameWindow(), SLOT_UNDO, activeGame.hasNoUndoLastMoveLeft() ? createUsedUndoButton() : createUndoButton(activeGame.getUndoLastMoveCounter()));
         activeGame.setLastMoveUndo(true);
         return true;
@@ -482,15 +487,20 @@ public class InventoryUtil {
                                    .getDisplayableBlock();
     }
 
+    /**
+     * Sets a freshly generated ItemStack block (2 or 4) at any random open slot within the game window. If there's no empty slots: do nothing (shouldn't be possible because that would mean Game Over)
+     */
     public void spawnNewBlock(Inventory inventory) {
         List<Integer> emptySlots = IntStream.range(0, inventory.getSize())
                                             .filter(i -> Objects.isNull(inventory.getItem(i)))
                                             .boxed()
                                             .toList();
 
-        if (!emptySlots.isEmpty()) {
-            inventory.setItem(emptySlots.get(new Random().nextInt(emptySlots.size())), generateNewBlock());
+        if (emptySlots.isEmpty()) {
+            return;
         }
+
+        inventory.setItem(emptySlots.get(new Random().nextInt(emptySlots.size())), generateNewBlock());
     }
 
     private ItemStack generateNewBlock() {
@@ -513,6 +523,7 @@ public class InventoryUtil {
     }
 
     public void updateStatisticItem(ActiveGame activeGame) {
+        final int SLOT_STATS = 25;
         activeGame.getGameWindow()
                   .setItem(SLOT_STATS, getPlayerStatsHead(activeGame));
     }
