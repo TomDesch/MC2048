@@ -93,7 +93,17 @@ public enum ConfigKey {
     CURRENT_SCORE("<b>Current score: <green>%s</green></b>"),
     GAMES_PLAYED("<b>Amount of games played: <green>%s</green></b>"),
     AVERAGE_SCORE("<b>Average Score: <green>%s</green></b>"),
-    GAME_TITLE("              <blue><bold>MC 2048");
+    GAME_TITLE("              <blue><bold>MC 2048"),
+    MATERIAL_HELP_GUI_FILLER("LIGHT_BLUE_STAINED_GLASS_PANE"),
+    MATERIAL_HELP_GUI_FILLER_CMD("1000"),
+    MATERIAL_HELP_GUI_INFO("AMETHYST_CRYSTAL"),
+    MATERIAL_HELP_GUI_INFO_CMD("1000"),
+    MATERIAL_HELP_GUI_PLAY_BUTTON("NETHERITE_UPGRADE_SMITHING_TEMPLATE"),
+    MATERIAL_HELP_GUI_PLAY_BUTTON_CMD("1000"),
+    MATERIAL_HELP_GUI_PLAYER("PLAYER_HEAD"),
+    MATERIAL_HELP_GUI_PLAYER_CMD("1000"),
+    MATERIAL_HELP_GUI_HIGH_SCORE("SKULL_BANNER_PATTERN"),
+    MATERIAL_HELP_GUI_HIGH_SCORE_CMD("1000");
 
     private final String defaultValue;
 
@@ -137,6 +147,7 @@ public enum ConfigKey {
     }
 
     private int getIntValue(String key) {
+        // todo rewrite this... getConfig has a .getInt function...
         JavaPlugin plugin = MC2048.getInstance();
         String valueAsString = plugin.getConfig()
                                      .getString(key);
