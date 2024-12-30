@@ -28,24 +28,24 @@ public class HighScoreCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
-        if (sender instanceof Player player) {
-            int playersPosition = highScoreManager.getPlayerPosition(player);
-            Map<String, Integer> highScores = highScoreManager.getTop10HiScores();
+        if (!(sender instanceof Player player)) {
 
-            MESSAGE_SENDER.sendMessage(player, TOP_TEN);
-            List<Entry<String, Integer>> highScoresList = new ArrayList<>(highScores.entrySet());
-
-            highScoresList.stream()
-                          .map(entry -> String.format(PLAYER_SCORE, highScoresList.indexOf(entry) + 1, entry.getKey(), entry.getValue()))
-                          .forEach(player::sendMessage);
-
-            MESSAGE_SENDER.sendMessage(player, PLAYER_POSITION); // todo combine these again
-            player.sendMessage(String.valueOf(playersPosition));
-
+            MESSAGE_SENDER.sendMessage(sender, NOT_PLAYER);
             return true;
         }
+        int playersPosition = highScoreManager.getPlayerPosition(player);
+        Map<String, Integer> highScores = highScoreManager.getTop10HiScores();
 
-        MESSAGE_SENDER.sendMessage(sender, NOT_PLAYER);
+        MESSAGE_SENDER.sendMessage(player, TOP_TEN);
+        List<Entry<String, Integer>> highScoresList = new ArrayList<>(highScores.entrySet());
+
+        highScoresList.stream()
+                      .map(entry -> String.format(PLAYER_SCORE, highScoresList.indexOf(entry) + 1, entry.getKey(), entry.getValue()))
+                      .forEach(player::sendMessage);
+
+        MESSAGE_SENDER.sendMessage(player, PLAYER_POSITION); // todo combine these again
+        player.sendMessage(String.valueOf(playersPosition));
+
         return true;
     }
 
