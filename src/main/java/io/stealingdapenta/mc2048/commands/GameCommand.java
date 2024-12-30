@@ -26,22 +26,22 @@ public class GameCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
-        if (sender instanceof Player player) {
-            MESSAGE_SENDER.sendMessage(player, GOOD_LUCK);
-
-            ActiveGame activeGame = new ActiveGame(player, gameManager.createTask(player));
-            Inventory gameWindow = inventoryUtil.createGameInventory(activeGame);
-            player.openInventory(gameWindow);
-
-            gameManager.activateGame(activeGame);
-
-            // 2 starting blocks
-            inventoryUtil.spawnNewBlock(gameWindow);
-            inventoryUtil.spawnNewBlock(gameWindow);
+        if (!(sender instanceof Player player)) {
+            MESSAGE_SENDER.sendMessage(sender, NOT_PLAYER);
             return true;
         }
 
-        MESSAGE_SENDER.sendMessage(sender, NOT_PLAYER);
+        MESSAGE_SENDER.sendMessage(player, GOOD_LUCK);
+
+        ActiveGame activeGame = new ActiveGame(player, gameManager.createTask(player));
+        Inventory gameWindow = inventoryUtil.createGameInventory(activeGame);
+        player.openInventory(gameWindow);
+
+        gameManager.activateGame(activeGame);
+
+        // 2 starting blocks
+        inventoryUtil.spawnNewBlock(gameWindow);
+        inventoryUtil.spawnNewBlock(gameWindow);
         return true;
     }
 }
