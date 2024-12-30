@@ -18,6 +18,10 @@ commands:
     description: Reload the configuration file without having to reboot the server.
     usage: /<command>
 
+  help:
+    description: Show the legend and general information.
+    usage: /<command>
+
 permissions:
   mc2048.reload:
     description: Allow usage of /config
