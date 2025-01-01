@@ -88,23 +88,23 @@ public enum ConfigKey {
     TOTAL_PLAYTIME("<b>Total playtime: <green>%s</green></b>"),
     CURRENT_PLAYTIME("<b>Current playtime: <green>%s</green></b>"),
     HIGH_SCORE("<b>HiScore: <green>%s</green></b>"),
-    CURRENT_SCORE("<b>Current score: <green>%s</green></b>"),
-    GAMES_PLAYED("<b>Amount of games played: <green>%s</green></b>"),
-    AVERAGE_SCORE("<b>Average Score: <green>%s</green></b>"),
-    GAME_TITLE("              <blue><bold>MC 2048"),
+    CURRENT_SCORE("Current score: <green>%s</green>"),
+    GAMES_PLAYED("Amount of games played: <green>%s</green>"),
+    AVERAGE_SCORE("Average Score: <green>%s</green>"),
+    GAME_TITLE("              <blue><b>MC 2048"),
     MATERIAL_HELP_GUI_FILLER("LIGHT_BLUE_STAINED_GLASS_PANE"),
     MATERIAL_HELP_GUI_FILLER_CMD("1000"),
     MATERIAL_HELP_GUI_INFO("AMETHYST_CLUSTER"),
-    HELP_GUI_INFO_NAME("MC2048 Information"),
+    HELP_GUI_INFO_NAME("<b>MC2048 Information"),
     MATERIAL_HELP_GUI_INFO_CMD("1000"),
     MATERIAL_HELP_GUI_PLAY_BUTTON("NETHERITE_UPGRADE_SMITHING_TEMPLATE"),
     MATERIAL_HELP_GUI_PLAY_BUTTON_CMD("1000"),
     HELP_GUI_PLAY_BUTTON_NAME("Click to play!"),
     MATERIAL_HELP_GUI_HIGH_SCORE("SKULL_BANNER_PATTERN"),
-    HELP_GUI_HIGH_SCORE_NAME("High scores"),
-    HELP_GUI_HIGH_SCORE_LORE_FORMAT("<blue>%s</blue>"),
+    HELP_GUI_HIGH_SCORE_NAME("<blue><bold>High scores"),
+    HELP_GUI_HIGH_SCORE_LORE_FORMAT("<aqua>%s</aqua>"),
     MATERIAL_HELP_GUI_HIGH_SCORE_CMD("1000"),
-    HELP_GUI_TITLE("     <blue><bold>MC2048 HELP WINDOW");
+    HELP_GUI_TITLE("     <blue><b>MC2048 HELP WINDOW");
 
     private final String defaultValue;
 

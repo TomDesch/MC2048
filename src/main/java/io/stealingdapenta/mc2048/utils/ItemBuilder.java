@@ -70,7 +70,7 @@ public class ItemBuilder {
 
         assert currentLore != null; // for IDE warnings... literally impossible
         lore.stream()
-            .map(Component::toString)
+            .map(this::convertToString)
             .forEach(currentLore::add);
 
         itemMeta.setLore(currentLore);
@@ -80,7 +80,7 @@ public class ItemBuilder {
 
     public ItemBuilder addLore(Object lore) {
         setItemMeta();
-        loreList.add(convertToString(lore));   // Add to lore list
+        loreList.add(convertToString(lore));   // Add to the lore-list as formatted String
         itemMeta.setLore(loreList);
         return this;
     }

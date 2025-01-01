@@ -63,7 +63,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 
 /**
- * Dear visitor If you've found this class, and you're a programmer yourself, then I challenge you to rewrite the moveItem functions (e.g. moveItemsUp) to be DRY instead of this hot mess. (And make a pull request) I promise the current version works,
+ * Dear visitor, If you've found this class, and you're a programmer yourself, then I challenge you to rewrite the moveItem functions (e.g., moveItemsUp) to be DRY instead of this hot mess. (And make a pull request) I promise the current version works,
  * but man is it ugly. Kind regards. Edit: rewrite it whole. This is not SRP nor good Java in general.
  */
 public class InventoryUtil {

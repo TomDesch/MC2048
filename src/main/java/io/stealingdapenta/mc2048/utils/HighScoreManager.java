@@ -52,7 +52,7 @@ public class HighScoreManager {
                                              entry.getValue()        // Score
                                             );
 
-            lore.add(HELP_GUI_HIGH_SCORE_LORE_FORMAT.getFormattedValue(scoreText)); // fixme : formatting broken.
+            lore.add(HELP_GUI_HIGH_SCORE_LORE_FORMAT.getFormattedValue(scoreText));
         }
         return lore;
     }
