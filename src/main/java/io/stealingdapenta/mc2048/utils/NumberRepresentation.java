@@ -1,6 +1,7 @@
 package io.stealingdapenta.mc2048.utils;
 
 import static io.stealingdapenta.mc2048.MC2048.logger;
+import static io.stealingdapenta.mc2048.config.ConfigKey.HELP_GUI_LEGEND_BLOCKS_NAME_PREFIX;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_EIGHT;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_EIGHT_CMD;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_EIGHT_THOUSAND_ONE_HUNDRED_NINETY_TWO;
@@ -40,9 +41,12 @@ import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_TWO_THOUSAND_F
 import static io.stealingdapenta.mc2048.utils.ItemBuilder.setCustomModelDataTo;
 
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.function.Supplier;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 public enum NumberRepresentation {
     TWO(2, 2, MATERIAL_TWO::getMaterialValue, MATERIAL_TWO_CMD::getIntValue),
@@ -117,5 +121,15 @@ public enum NumberRepresentation {
 
     public ItemStack getDisplayableBlock() {
         return setCustomModelDataTo(new ItemStack(getRepresentation(), amount), this);
+    }
+
+    public ItemStack getDisplayableLegendBlock() {
+        ItemStack block = getDisplayableBlock();
+        ItemMeta blockMeta = block.getItemMeta();
+        assert Objects.nonNull(blockMeta);
+        blockMeta.setDisplayName(LegacyComponentSerializer.legacySection()
+                                                          .serialize(HELP_GUI_LEGEND_BLOCKS_NAME_PREFIX.getFormattedValue()) + getScore());
+        block.setItemMeta(blockMeta);
+        return block;
     }
 }

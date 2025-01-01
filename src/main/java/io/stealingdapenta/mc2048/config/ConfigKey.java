@@ -100,11 +100,18 @@ public enum ConfigKey {
     MATERIAL_HELP_GUI_PLAY_BUTTON("NETHERITE_UPGRADE_SMITHING_TEMPLATE"),
     MATERIAL_HELP_GUI_PLAY_BUTTON_CMD("1000"),
     HELP_GUI_PLAY_BUTTON_NAME("Click to play!"),
+    HELP_GUI_PLAY_BUTTON_LORE("Click to play the iconic 2048 game!"),
     MATERIAL_HELP_GUI_HIGH_SCORE("SKULL_BANNER_PATTERN"),
     HELP_GUI_HIGH_SCORE_NAME("<blue><bold>High scores"),
     HELP_GUI_HIGH_SCORE_LORE_FORMAT("<aqua>%s</aqua>"),
     MATERIAL_HELP_GUI_HIGH_SCORE_CMD("1000"),
-    HELP_GUI_TITLE("     <blue><b>MC2048 HELP WINDOW");
+    HELP_GUI_TITLE("     <blue><b>MC2048 HELP WINDOW"),
+    HELP_GUI_GAME_SUMMARY_LORE_1("MC2048 is a game where you match numbers."),
+    HELP_GUI_GAME_SUMMARY_LORE_2("If you put two of the same numbers together, they combine into their sum."),
+    HELP_GUI_GAME_SUMMARY_LORE_3("Keep combining numbers to make the biggest one you can."),
+    HELP_GUI_GAME_SUMMARY_LORE_4("If the board fills up, the game is over."),
+    HELP_GUI_GAME_SUMMARY_LORE_5("Aim for the highest number!"),
+    HELP_GUI_LEGEND_BLOCKS_NAME_PREFIX("<b>Points: ");
 
     private final String defaultValue;
 

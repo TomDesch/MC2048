@@ -5,7 +5,13 @@ import static io.stealingdapenta.mc2048.config.ConfigKey.AVERAGE_SCORE;
 import static io.stealingdapenta.mc2048.config.ConfigKey.DOWN_BUTTON_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.GAMES_PLAYED;
 import static io.stealingdapenta.mc2048.config.ConfigKey.GAME_TITLE;
+import static io.stealingdapenta.mc2048.config.ConfigKey.HELP_GUI_GAME_SUMMARY_LORE_1;
+import static io.stealingdapenta.mc2048.config.ConfigKey.HELP_GUI_GAME_SUMMARY_LORE_2;
+import static io.stealingdapenta.mc2048.config.ConfigKey.HELP_GUI_GAME_SUMMARY_LORE_3;
+import static io.stealingdapenta.mc2048.config.ConfigKey.HELP_GUI_GAME_SUMMARY_LORE_4;
+import static io.stealingdapenta.mc2048.config.ConfigKey.HELP_GUI_GAME_SUMMARY_LORE_5;
 import static io.stealingdapenta.mc2048.config.ConfigKey.HELP_GUI_INFO_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.HELP_GUI_PLAY_BUTTON_LORE;
 import static io.stealingdapenta.mc2048.config.ConfigKey.HELP_GUI_PLAY_BUTTON_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.HELP_GUI_TITLE;
 import static io.stealingdapenta.mc2048.config.ConfigKey.HIGH_SCORE;
@@ -63,8 +69,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 
 /**
- * Dear visitor, If you've found this class, and you're a programmer yourself, then I challenge you to rewrite the moveItem functions (e.g., moveItemsUp) to be DRY instead of this hot mess. (And make a pull request) I promise the current version works,
- * but man is it ugly. Kind regards. Edit: rewrite it whole. This is not SRP nor good Java in general.
+ * Dear visitor, If you've found this class, and you're a programmer yourself, then I challenge you to rewrite the moveItem functions (e.g., moveItemsUp) to be DRY instead of this hot mess. (And make a pull request) I promise the current version
+ * works, but man is it ugly. Kind regards. Edit: rewrite it whole. This is not SRP nor good Java in general.
  */
 public class InventoryUtil {
 
@@ -117,8 +123,18 @@ public class InventoryUtil {
         fillWithLegend(helpGUI);
         setItemInSlot(helpGUI, playerStatsSlot, getHelpGUIPlayerStatsHead(player));
         setItemInSlot(helpGUI, highScoreSlot, highScoreManager.getHighScoresItem());
-        setItemInSlot(helpGUI, infoSlot, createButton(HELP_GUI_INFO_NAME, MATERIAL_HELP_GUI_INFO, MATERIAL_HELP_GUI_INFO_CMD));
-        setItemInSlot(helpGUI, playButtonSlot, createButton(HELP_GUI_PLAY_BUTTON_NAME, MATERIAL_HELP_GUI_PLAY_BUTTON, MATERIAL_HELP_GUI_PLAY_BUTTON_CMD));
+        setItemInSlot(helpGUI, infoSlot, setCustomModelDataTo(new ItemBuilder(MATERIAL_HELP_GUI_INFO.getMaterialValue()).setDisplayName(HELP_GUI_INFO_NAME.getFormattedValue())
+                                                                                                                        .addLore(HELP_GUI_GAME_SUMMARY_LORE_1.getFormattedValue())
+                                                                                                                        .addLore(HELP_GUI_GAME_SUMMARY_LORE_2.getFormattedValue())
+                                                                                                                        .addLore(HELP_GUI_GAME_SUMMARY_LORE_3.getFormattedValue())
+                                                                                                                        .addLore(HELP_GUI_GAME_SUMMARY_LORE_4.getFormattedValue())
+                                                                                                                        .addLore(HELP_GUI_GAME_SUMMARY_LORE_5.getFormattedValue())
+                                                                                                                        .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
+                                                                                                                        .create(), MATERIAL_HELP_GUI_INFO_CMD));
+        setItemInSlot(helpGUI, playButtonSlot, setCustomModelDataTo(new ItemBuilder(MATERIAL_HELP_GUI_PLAY_BUTTON.getMaterialValue()).setDisplayName(HELP_GUI_PLAY_BUTTON_NAME.getFormattedValue())
+                                                                                                                                     .addLore(HELP_GUI_PLAY_BUTTON_LORE)
+                                                                                                                                     .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
+                                                                                                                                     .create(), MATERIAL_HELP_GUI_PLAY_BUTTON_CMD));
         fillEmptySlots(helpGUI);
 
         return helpGUI;
@@ -139,7 +155,7 @@ public class InventoryUtil {
 
     private void fillWithLegend(Inventory inventory) {
         Arrays.stream(NumberRepresentation.values())
-              .forEach(numberRepresentation -> inventory.setItem(numberRepresentation.ordinal(), numberRepresentation.getDisplayableBlock()));
+              .forEach(numberRepresentation -> inventory.setItem(numberRepresentation.ordinal(), numberRepresentation.getDisplayableLegendBlock()));
     }
 
     private void fillSides(Inventory inventory) {
