@@ -12,9 +12,9 @@ Upon first launch, the plugin will automatically generate the config file.
 
 ```
 /2048 : Opens the game window
-/top2048 : Shows the top 10, and your position in that list
-/config : reloads the config file without having to restart the server (required permission: mc2048.reload)
-/help :  Show the legend and general information.
+/2048top : Shows the top 10, and your position in that list
+/2048reload : reloads the config file without having to restart the server (required permission: mc2048.reload)
+/2048help :  Show the legend and general information.
 ```
 
 ## Contributing

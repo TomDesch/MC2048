@@ -2,10 +2,10 @@ package io.stealingdapenta.mc2048.commands;
 
 public enum Command {
 
-    TOP("top"),
     _2048("2048"),
-    RELOAD("reload"),
-    HELP("help");
+    TOP("2048top"),
+    RELOAD("2048reload"),
+    HELP("2048help");
 
     private final String commandName;
 
