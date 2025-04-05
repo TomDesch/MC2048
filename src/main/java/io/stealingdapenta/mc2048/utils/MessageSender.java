@@ -18,7 +18,8 @@ import org.bukkit.entity.Player;
 public enum MessageSender {
     MESSAGE_SENDER;
 
-    public static final String PLAYER_OR_MESSAGE_IS_NULL = "Error sending message, player or message is null.";
+    // MESSAGE_IS_NULL is a feature: admins can disable messages
+    public static final String PLAYER_IS_NULL = "Error sending message, player is null.";
     private BukkitAudiences audiences;
 
     private BukkitAudiences getAudiences() {
@@ -33,8 +34,10 @@ public enum MessageSender {
     }
 
     public void sendMessage(CommandSender sender, ConfigKey messageConfig) {
-        if (Objects.isNull(sender) || Objects.isNull(messageConfig)) {
-            logger.severe(PLAYER_OR_MESSAGE_IS_NULL);
+        if (Objects.isNull(sender)) {
+            logger.severe(PLAYER_IS_NULL);
+            return;
+        } else if (Objects.isNull(messageConfig)) {
             return;
         }
 
@@ -47,8 +50,10 @@ public enum MessageSender {
     }
 
     public void sendMessage(Player player, Component message) {
-        if (Objects.isNull(player) || Objects.isNull(message)) {
-            logger.severe(PLAYER_OR_MESSAGE_IS_NULL);
+        if (Objects.isNull(player)) {
+            logger.severe(PLAYER_IS_NULL);
+            return;
+        } else if (Objects.isNull(message)) {
             return;
         }
 
@@ -62,8 +67,10 @@ public enum MessageSender {
     }
 
     public void sendTitle(Player player, Component titleComponent, Component subtitleComponent) {
-        if (Objects.isNull(player) || Objects.isNull(titleComponent)) {
-            logger.severe(PLAYER_OR_MESSAGE_IS_NULL);
+        if (Objects.isNull(player)) {
+            logger.severe(PLAYER_IS_NULL);
+            return;
+        } else if (Objects.isNull(titleComponent)) {
             return;
         }
 
