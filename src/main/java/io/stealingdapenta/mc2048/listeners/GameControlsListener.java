@@ -7,15 +7,20 @@ import static io.stealingdapenta.mc2048.config.ConfigKey.HELP_GUI_PLAY_BUTTON_NA
 import static io.stealingdapenta.mc2048.config.ConfigKey.INVALID_MOVE;
 import static io.stealingdapenta.mc2048.config.ConfigKey.LEFT_BUTTON_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.RIGHT_BUTTON_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.SPEED_BUTTON_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.UNDID_LAST_MOVE;
 import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.UP_BUTTON_NAME;
+import static io.stealingdapenta.mc2048.utils.FileManager.FILE_MANAGER;
 import static io.stealingdapenta.mc2048.utils.MessageSender.MESSAGE_SENDER;
 
 import io.stealingdapenta.mc2048.GameManager;
+import io.stealingdapenta.mc2048.config.ConfigKey;
 import io.stealingdapenta.mc2048.utils.ActiveGame;
 import io.stealingdapenta.mc2048.utils.Direction;
 import io.stealingdapenta.mc2048.utils.InventoryUtil;
+import io.stealingdapenta.mc2048.utils.PlayerConfigField;
+
 import java.util.Map;
 import java.util.Objects;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -28,6 +33,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.scheduler.BukkitRunnable;
 
 public class GameControlsListener implements Listener {
 
@@ -49,7 +55,8 @@ public class GameControlsListener implements Listener {
                                                                                                                                                                                                                                                   RIGHT_BUTTON_NAME.getFormattedValue()),
                                Direction.RIGHT, LegacyComponentSerializer.legacySection()
                                                                          .serialize(DOWN_BUTTON_NAME.getFormattedValue()), Direction.DOWN, LegacyComponentSerializer.legacySection()
-                                                                                                                                                                    .serialize(UNDO_BUTTON_NAME.getFormattedValue()), Direction.UNDO);
+                                                                                                                                                                    .serialize(UNDO_BUTTON_NAME.getFormattedValue()), Direction.UNDO, LegacyComponentSerializer.legacySection()
+                                                                                                                                                                                                                                                                .serialize(SPEED_BUTTON_NAME.getFormattedValue()), Direction.SPEED);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -110,6 +117,10 @@ public class GameControlsListener implements Listener {
             return;
         }
 
+        if (activeGame.isLocked()) {
+            return;
+        }
+
         String clickedItemDisplayName = getItemDisplayName(event.getCurrentItem());
         if (Objects.isNull(clickedItemDisplayName)) {
             return;
@@ -122,31 +133,54 @@ public class GameControlsListener implements Listener {
                                            .map(Map.Entry::getValue)
                                            .findFirst()
                                            .orElse(null);
+        
 
         if (Objects.isNull(direction)) {
             invalidMoveMessage(player);
             return;
         }
 
-        boolean somethingMoved = inventoryUtil.moveItemsInDirection(activeGame, direction);
-        if (!somethingMoved) {
+        if (Direction.SPEED.equals(direction)) {
+            int curr = FILE_MANAGER.getIntByKey(player, PlayerConfigField.ANIMATION_SPEED.getKey());
+            if (0 <= curr && curr <= 4) curr++;
+            else if (curr == 5)         curr = 0;
+            else                        curr = ConfigKey.DEFAULT_ANIMATION_SPEED.getIntValue();
+
+
+            FILE_MANAGER.setValueByKey(player, PlayerConfigField.ANIMATION_SPEED.getKey(), curr);
+            inventoryUtil.updateSpeedButton(activeGame, curr);
+            return;
+        }
+
+        activeGame.setLock(true);
+        
+        int tickDelay = inventoryUtil.moveItemsInDirection(activeGame, direction);
+        if (tickDelay==0) {
             invalidMoveMessage(player);
+            activeGame.setLock(false);
             return;
         }
 
-        if (Direction.UNDO.equals(direction)) {
+        if (tickDelay==-1 || Direction.UNDO.equals(direction)) {
             MESSAGE_SENDER.sendMessage(player, UNDID_LAST_MOVE);
+            activeGame.setLock(false);
             return;
-        }
+        } else if (tickDelay>0) {
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    inventoryUtil.spawnNewBlock(activeGame.getGameWindow());
+                    activeGame.setLock(false);
 
-        inventoryUtil.spawnNewBlock(activeGame.getGameWindow());
-
-        if (inventoryUtil.noValidMovesLeft(activeGame.getGameWindow()) && activeGame.hasNoUndoLastMoveLeft()) {
-            gameManager.deactivateGameFor(player);
-            activeGame.getPlayer()
-                      .getOpenInventory()
-                      .close();
-            doGameOver(activeGame);
+                    if (inventoryUtil.noValidMovesLeft(activeGame.getGameWindow()) && activeGame.hasNoUndoLastMoveLeft()) {
+                        gameManager.deactivateGameFor(player);
+                        activeGame.getPlayer()
+                                  .getOpenInventory()
+                                  .close();
+                        doGameOver(activeGame);
+                    }
+                }
+            }.runTaskLater(inventoryUtil.javaPlugin, tickDelay + (2*FILE_MANAGER.getIntByKey(player, PlayerConfigField.ANIMATION_SPEED.getKey())+2));
         }
     }
 

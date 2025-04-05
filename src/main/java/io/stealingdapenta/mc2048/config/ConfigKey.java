@@ -72,6 +72,8 @@ public enum ConfigKey {
     MATERIAL_BUTTON_UNDO_CMD("1000"),
     MATERIAL_BUTTON_UNDO_USED("BUCKET"),
     MATERIAL_BUTTON_UNDO_USED_CMD("1000"),
+    MATERIAL_BUTTON_SPEED("STONE_BUTTON"),
+    MATERIAL_BUTTON_SPEED_CMD("1000"),
     MATERIAL_GUI_PLAYER("PLAYER_HEAD"),
     MATERIAL_GUI_PLAYER_CMD("1000"),
     UP_BUTTON_NAME("<green><bold>            UP</bold></green>"),
@@ -84,6 +86,9 @@ public enum ConfigKey {
     UNDO_BUTTON_USED_LORE("<aqua>Click to undo the <bold>last move</bold>!</aqua>"),
     UNDO_BUTTON_USED_USES("<blue>Uses left: <red>0</red></blue>"),
     MOVE_BUTTON_LORE("<aqua>Click to move <bold>everything!</bold></aqua>"),
+    SPEED_BUTTON_NAME("<green><bold>         SPEED</bold></green>"),
+    SPEED_BUTTON_LORE("<aqua>Click to change the <bold>animation speed</bold>!</aqua>"),
+    SPEED_BUTTON_SPEED("<blue>Current speed: "),
     PLAYER_STATS_TITLE("<gold><bold>%s's Statistics</bold></gold>"),
     TOTAL_PLAYTIME("<b>Total playtime: <green>%s</green></b>"),
     CURRENT_PLAYTIME("<b>Current playtime: <green>%s</green></b>"),
@@ -111,7 +116,8 @@ public enum ConfigKey {
     HELP_GUI_GAME_SUMMARY_LORE_3("Keep combining numbers to make the biggest one you can."),
     HELP_GUI_GAME_SUMMARY_LORE_4("If the board fills up, the game is over."),
     HELP_GUI_GAME_SUMMARY_LORE_5("Aim for the highest number!"),
-    HELP_GUI_LEGEND_BLOCKS_NAME_PREFIX("<b>Points: ");
+    HELP_GUI_LEGEND_BLOCKS_NAME_PREFIX("<b>Points: "),
+    DEFAULT_ANIMATION_SPEED("3");
 
     private final String defaultValue;
 

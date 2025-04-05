@@ -31,6 +31,7 @@ public class ActiveGame {
     private ItemStack[][] lastPosition;
     private int scoreGainedAfterLastMove = 0;
     private boolean lastMoveUndo = false;
+    private boolean locked = false;
 
     public ActiveGame(Player player, RepeatingUpdateTask relatedTask) {
         this.player = player;
@@ -152,6 +153,14 @@ public class ActiveGame {
 
     public void setLastMoveUndo(boolean lastMoveUndo) {
         this.lastMoveUndo = lastMoveUndo;
+    }
+
+    public boolean isLocked() {
+        return locked;
+    }
+
+    public void setLock(boolean locked) {
+        this.locked = locked;
     }
 
     public double calculateNewAverageScore() {
