@@ -169,11 +169,10 @@ public enum ConfigKey {
      * @return the stored value from the config as an integer NumberFormatException safe
      */
     public int getIntValue() {
+        String value = MC2048.getInstance().getConfig().getString(name().toLowerCase());
         try {
-            return MC2048.getInstance()
-                         .getConfig()
-                         .getInt(name().toLowerCase());
-        } catch (NumberFormatException numberFormatException) {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException e) {
             logger.warning(PARSING_ERROR.getStringValue() + name().toLowerCase());
             return 0;
         }
