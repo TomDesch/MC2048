@@ -1,6 +1,6 @@
 package io.stealingdapenta.mc2048.commands;
 
-import static io.stealingdapenta.mc2048.config.ConfigKey.NOT_PLAYER;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MSG_NOT_PLAYER;
 import static io.stealingdapenta.mc2048.utils.MessageSender.MESSAGE_SENDER;
 
 import io.stealingdapenta.mc2048.GameManager;
@@ -21,7 +21,7 @@ public class GameCommand implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (!(sender instanceof Player player)) {
-            MESSAGE_SENDER.sendMessage(sender, NOT_PLAYER);
+            MESSAGE_SENDER.sendMessage(sender, MSG_NOT_PLAYER);
             return true;
         }
 

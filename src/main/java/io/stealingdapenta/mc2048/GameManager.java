@@ -1,14 +1,14 @@
 package io.stealingdapenta.mc2048;
 
 import static io.stealingdapenta.mc2048.MC2048.logger;
-import static io.stealingdapenta.mc2048.config.ConfigKey.ATTEMPT_PROTECTION;
-import static io.stealingdapenta.mc2048.config.ConfigKey.GOOD_LUCK;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MSG_ATTEMPT_PROTECTION;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MSG_GOOD_LUCK;
 import static io.stealingdapenta.mc2048.utils.FileManager.FILE_MANAGER;
 import static io.stealingdapenta.mc2048.utils.MessageSender.MESSAGE_SENDER;
 import static io.stealingdapenta.mc2048.utils.PlayerConfigField.ATTEMPTS;
-import static io.stealingdapenta.mc2048.utils.PlayerConfigField.AVERAGE_SCORE;
-import static io.stealingdapenta.mc2048.utils.PlayerConfigField.HIGH_SCORE;
-import static io.stealingdapenta.mc2048.utils.PlayerConfigField.TOTAL_PLAYTIME;
+import static io.stealingdapenta.mc2048.utils.PlayerConfigField.PLAYER_ITEM_LORE_AVERAGE_SCORE;
+import static io.stealingdapenta.mc2048.utils.PlayerConfigField.PLAYER_ITEM_LORE_HIGH_SCORE;
+import static io.stealingdapenta.mc2048.utils.PlayerConfigField.PLAYER_ITEM_LORE_TOTAL_PLAYTIME;
 
 import io.stealingdapenta.mc2048.utils.ActiveGame;
 import io.stealingdapenta.mc2048.utils.InventoryUtil;
@@ -31,7 +31,7 @@ public class GameManager {
     }
 
     public void activateGame(Player player) {
-        MESSAGE_SENDER.sendMessage(player, GOOD_LUCK);
+        MESSAGE_SENDER.sendMessage(player, MSG_GOOD_LUCK);
 
         ActiveGame activeGame = new ActiveGame(player, createTaskUpdatingPlayerStatItem(player));
         Inventory gameWindow = inventoryUtil.createGameInventory(activeGame);
@@ -59,17 +59,17 @@ public class GameManager {
 
     private void saveActiveGame(ActiveGame activeGame) {
         if (activeGame.getScore() < 1) {
-            MESSAGE_SENDER.sendMessage(activeGame.getPlayer(), ATTEMPT_PROTECTION);
+            MESSAGE_SENDER.sendMessage(activeGame.getPlayer(), MSG_ATTEMPT_PROTECTION);
             return;
         }
         if (activeGame.getScore() >= activeGame.getHighScore()) {
-            FILE_MANAGER.setValueByKey(activeGame.getPlayer(), HIGH_SCORE.getKey(), activeGame.getScore());
+            FILE_MANAGER.setValueByKey(activeGame.getPlayer(), PLAYER_ITEM_LORE_HIGH_SCORE.getKey(), activeGame.getScore());
             // todo new high score fireworks?
         }
 
         FILE_MANAGER.setValueByKey(activeGame.getPlayer(), ATTEMPTS.getKey(), activeGame.getAttempts() + 1);
-        FILE_MANAGER.setValueByKey(activeGame.getPlayer(), TOTAL_PLAYTIME.getKey(), (activeGame.getTotalPlayTime() + activeGame.getMillisecondsSinceStart()));
-        FILE_MANAGER.setValueByKey(activeGame.getPlayer(), AVERAGE_SCORE.getKey(), activeGame.calculateNewAverageScore());
+        FILE_MANAGER.setValueByKey(activeGame.getPlayer(), PLAYER_ITEM_LORE_TOTAL_PLAYTIME.getKey(), (activeGame.getTotalPlayTime() + activeGame.getMillisecondsSinceStart()));
+        FILE_MANAGER.setValueByKey(activeGame.getPlayer(), PLAYER_ITEM_LORE_AVERAGE_SCORE.getKey(), activeGame.calculateNewAverageScore());
     }
 
     public ActiveGame getActiveGame(Player player) {

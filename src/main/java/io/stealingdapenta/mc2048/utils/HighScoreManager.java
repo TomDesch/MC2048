@@ -1,9 +1,9 @@
 package io.stealingdapenta.mc2048.utils;
 
 import static io.stealingdapenta.mc2048.MC2048.logger;
-import static io.stealingdapenta.mc2048.config.ConfigKey.HELP_GUI_HIGH_SCORE_LORE_FORMAT;
-import static io.stealingdapenta.mc2048.config.ConfigKey.HELP_GUI_HIGH_SCORE_NAME;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_HELP_GUI_HIGH_SCORE;
+import static io.stealingdapenta.mc2048.config.ConfigKey.HIGH_SCORE_ITEM_LORE_FORMAT;
+import static io.stealingdapenta.mc2048.config.ConfigKey.HIGH_SCORE_ITEM_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.HIGH_SCORE_ITEM_MATERIAL;
 import static io.stealingdapenta.mc2048.utils.FileManager.FILE_MANAGER;
 
 import java.io.File;
@@ -32,7 +32,7 @@ public class HighScoreManager {
     private static final String DOT_YML = ".yml";
 
     public ItemStack getHighScoresItem() {
-        return (new ItemBuilder(MATERIAL_HELP_GUI_HIGH_SCORE.getMaterialValue())).setDisplayName(HELP_GUI_HIGH_SCORE_NAME.getFormattedValue())
+        return (new ItemBuilder(HIGH_SCORE_ITEM_MATERIAL.getMaterialValue())).setDisplayName(HIGH_SCORE_ITEM_NAME.getFormattedValue())
                                                                                  .addLoreList(getTopTenLore())
                                                                                  .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
                                                                                  .create();
@@ -52,7 +52,7 @@ public class HighScoreManager {
                                              entry.getValue()        // Score
                                             );
 
-            lore.add(HELP_GUI_HIGH_SCORE_LORE_FORMAT.getFormattedValue(scoreText));
+            lore.add(HIGH_SCORE_ITEM_LORE_FORMAT.getFormattedValue(scoreText));
         }
         return lore;
     }
@@ -110,7 +110,7 @@ public class HighScoreManager {
         String uuid = getPlayerUUIDFrom(playerFile);
         String playerName = getPlayerName(uuid);
         if (Objects.nonNull(playerName)) {
-            int hiScore = FILE_MANAGER.getIntByKey(uuid, PlayerConfigField.HIGH_SCORE.getKey());
+            int hiScore = FILE_MANAGER.getIntByKey(uuid, PlayerConfigField.PLAYER_ITEM_LORE_HIGH_SCORE.getKey());
             return new AbstractMap.SimpleEntry<>(playerName, hiScore);
         }
         return null;

@@ -4,10 +4,10 @@ import io.stealingdapenta.mc2048.MC2048;
 import io.stealingdapenta.mc2048.config.ConfigKey;
 
 public enum PlayerConfigField {
-    HIGH_SCORE("high-score"),
+    PLAYER_ITEM_LORE_HIGH_SCORE("high-score"),
     ATTEMPTS("Attempts"),
-    TOTAL_PLAYTIME("playtime"),
-    AVERAGE_SCORE("average"),
+    PLAYER_ITEM_LORE_TOTAL_PLAYTIME("playtime"),
+    PLAYER_ITEM_LORE_AVERAGE_SCORE("average"),
     ANIMATION_SPEED("speed");
 
     private final String key;

@@ -1,58 +1,62 @@
 package io.stealingdapenta.mc2048.utils;
 
 import static io.stealingdapenta.mc2048.MC2048.logger;
-import static io.stealingdapenta.mc2048.config.ConfigKey.AVERAGE_SCORE;
-import static io.stealingdapenta.mc2048.config.ConfigKey.DOWN_BUTTON_NAME;
-import static io.stealingdapenta.mc2048.config.ConfigKey.GAMES_PLAYED;
-import static io.stealingdapenta.mc2048.config.ConfigKey.GAME_TITLE;
-import static io.stealingdapenta.mc2048.config.ConfigKey.HELP_GUI_GAME_SUMMARY_LORE_1;
-import static io.stealingdapenta.mc2048.config.ConfigKey.HELP_GUI_GAME_SUMMARY_LORE_2;
-import static io.stealingdapenta.mc2048.config.ConfigKey.HELP_GUI_GAME_SUMMARY_LORE_3;
-import static io.stealingdapenta.mc2048.config.ConfigKey.HELP_GUI_GAME_SUMMARY_LORE_4;
-import static io.stealingdapenta.mc2048.config.ConfigKey.HELP_GUI_GAME_SUMMARY_LORE_5;
-import static io.stealingdapenta.mc2048.config.ConfigKey.HELP_GUI_INFO_NAME;
-import static io.stealingdapenta.mc2048.config.ConfigKey.HELP_GUI_PLAY_BUTTON_LORE;
-import static io.stealingdapenta.mc2048.config.ConfigKey.HELP_GUI_PLAY_BUTTON_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_LORE_AVERAGE_SCORE;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_DOWN_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_LORE_GAMES_PLAYED;
+import static io.stealingdapenta.mc2048.config.ConfigKey.GAME_GUI_TITLE;
+import static io.stealingdapenta.mc2048.config.ConfigKey.INFO_ITEM_LORE_1;
+import static io.stealingdapenta.mc2048.config.ConfigKey.INFO_ITEM_LORE_2;
+import static io.stealingdapenta.mc2048.config.ConfigKey.INFO_ITEM_LORE_3;
+import static io.stealingdapenta.mc2048.config.ConfigKey.INFO_ITEM_LORE_4;
+import static io.stealingdapenta.mc2048.config.ConfigKey.INFO_ITEM_LORE_5;
+import static io.stealingdapenta.mc2048.config.ConfigKey.INFO_ITEM_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.PLAY_BUTTON_LORE;
+import static io.stealingdapenta.mc2048.config.ConfigKey.PLAY_BUTTON_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.HELP_GUI_TITLE;
-import static io.stealingdapenta.mc2048.config.ConfigKey.HIGH_SCORE;
-import static io.stealingdapenta.mc2048.config.ConfigKey.LEFT_BUTTON_NAME;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_BUTTON_DOWN;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_BUTTON_DOWN_CMD;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_BUTTON_LEFT;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_BUTTON_LEFT_CMD;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_BUTTON_RIGHT;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_BUTTON_RIGHT_CMD;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_BUTTON_SPEED;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_BUTTON_SPEED_CMD;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_BUTTON_UNDO;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_BUTTON_UNDO_CMD;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_BUTTON_UNDO_USED;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_BUTTON_UNDO_USED_CMD;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_BUTTON_UP;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_BUTTON_UP_CMD;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_GUI_FILLER;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_GUI_FILLER_CMD;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_GUI_PLAYER;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_GUI_PLAYER_CMD;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_HELP_GUI_FILLER;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_HELP_GUI_FILLER_CMD;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_HELP_GUI_INFO;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_HELP_GUI_INFO_CMD;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_HELP_GUI_PLAY_BUTTON;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_HELP_GUI_PLAY_BUTTON_CMD;
+import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_LORE_HIGH_SCORE;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_LEFT_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_DOWN_MATERIAL;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_DOWN_MATERIAL_CMD;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_LEFT_MATERIAL;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_LEFT_MATERIAL_CMD;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_RIGHT_MATERIAL;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_RIGHT_MATERIAL_CMD;
+import static io.stealingdapenta.mc2048.config.ConfigKey.SPEED_BUTTON_MATERIAL;
+import static io.stealingdapenta.mc2048.config.ConfigKey.SPEED_BUTTON_MATERIAL_CMD;
+import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_UNUSED_MATERIAL;
+import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_UNUSED_MATERIAL_CMD;
+import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_UNUSED_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_USED_MATERIAL;
+import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_USED_MATERIAL_CMD;
+import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_USED_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_UP_MATERIAL;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_UP_MATERIAL_CMD;
+import static io.stealingdapenta.mc2048.config.ConfigKey.GAME_GUI_FILLER_MATERIAL;
+import static io.stealingdapenta.mc2048.config.ConfigKey.GAME_GUI_FILLER_MATERIAL_CMD;
+import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_MATERIAL;
+import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_MATERIAL_CMD;
+import static io.stealingdapenta.mc2048.config.ConfigKey.HELP_GUI_FILLER_MATERIAL;
+import static io.stealingdapenta.mc2048.config.ConfigKey.HELP_GUI_FILLER_MATERIAL_CMD;
+import static io.stealingdapenta.mc2048.config.ConfigKey.INFO_ITEM_MATERIAL;
+import static io.stealingdapenta.mc2048.config.ConfigKey.INFO_ITEM_MATERIAL_CMD;
+import static io.stealingdapenta.mc2048.config.ConfigKey.PLAY_BUTTON_MATERIAL;
+import static io.stealingdapenta.mc2048.config.ConfigKey.PLAY_BUTTON_MATERIAL_CMD;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_LORE;
-import static io.stealingdapenta.mc2048.config.ConfigKey.NUMBER_OF_UNDO;
-import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_STATS_TITLE;
-import static io.stealingdapenta.mc2048.config.ConfigKey.RIGHT_BUTTON_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_USAGES;
+import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_USED_LORE;
+import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_RIGHT_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.SPEED_BUTTON_LORE;
 import static io.stealingdapenta.mc2048.config.ConfigKey.SPEED_BUTTON_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.SPEED_BUTTON_SLOT;
 import static io.stealingdapenta.mc2048.config.ConfigKey.SPEED_BUTTON_SPEED;
-import static io.stealingdapenta.mc2048.config.ConfigKey.TOTAL_PLAYTIME;
-import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_SLOT;
+import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_LORE_TOTAL_PLAYTIME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_UNUSED_LORE;
 import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_UNUSED_USES;
 import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_USED_USES;
-import static io.stealingdapenta.mc2048.config.ConfigKey.UP_BUTTON_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_UP_NAME;
 import static io.stealingdapenta.mc2048.utils.FileManager.FILE_MANAGER;
 import static io.stealingdapenta.mc2048.utils.ActiveGame.makeSecondsATimestamp;
 import static io.stealingdapenta.mc2048.utils.ItemBuilder.setCustomModelDataTo;
@@ -109,7 +113,7 @@ public class InventoryUtil {
     }
 
     public static ItemStack getPlayerSkullItem(Player player) {
-        ItemStack playerHead = setCustomModelDataTo((new ItemBuilder(MATERIAL_GUI_PLAYER.getMaterialValue())).create(), MATERIAL_GUI_PLAYER_CMD);
+        ItemStack playerHead = setCustomModelDataTo((new ItemBuilder(PLAYER_ITEM_MATERIAL.getMaterialValue())).create(), PLAYER_ITEM_MATERIAL_CMD);
         SkullMeta skullMeta = (SkullMeta) playerHead.getItemMeta();
         if (Objects.isNull(skullMeta)) {
             logger.warning(ERROR_SKULL.formatted(player.getName()));
@@ -117,13 +121,13 @@ public class InventoryUtil {
         }
         skullMeta.setOwningPlayer(player);
         skullMeta.setDisplayName(LegacyComponentSerializer.legacySection()
-                                                          .serialize(PLAYER_STATS_TITLE.getFormattedValue(player.getName())));
+                                                          .serialize(PLAYER_ITEM_NAME.getFormattedValue(player.getName())));
         playerHead.setItemMeta(skullMeta);
         return playerHead;
     }
 
     public Inventory createGameInventory(ActiveGame activeGame) {
-        Inventory inventory = createGUIWindow(activeGame.getPlayer(), GAME_TITLE);
+        Inventory inventory = createGUIWindow(activeGame.getPlayer(), GAME_GUI_TITLE);
         fillSides(inventory);
         activeGame.setGameWindow(inventory);
         setButtonsAndStats(activeGame);
@@ -141,18 +145,18 @@ public class InventoryUtil {
         fillWithLegend(helpGUI);
         setItemInSlot(helpGUI, playerStatsSlot, getHelpGUIPlayerStatsHead(player));
         setItemInSlot(helpGUI, highScoreSlot, highScoreManager.getHighScoresItem());
-        setItemInSlot(helpGUI, infoSlot, setCustomModelDataTo(new ItemBuilder(MATERIAL_HELP_GUI_INFO.getMaterialValue()).setDisplayName(HELP_GUI_INFO_NAME.getFormattedValue())
-                                                                                                                        .addLore(HELP_GUI_GAME_SUMMARY_LORE_1.getFormattedValue())
-                                                                                                                        .addLore(HELP_GUI_GAME_SUMMARY_LORE_2.getFormattedValue())
-                                                                                                                        .addLore(HELP_GUI_GAME_SUMMARY_LORE_3.getFormattedValue())
-                                                                                                                        .addLore(HELP_GUI_GAME_SUMMARY_LORE_4.getFormattedValue())
-                                                                                                                        .addLore(HELP_GUI_GAME_SUMMARY_LORE_5.getFormattedValue())
+        setItemInSlot(helpGUI, infoSlot, setCustomModelDataTo(new ItemBuilder(INFO_ITEM_MATERIAL.getMaterialValue()).setDisplayName(INFO_ITEM_NAME.getFormattedValue())
+                                                                                                                        .addLore(INFO_ITEM_LORE_1.getFormattedValue())
+                                                                                                                        .addLore(INFO_ITEM_LORE_2.getFormattedValue())
+                                                                                                                        .addLore(INFO_ITEM_LORE_3.getFormattedValue())
+                                                                                                                        .addLore(INFO_ITEM_LORE_4.getFormattedValue())
+                                                                                                                        .addLore(INFO_ITEM_LORE_5.getFormattedValue())
                                                                                                                         .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
-                                                                                                                        .create(), MATERIAL_HELP_GUI_INFO_CMD));
-        setItemInSlot(helpGUI, playButtonSlot, setCustomModelDataTo(new ItemBuilder(MATERIAL_HELP_GUI_PLAY_BUTTON.getMaterialValue()).setDisplayName(HELP_GUI_PLAY_BUTTON_NAME.getFormattedValue())
-                                                                                                                                     .addLore(HELP_GUI_PLAY_BUTTON_LORE)
+                                                                                                                        .create(), INFO_ITEM_MATERIAL_CMD));
+        setItemInSlot(helpGUI, playButtonSlot, setCustomModelDataTo(new ItemBuilder(PLAY_BUTTON_MATERIAL.getMaterialValue()).setDisplayName(PLAY_BUTTON_NAME.getFormattedValue())
+                                                                                                                                     .addLore(PLAY_BUTTON_LORE)
                                                                                                                                      .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
-                                                                                                                                     .create(), MATERIAL_HELP_GUI_PLAY_BUTTON_CMD));
+                                                                                                                                     .create(), PLAY_BUTTON_MATERIAL_CMD));
         fillEmptySlots(helpGUI);
 
         return helpGUI;
@@ -201,12 +205,12 @@ public class InventoryUtil {
     }
 
     private ItemStack getGameFillerItem() {
-        return new ItemBuilder(setCustomModelDataTo(new ItemStack(MATERIAL_GUI_FILLER.getMaterialValue(), 1), MATERIAL_GUI_FILLER_CMD)).setDisplayName(" ")
+        return new ItemBuilder(setCustomModelDataTo(new ItemStack(GAME_GUI_FILLER_MATERIAL.getMaterialValue(), 1), GAME_GUI_FILLER_MATERIAL_CMD)).setDisplayName(" ")
                                                                                                                                        .create();
     }
 
     private ItemStack getHelpGuiFillerItem() {
-        return new ItemBuilder(setCustomModelDataTo(new ItemStack(MATERIAL_HELP_GUI_FILLER.getMaterialValue(), 1), MATERIAL_HELP_GUI_FILLER_CMD)).setDisplayName(" ")
+        return new ItemBuilder(setCustomModelDataTo(new ItemStack(HELP_GUI_FILLER_MATERIAL.getMaterialValue(), 1), HELP_GUI_FILLER_MATERIAL_CMD)).setDisplayName(" ")
                                                                                                                                                  .create();
     }
 
@@ -215,14 +219,14 @@ public class InventoryUtil {
         final int SLOT_LEFT = 24;
         final int SLOT_RIGHT = 26;
         final int SLOT_DOWN = 34;
-        final int SLOT_UNDO = 42;
-        final int SLOT_SPEED = 44;
-        setItemInSlot(activeGame.getGameWindow(), SLOT_UP, createButton(UP_BUTTON_NAME, MATERIAL_BUTTON_UP, MATERIAL_BUTTON_UP_CMD));
-        setItemInSlot(activeGame.getGameWindow(), SLOT_LEFT, createButton(LEFT_BUTTON_NAME, MATERIAL_BUTTON_LEFT, MATERIAL_BUTTON_LEFT_CMD));
-        setItemInSlot(activeGame.getGameWindow(), SLOT_RIGHT, createButton(RIGHT_BUTTON_NAME, MATERIAL_BUTTON_RIGHT, MATERIAL_BUTTON_RIGHT_CMD));
-        setItemInSlot(activeGame.getGameWindow(), SLOT_DOWN, createButton(DOWN_BUTTON_NAME, MATERIAL_BUTTON_DOWN, MATERIAL_BUTTON_DOWN_CMD));
-        setItemInSlot(activeGame.getGameWindow(), SLOT_UNDO, createUndoButton(NUMBER_OF_UNDO.getIntValue()));
-        setItemInSlot(activeGame.getGameWindow(), SLOT_SPEED, createSpeedButton(FILE_MANAGER.getIntByKey(activeGame.getPlayer(), PlayerConfigField.ANIMATION_SPEED.getKey())));
+        final int SLOT_UNDO = UNDO_BUTTON_SLOT.getIntValue();
+        final int SLOT_SPEED = SPEED_BUTTON_SLOT.getIntValue();
+        setItemInSlot(activeGame.getGameWindow(), SLOT_UP, createButton(MOVE_BUTTON_UP_NAME, MOVE_BUTTON_UP_MATERIAL, MOVE_BUTTON_UP_MATERIAL_CMD));
+        setItemInSlot(activeGame.getGameWindow(), SLOT_LEFT, createButton(MOVE_BUTTON_LEFT_NAME, MOVE_BUTTON_LEFT_MATERIAL, MOVE_BUTTON_LEFT_MATERIAL_CMD));
+        setItemInSlot(activeGame.getGameWindow(), SLOT_RIGHT, createButton(MOVE_BUTTON_RIGHT_NAME, MOVE_BUTTON_RIGHT_MATERIAL, MOVE_BUTTON_RIGHT_MATERIAL_CMD));
+        setItemInSlot(activeGame.getGameWindow(), SLOT_DOWN, createButton(MOVE_BUTTON_DOWN_NAME, MOVE_BUTTON_DOWN_MATERIAL, MOVE_BUTTON_DOWN_MATERIAL_CMD));
+        if (SLOT_UNDO>=0) setItemInSlot(activeGame.getGameWindow(), SLOT_UNDO, createUndoButton(UNDO_BUTTON_USAGES.getIntValue()));
+        if (SLOT_SPEED>=0) setItemInSlot(activeGame.getGameWindow(), SLOT_SPEED, createSpeedButton(FILE_MANAGER.getIntByKey(activeGame.getPlayer(), PlayerConfigField.ANIMATION_SPEED.getKey())));
     }
 
     private ItemStack createButton(ConfigKey buttonName, ConfigKey materialName, ConfigKey customMetaData) {
@@ -233,33 +237,33 @@ public class InventoryUtil {
     }
 
     private ItemStack createUndoButton(int numberOfUndoLeft) {
-        return setCustomModelDataTo(new ItemBuilder(MATERIAL_BUTTON_UNDO.getMaterialValue()).setDisplayName(UNDO_BUTTON_NAME)
+        return setCustomModelDataTo(new ItemBuilder(UNDO_BUTTON_UNUSED_MATERIAL.getMaterialValue()).setDisplayName(UNDO_BUTTON_UNUSED_NAME)
                                                                                             .addLore(UNDO_BUTTON_UNUSED_LORE)
                                                                                             .addLore(UNDO_BUTTON_UNUSED_USES.getFormattedValue()
                                                                                                                             .append(Component.text(numberOfUndoLeft)))
                                                                                             .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
-                                                                                            .create(), MATERIAL_BUTTON_UNDO_CMD);
+                                                                                            .create(), UNDO_BUTTON_UNUSED_MATERIAL_CMD);
     }
 
     private ItemStack createUsedUndoButton() {
-        return setCustomModelDataTo(new ItemBuilder(MATERIAL_BUTTON_UNDO_USED.getMaterialValue()).setDisplayName(UNDO_BUTTON_NAME)
-                                                                                                 .addLore(UNDO_BUTTON_UNUSED_LORE)
+        return setCustomModelDataTo(new ItemBuilder(UNDO_BUTTON_USED_MATERIAL.getMaterialValue()).setDisplayName(UNDO_BUTTON_USED_NAME)
+                                                                                                 .addLore(UNDO_BUTTON_USED_LORE)
                                                                                                  .addLore(UNDO_BUTTON_USED_USES)
                                                                                                  .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
-                                                                                                 .create(), MATERIAL_BUTTON_UNDO_USED_CMD);
+                                                                                                 .create(), UNDO_BUTTON_USED_MATERIAL_CMD);
     }
 
     private ItemStack createSpeedButton(int currentSpeed) {
-        return setCustomModelDataTo(new ItemBuilder(MATERIAL_BUTTON_SPEED.getMaterialValue()).setDisplayName(SPEED_BUTTON_NAME)
+        return setCustomModelDataTo(new ItemBuilder(SPEED_BUTTON_MATERIAL.getMaterialValue()).setDisplayName(SPEED_BUTTON_NAME)
                                                                                             .addLore(SPEED_BUTTON_LORE)
                                                                                             .addLore(SPEED_BUTTON_SPEED.getFormattedValue()
                                                                                                                             .append(Component.text(currentSpeed)))
                                                                                             .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
-                                                                                            .create(), MATERIAL_BUTTON_SPEED_CMD);
+                                                                                            .create(), SPEED_BUTTON_MATERIAL_CMD);
     }
 
-    public void updateSpeedButton(ActiveGame activeGame, int newSpeed) { // FIXME not DRY
-        setItemInSlot(activeGame.getGameWindow(), 44, createSpeedButton(newSpeed));
+    public void updateSpeedButton(ActiveGame activeGame, int newSpeed) {
+        setItemInSlot(activeGame.getGameWindow(), SPEED_BUTTON_SLOT.getIntValue(), createSpeedButton(newSpeed));
     }
 
     private void setItemInSlot(Inventory inventory, int slot, ItemStack itemStack) {
@@ -272,7 +276,7 @@ public class InventoryUtil {
     }
 
     public boolean isGameWindow(InventoryView inventoryView) {
-        return isKnownWindow(inventoryView, GAME_TITLE);
+        return isKnownWindow(inventoryView, GAME_GUI_TITLE);
     }
 
     public boolean isHelpWindow(InventoryView inventoryView) {
@@ -345,7 +349,7 @@ public class InventoryUtil {
         }
         // [debug] javaPlugin.getLogger().info("moveItems.instructions.isEmpty() == false");
     
-        // Animate the moves and get the maximum number of steps (ticks) needed.
+        // Animate the moves and get the maximum number of steps (ticks) needed
         int maxSteps = animateMovementsSimultaneous(player, activeGame.getGameWindow(), instructions);
     
         // Compute tick delay for final board update (ensure at least 1 tick delay)
@@ -462,7 +466,7 @@ public class InventoryUtil {
             }
         }
     
-        // Update all instructions with the final total step count, then add them to the overall list.
+        // Update all instructions with the final total step count, then add them to the overall list
         for (MovementInstruction instr : tileInstructions) {
             instr.totalSteps = stepCount;
             instructions.add(instr);
@@ -491,7 +495,7 @@ public class InventoryUtil {
         int maxSteps = instructions.stream().mapToInt(instr -> instr.totalSteps).max().orElse(0);
         // [debug] javaPlugin.getLogger().info("animateMovementsSimultaneous.maxSteps == " + maxSteps);
         
-        // For each step, schedule a task to update the GUI accordingly.
+        // For each step, schedule a task to update the GUI accordingly
         for (int step = 1; step <= maxSteps; step++) {
             final int currentStep = step;
             new BukkitRunnable() {
@@ -596,8 +600,7 @@ public class InventoryUtil {
         activeGame.addToScore(-activeGame.getScoreGainedAfterLastMove());
         activeGame.decrementUndoLastMoveCounter();
 
-        final int SLOT_UNDO = 42; // FIXME not DRY
-        setItemInSlot(activeGame.getGameWindow(), SLOT_UNDO, activeGame.hasNoUndoLastMoveLeft() ? createUsedUndoButton() : createUndoButton(activeGame.getUndoLastMoveCounter()));
+        setItemInSlot(activeGame.getGameWindow(), UNDO_BUTTON_SLOT.getIntValue(), activeGame.hasNoUndoLastMoveLeft() ? createUsedUndoButton() : createUndoButton(activeGame.getUndoLastMoveCounter()));
         activeGame.setLastMoveUndo(true);
         return -1;
     }
@@ -657,10 +660,10 @@ public class InventoryUtil {
     }
 
     private ItemStack getHelpGUIPlayerStatsHead(Player player) {
-        return (new ItemBuilder(getPlayerSkullItem(player))).addLore(TOTAL_PLAYTIME.getFormattedValue(makeSecondsATimestamp(FILE_MANAGER.getLongByKey(player, PlayerConfigField.TOTAL_PLAYTIME.getKey()))))
-                                                            .addLore(HIGH_SCORE.getFormattedValue(String.valueOf(FILE_MANAGER.getLongByKey(player, PlayerConfigField.HIGH_SCORE.getKey()))))
-                                                            .addLore(GAMES_PLAYED.getFormattedValue(String.valueOf(FILE_MANAGER.getLongByKey(player, PlayerConfigField.ATTEMPTS.getKey()))))
-                                                            .addLore(AVERAGE_SCORE.getFormattedValue(String.valueOf(Math.round(FILE_MANAGER.getLongByKey(player, PlayerConfigField.AVERAGE_SCORE.getKey())))))
+        return (new ItemBuilder(getPlayerSkullItem(player))).addLore(PLAYER_ITEM_LORE_TOTAL_PLAYTIME.getFormattedValue(makeSecondsATimestamp(FILE_MANAGER.getLongByKey(player, PlayerConfigField.PLAYER_ITEM_LORE_TOTAL_PLAYTIME.getKey()))))
+                                                            .addLore(PLAYER_ITEM_LORE_HIGH_SCORE.getFormattedValue(String.valueOf(FILE_MANAGER.getLongByKey(player, PlayerConfigField.PLAYER_ITEM_LORE_HIGH_SCORE.getKey()))))
+                                                            .addLore(PLAYER_ITEM_LORE_GAMES_PLAYED.getFormattedValue(String.valueOf(FILE_MANAGER.getLongByKey(player, PlayerConfigField.ATTEMPTS.getKey()))))
+                                                            .addLore(PLAYER_ITEM_LORE_AVERAGE_SCORE.getFormattedValue(String.valueOf(Math.round(FILE_MANAGER.getLongByKey(player, PlayerConfigField.PLAYER_ITEM_LORE_AVERAGE_SCORE.getKey())))))
                                                             .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
                                                             .create();
     }

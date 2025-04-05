@@ -1,16 +1,16 @@
 package io.stealingdapenta.mc2048.listeners;
 
 import static io.stealingdapenta.mc2048.MC2048.logger;
-import static io.stealingdapenta.mc2048.config.ConfigKey.DOWN_BUTTON_NAME;
-import static io.stealingdapenta.mc2048.config.ConfigKey.GAME_OVER;
-import static io.stealingdapenta.mc2048.config.ConfigKey.HELP_GUI_PLAY_BUTTON_NAME;
-import static io.stealingdapenta.mc2048.config.ConfigKey.INVALID_MOVE;
-import static io.stealingdapenta.mc2048.config.ConfigKey.LEFT_BUTTON_NAME;
-import static io.stealingdapenta.mc2048.config.ConfigKey.RIGHT_BUTTON_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_DOWN_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MSG_GAME_OVER;
+import static io.stealingdapenta.mc2048.config.ConfigKey.PLAY_BUTTON_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MSG_INVALID_MOVE;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_LEFT_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_RIGHT_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.SPEED_BUTTON_NAME;
-import static io.stealingdapenta.mc2048.config.ConfigKey.UNDID_LAST_MOVE;
-import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_NAME;
-import static io.stealingdapenta.mc2048.config.ConfigKey.UP_BUTTON_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MSG_UNDID_LAST_MOVE;
+import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_UNUSED_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_UP_NAME;
 import static io.stealingdapenta.mc2048.utils.FileManager.FILE_MANAGER;
 import static io.stealingdapenta.mc2048.utils.MessageSender.MESSAGE_SENDER;
 
@@ -37,7 +37,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 public class GameControlsListener implements Listener {
 
-    private static final String GAME_OVER_SUB = "Score: %s | Playtime: %s"; // fixme potentially move this to configs
+    private static final String MSG_GAME_OVER_SUB = "Score: %s | Playtime: %s"; // fixme potentially move this to configs
     private Map<String, Direction> DIRECTION_MAP;
     private final InventoryUtil inventoryUtil;
     private final GameManager gameManager;
@@ -49,13 +49,13 @@ public class GameControlsListener implements Listener {
 
     private void initDirectionMap() {
         DIRECTION_MAP = Map.of(LegacyComponentSerializer.legacySection()
-                                                        .serialize(UP_BUTTON_NAME.getFormattedValue()), Direction.UP, LegacyComponentSerializer.legacySection()
-                                                                                                                                               .serialize(LEFT_BUTTON_NAME.getFormattedValue()), Direction.LEFT, LegacyComponentSerializer.legacySection()
+                                                        .serialize(MOVE_BUTTON_UP_NAME.getFormattedValue()), Direction.UP, LegacyComponentSerializer.legacySection()
+                                                                                                                                               .serialize(MOVE_BUTTON_LEFT_NAME.getFormattedValue()), Direction.LEFT, LegacyComponentSerializer.legacySection()
                                                                                                                                                                                                                                           .serialize(
-                                                                                                                                                                                                                                                  RIGHT_BUTTON_NAME.getFormattedValue()),
+                                                                                                                                                                                                                                                  MOVE_BUTTON_RIGHT_NAME.getFormattedValue()),
                                Direction.RIGHT, LegacyComponentSerializer.legacySection()
-                                                                         .serialize(DOWN_BUTTON_NAME.getFormattedValue()), Direction.DOWN, LegacyComponentSerializer.legacySection()
-                                                                                                                                                                    .serialize(UNDO_BUTTON_NAME.getFormattedValue()), Direction.UNDO, LegacyComponentSerializer.legacySection()
+                                                                         .serialize(MOVE_BUTTON_DOWN_NAME.getFormattedValue()), Direction.DOWN, LegacyComponentSerializer.legacySection()
+                                                                                                                                                                    .serialize(UNDO_BUTTON_UNUSED_NAME.getFormattedValue()), Direction.UNDO, LegacyComponentSerializer.legacySection()
                                                                                                                                                                                                                                                                 .serialize(SPEED_BUTTON_NAME.getFormattedValue()), Direction.SPEED);
     }
 
@@ -88,7 +88,7 @@ public class GameControlsListener implements Listener {
         }
 
         // Currently the only performable action in the help menu, is to launch the game
-        if (clickedItemDisplayName.contains(HELP_GUI_PLAY_BUTTON_NAME.getStringValue())) {
+        if (clickedItemDisplayName.contains(PLAY_BUTTON_NAME.getStringValue())) {
             gameManager.activateGame(player);
         }
     }
@@ -162,7 +162,7 @@ public class GameControlsListener implements Listener {
         }
 
         if (tickDelay==-1 || Direction.UNDO.equals(direction)) {
-            MESSAGE_SENDER.sendMessage(player, UNDID_LAST_MOVE);
+            MESSAGE_SENDER.sendMessage(player, MSG_UNDID_LAST_MOVE);
             activeGame.setLock(false);
             return;
         } else if (tickDelay>0) {
@@ -185,7 +185,7 @@ public class GameControlsListener implements Listener {
     }
 
     private void invalidMoveMessage(Player player) {
-        MESSAGE_SENDER.sendMessage(player, INVALID_MOVE);
+        MESSAGE_SENDER.sendMessage(player, MSG_INVALID_MOVE);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -207,7 +207,7 @@ public class GameControlsListener implements Listener {
     }
 
     private void doGameOver(ActiveGame activeGame) {
-        MESSAGE_SENDER.sendMessage(activeGame.getPlayer(), GAME_OVER);
-        MESSAGE_SENDER.sendTitle(activeGame.getPlayer(), GAME_OVER, GAME_OVER_SUB.formatted(activeGame.getScore(), activeGame.getCurrentPlayTimeFormatted()));
+        MESSAGE_SENDER.sendMessage(activeGame.getPlayer(), MSG_GAME_OVER);
+        MESSAGE_SENDER.sendTitle(activeGame.getPlayer(), MSG_GAME_OVER, MSG_GAME_OVER_SUB.formatted(activeGame.getScore(), activeGame.getCurrentPlayTimeFormatted()));
     }
 }

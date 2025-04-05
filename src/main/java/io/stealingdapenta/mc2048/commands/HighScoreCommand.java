@@ -1,8 +1,8 @@
 package io.stealingdapenta.mc2048.commands;
 
-import static io.stealingdapenta.mc2048.config.ConfigKey.NOT_PLAYER;
-import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_POSITION;
-import static io.stealingdapenta.mc2048.config.ConfigKey.TOP_TEN;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MSG_NOT_PLAYER;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MSG_PLAYER_POSITION;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MSG_TOP_TEN;
 import static io.stealingdapenta.mc2048.utils.MessageSender.MESSAGE_SENDER;
 
 import io.stealingdapenta.mc2048.utils.HighScoreManager;
@@ -30,20 +30,20 @@ public class HighScoreCommand implements CommandExecutor {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (!(sender instanceof Player player)) {
 
-            MESSAGE_SENDER.sendMessage(sender, NOT_PLAYER);
+            MESSAGE_SENDER.sendMessage(sender, MSG_NOT_PLAYER);
             return true;
         }
         int playersPosition = highScoreManager.getPlayerPosition(player);
         Map<String, Integer> highScores = highScoreManager.getTop10HiScores();
 
-        MESSAGE_SENDER.sendMessage(player, TOP_TEN);
+        MESSAGE_SENDER.sendMessage(player, MSG_TOP_TEN);
         List<Entry<String, Integer>> highScoresList = new ArrayList<>(highScores.entrySet());
 
         highScoresList.stream()
                       .map(entry -> String.format(PLAYER_SCORE, highScoresList.indexOf(entry) + 1, entry.getKey(), entry.getValue()))
                       .forEach(player::sendMessage);
 
-        MESSAGE_SENDER.sendMessage(player, PLAYER_POSITION); // todo combine these again
+        MESSAGE_SENDER.sendMessage(player, MSG_PLAYER_POSITION); // todo combine these again
         player.sendMessage(String.valueOf(playersPosition));
 
         return true;

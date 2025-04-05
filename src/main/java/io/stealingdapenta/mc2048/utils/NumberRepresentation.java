@@ -1,7 +1,7 @@
 package io.stealingdapenta.mc2048.utils;
 
 import static io.stealingdapenta.mc2048.MC2048.logger;
-import static io.stealingdapenta.mc2048.config.ConfigKey.HELP_GUI_LEGEND_BLOCKS_NAME_PREFIX;
+import static io.stealingdapenta.mc2048.config.ConfigKey.HELP_GUI_LEGEND_ITEM_NAME_PREFIX;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_EIGHT;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_EIGHT_CMD;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_EIGHT_THOUSAND_ONE_HUNDRED_NINETY_TWO;
@@ -128,7 +128,7 @@ public enum NumberRepresentation {
         ItemMeta blockMeta = block.getItemMeta();
         assert Objects.nonNull(blockMeta);
         blockMeta.setDisplayName(LegacyComponentSerializer.legacySection()
-                                                          .serialize(HELP_GUI_LEGEND_BLOCKS_NAME_PREFIX.getFormattedValue()) + getScore());
+                                                          .serialize(HELP_GUI_LEGEND_ITEM_NAME_PREFIX.getFormattedValue()) + getScore());
         block.setItemMeta(blockMeta);
         return block;
     }
