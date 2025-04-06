@@ -1,0 +1,123 @@
+# Alternative Default Config for MC2048 v1.2.0
+
+# Messages sent to players
+msg_reloaded: "&aReloaded MC2048 config!"
+msg_no_perms: "&cNo permission."
+msg_parsing_error: "&cError parsing the %s value in the config file!"
+msg_not_player: "&cOnly players can run this command!"
+msg_game_started: "" # "&aGame started, good luck!"
+msg_invalid_move: "" # "&cInvalid move!"
+msg_undid_last_move: "" # "&aUndid last move!"
+msg_game_over: "" # "&4Game over!"
+msg_game_over_sub: "Score: %s | Playtime: %k"
+msg_attempt_protection: "" # "&7Game wasn't saved because you didn't do anything!"
+msg_top_ten: "&6--- Top 10 2048 High Scores ---"
+msg_player_position: "&6Your Position: %s"
+
+# Game GUI
+game_gui_title: "&l2048: &r&8%s Points"
+game_gui_filler_material: WHITE_STAINED_GLASS_PANE
+game_gui_filler_material_cmd: 1000
+move_button_up_name: "&eShift UP"
+move_button_up_material: LIGHTNING_ROD
+move_button_up_material_cmd: 1000
+move_button_down_name: "&eShift DOWN"
+move_button_down_material: LIGHTNING_ROD
+move_button_down_material_cmd: 1000
+move_button_left_name: "&eShift LEFT"
+move_button_left_material: LIGHTNING_ROD
+move_button_left_material_cmd: 1000
+move_button_right_name: "&eShift RIGHT"
+move_button_right_material: LIGHTNING_ROD
+move_button_right_material_cmd: 1000
+move_button_lore: "&7Click to move game items"
+undo_button_unused_name: "&eUndo Move"
+undo_button_unused_material: WATER_BUCKET
+undo_button_unused_material_cmd: 1000
+undo_button_unused_lore: "&7Click to undo your last move"
+undo_button_unused_uses: "&7&oUses left: "
+undo_button_used_name: "&eUndo Move"
+undo_button_used_material: BUCKET
+undo_button_used_material_cmd: 1000
+undo_button_used_lore: "&7You cannot undo your last move"
+undo_button_used_uses: "&7&oUses left: 0"
+undo_button_slot: "42"
+undo_button_usages: "1"
+speed_button_name: "&eChange Speed"
+speed_button_material: STONE_BUTTON
+speed_button_material_cmd: 1000
+speed_button_lore: "&7Click to change animaton speed"
+speed_button_speed: "&7&oCurrent speed: "
+speed_button_slot: "44"
+default_animation_speed: "3"
+
+# Both GUIs
+player_item_name: "&e%s's Stats"
+player_item_material: PLAYER_HEAD
+player_item_material_cmd: 1000
+player_item_lore_total_playtime: "&7Total Gametime: &f%s"
+player_item_lore_games_played: "&7Games Played: &f%s"
+player_item_lore_high_score: "&7High Score: &f%s"
+player_item_lore_average_score: "&7Average Score: &f%s"
+
+# Help GUI
+player_item_lore_current_score: "&7Current Score: &f%s"
+player_item_lore_current_playtime: "&7Current Gametime: &f%s"
+help_gui_title: "&l2048: &r&8Menu"
+help_gui_filler_material: WHITE_STAINED_GLASS_PANE
+help_gui_filler_material_cmd: 1000
+help_gui_legend_item_name_prefix: "&bPoints: &f"
+play_button_material: TOTEM_OF_UNDYING
+play_button_material_cmd: 1000
+play_button_name: "&6Start Game"
+play_button_lore: "&7Click to start a new 2048 game"
+high_score_item_name: "&eHigh Scores"
+high_score_item_material: PAPER
+high_score_item_material_cmd: 1000
+high_score_item_lore_format: "&7%s"
+info_item_name: "&e2048 Guide"
+info_item_material: BOOK
+info_item_material_cmd: 1000
+info_item_lore_1: "&fMC2048 is a game where you match numbers."
+info_item_lore_2: "&7- If you put two of the same items together, they combine!"
+info_item_lore_3: "&7- Keep combining items to make the biggest one you can."
+info_item_lore_4: "&7- Once the board fills up and you run out of moves, the game ends!"
+info_item_lore_5: ""
+
+# Game Items
+material_two: RAW_COPPER
+material_two_cmd: 1000
+material_four: COPPER_INGOT
+material_four_cmd: 1000
+material_eight: COPPER_BLOCK
+material_eight_cmd: 1000
+material_sixteen: RAW_IRON
+material_sixteen_cmd: 1000
+material_thirty_two: IRON_NUGGET
+material_thirty_two_cmd: 1000
+material_sixty_four: IRON_INGOT
+material_sixty_four_cmd: 1000
+material_hundred_twenty_eight: IRON_BLOCK
+material_hundred_twenty_eight_cmd: 1000
+material_two_hundred_fifty_six: RAW_GOLD
+material_two_hundred_fifty_six_cmd: 1000
+material_five_hundred_twelve: GOLD_NUGGET
+material_five_hundred_twelve_cmd: 1000
+material_one_thousand_twenty_four: GOLD_INGOT
+material_one_thousand_twenty_four_cmd: 1000
+material_two_thousand_forty_eight: GOLD_BLOCK
+material_two_thousand_forty_eight_cmd: 1000
+material_four_thousand_ninety_six: EMERALD
+material_four_thousand_ninety_six_cmd: 1000
+material_eight_thousand_one_hundred_ninety_two: EMERALD_BLOCK
+material_eight_thousand_one_hundred_ninety_two_cmd: 1000
+material_sixteen_thousand_three_hundred_eighty_four: LAPIS_LAZULI
+material_sixteen_thousand_three_hundred_eighty_four_cmd: 1000
+material_thirty_two_thousand_seven_hundred_sixty_eight: LAPIS_BLOCK
+material_thirty_two_thousand_seven_hundred_sixty_eight_cmd: 1000
+material_sixty_five_thousand_five_hundred_thirty_six: DIAMOND
+material_sixty_five_thousand_five_hundred_thirty_six_cmd: 1000
+material_hundred_thirty_one_thousand_seventy_two: DIAMOND_BLOCK
+material_hundred_thirty_one_thousand_seventy_two_cmd: 1000
+material_infinity: END_STONE
+material_infinity_cmd: 1000
