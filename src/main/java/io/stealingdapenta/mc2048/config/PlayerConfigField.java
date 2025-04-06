@@ -1,7 +1,6 @@
-package io.stealingdapenta.mc2048.utils;
+package io.stealingdapenta.mc2048.config;
 
 import io.stealingdapenta.mc2048.MC2048;
-import io.stealingdapenta.mc2048.config.ConfigKey;
 
 public enum PlayerConfigField {
     HIGH_SCORE("high-score"),

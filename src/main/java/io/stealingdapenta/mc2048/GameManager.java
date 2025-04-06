@@ -2,13 +2,13 @@ package io.stealingdapenta.mc2048;
 
 import static io.stealingdapenta.mc2048.MC2048.logger;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MSG_ATTEMPT_PROTECTION;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MSG_GOOD_LUCK;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MSG_GAME_STARTED;
+import static io.stealingdapenta.mc2048.config.PlayerConfigField.ATTEMPTS;
+import static io.stealingdapenta.mc2048.config.PlayerConfigField.AVERAGE_SCORE;
+import static io.stealingdapenta.mc2048.config.PlayerConfigField.HIGH_SCORE;
+import static io.stealingdapenta.mc2048.config.PlayerConfigField.PLAYTIME;
 import static io.stealingdapenta.mc2048.utils.FileManager.FILE_MANAGER;
 import static io.stealingdapenta.mc2048.utils.MessageSender.MESSAGE_SENDER;
-import static io.stealingdapenta.mc2048.utils.PlayerConfigField.ATTEMPTS;
-import static io.stealingdapenta.mc2048.utils.PlayerConfigField.AVERAGE_SCORE;
-import static io.stealingdapenta.mc2048.utils.PlayerConfigField.HIGH_SCORE;
-import static io.stealingdapenta.mc2048.utils.PlayerConfigField.PLAYTIME;
 
 import io.stealingdapenta.mc2048.utils.ActiveGame;
 import io.stealingdapenta.mc2048.utils.InventoryUtil;
@@ -31,7 +31,7 @@ public class GameManager {
     }
 
     public void activateGame(Player player) {
-        MESSAGE_SENDER.sendMessage(player, MSG_GOOD_LUCK);
+        MESSAGE_SENDER.sendMessage(player, MSG_GAME_STARTED);
 
         ActiveGame activeGame = new ActiveGame(player, createTaskUpdatingPlayerStatItem(player));
         Inventory gameWindow = inventoryUtil.createGameInventory(activeGame);

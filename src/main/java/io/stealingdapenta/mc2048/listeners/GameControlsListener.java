@@ -1,25 +1,26 @@
 package io.stealingdapenta.mc2048.listeners;
 
 import static io.stealingdapenta.mc2048.MC2048.logger;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_DOWN_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MSG_GAME_OVER;
-import static io.stealingdapenta.mc2048.config.ConfigKey.PLAY_BUTTON_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MSG_GAME_OVER_SUB;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MSG_INVALID_MOVE;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MSG_UNDID_LAST_MOVE;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_DOWN_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_LEFT_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_RIGHT_NAME;
-import static io.stealingdapenta.mc2048.config.ConfigKey.SPEED_BUTTON_NAME;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MSG_UNDID_LAST_MOVE;
-import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_UNUSED_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_UP_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.PLAY_BUTTON_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.SPEED_BUTTON_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_UNUSED_NAME;
 import static io.stealingdapenta.mc2048.utils.FileManager.FILE_MANAGER;
 import static io.stealingdapenta.mc2048.utils.MessageSender.MESSAGE_SENDER;
 
 import io.stealingdapenta.mc2048.GameManager;
 import io.stealingdapenta.mc2048.config.ConfigKey;
+import io.stealingdapenta.mc2048.config.PlayerConfigField;
 import io.stealingdapenta.mc2048.utils.ActiveGame;
-import io.stealingdapenta.mc2048.utils.Direction;
+import io.stealingdapenta.mc2048.utils.ButtonAction;
 import io.stealingdapenta.mc2048.utils.InventoryUtil;
-import io.stealingdapenta.mc2048.utils.PlayerConfigField;
 
 import java.util.Map;
 import java.util.Objects;
@@ -37,8 +38,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 public class GameControlsListener implements Listener {
 
-    private static final String MSG_GAME_OVER_SUB = "Score: %s | Playtime: %s"; // fixme potentially move this to configs
-    private Map<String, Direction> DIRECTION_MAP;
+    private Map<String, ButtonAction> ACTION_MAP;
     private final InventoryUtil inventoryUtil;
     private final GameManager gameManager;
 
@@ -47,28 +47,28 @@ public class GameControlsListener implements Listener {
         this.gameManager = gameManager;
     }
 
-    private void initDirectionMap() {
-        DIRECTION_MAP = Map.of(LegacyComponentSerializer.legacySection()
-                                                        .serialize(MOVE_BUTTON_UP_NAME.getFormattedValue()), Direction.UP, LegacyComponentSerializer.legacySection()
-                                                                                                                                               .serialize(MOVE_BUTTON_LEFT_NAME.getFormattedValue()), Direction.LEFT, LegacyComponentSerializer.legacySection()
+    private void initActionMap() {
+        ACTION_MAP = Map.of(LegacyComponentSerializer.legacySection()
+                                                        .serialize(MOVE_BUTTON_UP_NAME.getFormattedValue()), ButtonAction.UP, LegacyComponentSerializer.legacySection()
+                                                                                                                                               .serialize(MOVE_BUTTON_LEFT_NAME.getFormattedValue()), ButtonAction.LEFT, LegacyComponentSerializer.legacySection()
                                                                                                                                                                                                                                           .serialize(
-                                                                                                                                                                                                                                                  MOVE_BUTTON_RIGHT_NAME.getFormattedValue()),
-                               Direction.RIGHT, LegacyComponentSerializer.legacySection()
-                                                                         .serialize(MOVE_BUTTON_DOWN_NAME.getFormattedValue()), Direction.DOWN, LegacyComponentSerializer.legacySection()
-                                                                                                                                                                    .serialize(UNDO_BUTTON_UNUSED_NAME.getFormattedValue()), Direction.UNDO, LegacyComponentSerializer.legacySection()
-                                                                                                                                                                                                                                                                .serialize(SPEED_BUTTON_NAME.getFormattedValue()), Direction.SPEED);
+                                                                                                                                                                                                                                                  MOVE_BUTTON_RIGHT_NAME.getFormattedValue()), ButtonAction.RIGHT, LegacyComponentSerializer.legacySection()
+                                                        .serialize(MOVE_BUTTON_DOWN_NAME.getFormattedValue()), ButtonAction.DOWN, LegacyComponentSerializer.legacySection()
+                                                                                                                                                .serialize(UNDO_BUTTON_UNUSED_NAME.getFormattedValue()), ButtonAction.UNDO, LegacyComponentSerializer.legacySection()
+                                                                                                                                                                                                                                            .serialize(SPEED_BUTTON_NAME.getFormattedValue()), ButtonAction.SPEED, LegacyComponentSerializer.legacySection()
+                                                        .serialize(PLAY_BUTTON_NAME.getFormattedValue()), ButtonAction.PLAY);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onButtonClick(InventoryClickEvent event) {
         InventoryView clickedInventoryView = event.getView();
 
-        // Don't care if it's not a game window
-        if (!inventoryUtil.isAnyGameWindow(clickedInventoryView)) {
+        // Don't care if it's not a game or help window
+        if (!inventoryUtil.isAnyGameWindow(clickedInventoryView) && !inventoryUtil.isHelpWindow(clickedInventoryView)) {
             return;
-        }
+        } 
 
-        // Cancel all default interaction behaviour if it's any game window
+        // Cancel all default interaction behaviour if it's any game or help window
         event.setCancelled(true);
 
         if (inventoryUtil.isGameWindow(clickedInventoryView)) {
@@ -84,13 +84,19 @@ public class GameControlsListener implements Listener {
         Player player = (Player) event.getWhoClicked();
         String clickedItemDisplayName = getItemDisplayName(event.getCurrentItem());
         if (Objects.isNull(clickedItemDisplayName)) {
+            logger.info("null clickedItemDisplayName");
             return;
         }
-
-        // Currently the only performable action in the help menu, is to launch the game
-        if (clickedItemDisplayName.contains(PLAY_BUTTON_NAME.getStringValue())) {
-            gameManager.activateGame(player);
-        }
+        
+        initActionMap();
+        ButtonAction action = ACTION_MAP.entrySet()
+                                           .stream()
+                                           .filter(entry -> clickedItemDisplayName.contains(entry.getKey()))
+                                           .map(Map.Entry::getValue)
+                                           .findFirst()
+                                           .orElse(null);
+        if (Objects.isNull(action)) return;
+        else if (action.equals(ButtonAction.PLAY)) gameManager.activateGame(player);
     }
 
     /**
@@ -126,8 +132,8 @@ public class GameControlsListener implements Listener {
             return;
         }
 
-        initDirectionMap();
-        Direction direction = DIRECTION_MAP.entrySet()
+        initActionMap();
+        ButtonAction action = ACTION_MAP.entrySet()
                                            .stream()
                                            .filter(entry -> clickedItemDisplayName.contains(entry.getKey()))
                                            .map(Map.Entry::getValue)
@@ -135,12 +141,12 @@ public class GameControlsListener implements Listener {
                                            .orElse(null);
         
 
-        if (Objects.isNull(direction)) {
+        if (Objects.isNull(action)) {
             invalidMoveMessage(player);
             return;
         }
 
-        if (Direction.SPEED.equals(direction)) {
+        if (ButtonAction.SPEED.equals(action)) {
             int curr = FILE_MANAGER.getIntByKey(player, PlayerConfigField.ANIMATION_SPEED.getKey());
             if (0 <= curr && curr <= 4) curr++;
             else if (curr == 5)         curr = 0;
@@ -154,14 +160,14 @@ public class GameControlsListener implements Listener {
 
         activeGame.setLock(true);
         
-        int tickDelay = inventoryUtil.moveItemsInDirection(activeGame, direction);
+        int tickDelay = inventoryUtil.moveItemsInDirection(activeGame, action);
         if (tickDelay==0) {
             invalidMoveMessage(player);
             activeGame.setLock(false);
             return;
         }
 
-        if (tickDelay==-1 || Direction.UNDO.equals(direction)) {
+        if (tickDelay==-1 || ButtonAction.UNDO.equals(action)) {
             MESSAGE_SENDER.sendMessage(player, MSG_UNDID_LAST_MOVE);
             activeGame.setLock(false);
             return;
@@ -202,12 +208,14 @@ public class GameControlsListener implements Listener {
             return;
         }
 
+        if (activeGame.isLocked()) return;
+
         doGameOver(activeGame);
         gameManager.deactivateGameFor(player);
     }
 
     private void doGameOver(ActiveGame activeGame) {
         MESSAGE_SENDER.sendMessage(activeGame.getPlayer(), MSG_GAME_OVER);
-        MESSAGE_SENDER.sendTitle(activeGame.getPlayer(), MSG_GAME_OVER, MSG_GAME_OVER_SUB.formatted(activeGame.getScore(), activeGame.getCurrentPlayTimeFormatted()));
+        MESSAGE_SENDER.sendTitle(activeGame.getPlayer(), MSG_GAME_OVER.getFormattedValue(), MSG_GAME_OVER_SUB.getFormattedValue(activeGame.getScore()+"", activeGame.getCurrentPlayTimeFormatted()+""));
     }
 }

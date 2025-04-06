@@ -1,11 +1,12 @@
 package io.stealingdapenta.mc2048.commands;
 
 import static io.stealingdapenta.mc2048.config.ConfigKey.MSG_NOT_PLAYER;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MSG_PLAYER_POSITION;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MSG_TOP_TEN;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MSG_PLAYER_POSITION;
 import static io.stealingdapenta.mc2048.utils.MessageSender.MESSAGE_SENDER;
 
 import io.stealingdapenta.mc2048.utils.HighScoreManager;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -43,10 +44,8 @@ public class HighScoreCommand implements CommandExecutor {
                       .map(entry -> String.format(PLAYER_SCORE, highScoresList.indexOf(entry) + 1, entry.getKey(), entry.getValue()))
                       .forEach(player::sendMessage);
 
-        MESSAGE_SENDER.sendMessage(player, MSG_PLAYER_POSITION); // todo combine these again
-        player.sendMessage(String.valueOf(playersPosition));
+        MESSAGE_SENDER.sendMessage(player, MSG_PLAYER_POSITION.getFormattedValue(playersPosition+""));
 
         return true;
     }
-
 }

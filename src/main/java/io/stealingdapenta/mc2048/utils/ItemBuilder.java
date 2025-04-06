@@ -21,11 +21,10 @@ public class ItemBuilder {
     private ItemMeta itemMeta;
     public static final String ERROR_SETTING_CMD = "Error setting custom model data for %s";
 
-
     public ItemBuilder(ItemStack itemStack) {
         this.itemStack = itemStack.clone();
         this.itemMeta = this.itemStack.getItemMeta();
-        this.loreList = Objects.nonNull(itemMeta) && itemMeta.hasLore() ? itemMeta.getLore() : new ArrayList<>();
+        this.loreList = (itemMeta != null && itemMeta.hasLore()) ? itemMeta.getLore() : new ArrayList<>();
     }
 
     public ItemBuilder(Material material) {
@@ -43,7 +42,7 @@ public class ItemBuilder {
 
     public ItemBuilder setDisplayName(String name) {
         setItemMeta();
-        itemMeta.setDisplayName(name);
+        itemMeta.setDisplayName(StringUtil.translate(name));
         return this;
     }
 
@@ -65,35 +64,47 @@ public class ItemBuilder {
 
     public ItemBuilder addLoreList(List<Component> lore) {
         setItemMeta();
-
         List<String> currentLore = itemMeta.hasLore() ? itemMeta.getLore() : new ArrayList<>();
 
-        assert currentLore != null; // for IDE warnings... literally impossible
         lore.stream()
             .map(this::convertToString)
+            .filter(Objects::nonNull)
             .forEach(currentLore::add);
 
         itemMeta.setLore(currentLore);
         return this;
     }
 
-
     public ItemBuilder addLore(Object lore) {
         setItemMeta();
-        loreList.add(convertToString(lore));   // Add to the lore-list as formatted String
+        String loreString = convertToString(lore);
+        if (loreString == null) return this;
+
+        loreList.add(loreString);
         itemMeta.setLore(loreList);
         return this;
     }
 
     private String convertToString(Object obj) {
-        return switch (obj) {
-            case ConfigKey configKey -> LegacyComponentSerializer.legacySection()
-                                                                 .serialize(configKey.getFormattedValue());
-            case Component component -> LegacyComponentSerializer.legacySection()
-                                                                 .serialize(component);
-            case String str -> str;
+        String result = switch (obj) {
+            case ConfigKey configKey -> {
+                Component formatted = configKey.getFormattedValue();
+                String legacy = LegacyComponentSerializer.legacySection().serialize(formatted);
+                if (legacy.isEmpty()) yield null;
+                yield LegacyComponentSerializer.legacySection().serialize(StringUtil.processComponent(formatted));
+            }
+            case Component component -> {
+                String legacy = LegacyComponentSerializer.legacySection().serialize(component);
+                if (legacy.isEmpty()) yield null;
+                yield LegacyComponentSerializer.legacySection().serialize(StringUtil.processComponent(component));
+            }
+            case String str -> {
+                if (str.isEmpty()) yield null;
+                yield StringUtil.translate(str);
+            }
             default -> throw new IllegalArgumentException("Unsupported lore type: " + obj.getClass());
         };
+        return result;
     }
 
     public static ItemStack setCustomModelDataTo(ItemStack itemStack, ConfigKey configKey) {

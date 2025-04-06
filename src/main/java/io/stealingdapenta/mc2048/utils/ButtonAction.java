@@ -1,13 +1,14 @@
 package io.stealingdapenta.mc2048.utils;
 
-public enum Direction {
+public enum ButtonAction {
     UP,
     DOWN,
     LEFT,
     RIGHT,
     UNDO,
-    SPEED;
+    SPEED,
+    PLAY;
 
-    Direction() {
+    ButtonAction() {
     }
 }

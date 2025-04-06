@@ -6,7 +6,7 @@
 
   <groupId>org.example</groupId>
   <artifactId>MC2048</artifactId>
-  <version>1.1.6</version>
+  <version>1.2.0</version>
 
   <build>
     <plugins>

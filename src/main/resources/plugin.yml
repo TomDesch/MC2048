@@ -1,7 +1,7 @@
 name: MC2048
 author: StealingDaPenta
 main: io.stealingdapenta.mc2048.MC2048
-version: 1.1.6
+version: 1.2.0
 description: Play 2048 in MC :)
 api-version: 1.21
 

@@ -1,68 +1,70 @@
 package io.stealingdapenta.mc2048.utils;
 
 import static io.stealingdapenta.mc2048.MC2048.logger;
-import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_LORE_AVERAGE_SCORE;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_DOWN_NAME;
-import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_LORE_GAMES_PLAYED;
+import static io.stealingdapenta.mc2048.config.ConfigKey.GAME_GUI_FILLER_MATERIAL;
+import static io.stealingdapenta.mc2048.config.ConfigKey.GAME_GUI_FILLER_MATERIAL_CMD;
 import static io.stealingdapenta.mc2048.config.ConfigKey.GAME_GUI_TITLE;
+import static io.stealingdapenta.mc2048.config.ConfigKey.HELP_GUI_FILLER_MATERIAL;
+import static io.stealingdapenta.mc2048.config.ConfigKey.HELP_GUI_FILLER_MATERIAL_CMD;
+import static io.stealingdapenta.mc2048.config.ConfigKey.HELP_GUI_TITLE;
 import static io.stealingdapenta.mc2048.config.ConfigKey.INFO_ITEM_LORE_1;
 import static io.stealingdapenta.mc2048.config.ConfigKey.INFO_ITEM_LORE_2;
 import static io.stealingdapenta.mc2048.config.ConfigKey.INFO_ITEM_LORE_3;
 import static io.stealingdapenta.mc2048.config.ConfigKey.INFO_ITEM_LORE_4;
 import static io.stealingdapenta.mc2048.config.ConfigKey.INFO_ITEM_LORE_5;
+import static io.stealingdapenta.mc2048.config.ConfigKey.INFO_ITEM_MATERIAL;
+import static io.stealingdapenta.mc2048.config.ConfigKey.INFO_ITEM_MATERIAL_CMD;
 import static io.stealingdapenta.mc2048.config.ConfigKey.INFO_ITEM_NAME;
-import static io.stealingdapenta.mc2048.config.ConfigKey.PLAY_BUTTON_LORE;
-import static io.stealingdapenta.mc2048.config.ConfigKey.PLAY_BUTTON_NAME;
-import static io.stealingdapenta.mc2048.config.ConfigKey.HELP_GUI_TITLE;
-import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_LORE_HIGH_SCORE;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_LEFT_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_DOWN_MATERIAL;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_DOWN_MATERIAL_CMD;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_DOWN_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_LEFT_MATERIAL;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_LEFT_MATERIAL_CMD;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_LEFT_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_LORE;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_RIGHT_MATERIAL;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_RIGHT_MATERIAL_CMD;
-import static io.stealingdapenta.mc2048.config.ConfigKey.SPEED_BUTTON_MATERIAL;
-import static io.stealingdapenta.mc2048.config.ConfigKey.SPEED_BUTTON_MATERIAL_CMD;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_RIGHT_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_UP_MATERIAL;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_UP_MATERIAL_CMD;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_UP_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_SLOT;
+import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_UNUSED_LORE;
 import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_UNUSED_MATERIAL;
 import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_UNUSED_MATERIAL_CMD;
 import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_UNUSED_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_UNUSED_USES;
+import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_USAGES;
+import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_USED_LORE;
 import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_USED_MATERIAL;
 import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_USED_MATERIAL_CMD;
 import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_USED_NAME;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_UP_MATERIAL;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_UP_MATERIAL_CMD;
-import static io.stealingdapenta.mc2048.config.ConfigKey.GAME_GUI_FILLER_MATERIAL;
-import static io.stealingdapenta.mc2048.config.ConfigKey.GAME_GUI_FILLER_MATERIAL_CMD;
-import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_MATERIAL;
-import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_MATERIAL_CMD;
-import static io.stealingdapenta.mc2048.config.ConfigKey.HELP_GUI_FILLER_MATERIAL;
-import static io.stealingdapenta.mc2048.config.ConfigKey.HELP_GUI_FILLER_MATERIAL_CMD;
-import static io.stealingdapenta.mc2048.config.ConfigKey.INFO_ITEM_MATERIAL;
-import static io.stealingdapenta.mc2048.config.ConfigKey.INFO_ITEM_MATERIAL_CMD;
-import static io.stealingdapenta.mc2048.config.ConfigKey.PLAY_BUTTON_MATERIAL;
-import static io.stealingdapenta.mc2048.config.ConfigKey.PLAY_BUTTON_MATERIAL_CMD;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_LORE;
-import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_USAGES;
-import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_USED_LORE;
-import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_NAME;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_RIGHT_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_USED_USES;
 import static io.stealingdapenta.mc2048.config.ConfigKey.SPEED_BUTTON_LORE;
+import static io.stealingdapenta.mc2048.config.ConfigKey.SPEED_BUTTON_MATERIAL;
+import static io.stealingdapenta.mc2048.config.ConfigKey.SPEED_BUTTON_MATERIAL_CMD;
 import static io.stealingdapenta.mc2048.config.ConfigKey.SPEED_BUTTON_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.SPEED_BUTTON_SLOT;
 import static io.stealingdapenta.mc2048.config.ConfigKey.SPEED_BUTTON_SPEED;
-import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_SLOT;
+import static io.stealingdapenta.mc2048.config.ConfigKey.PLAY_BUTTON_LORE;
+import static io.stealingdapenta.mc2048.config.ConfigKey.PLAY_BUTTON_MATERIAL;
+import static io.stealingdapenta.mc2048.config.ConfigKey.PLAY_BUTTON_MATERIAL_CMD;
+import static io.stealingdapenta.mc2048.config.ConfigKey.PLAY_BUTTON_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_LORE_AVERAGE_SCORE;
+import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_LORE_GAMES_PLAYED;
+import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_LORE_HIGH_SCORE;
 import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_LORE_TOTAL_PLAYTIME;
-import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_UNUSED_LORE;
-import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_UNUSED_USES;
-import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_USED_USES;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_UP_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_MATERIAL;
+import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_MATERIAL_CMD;
+import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_NAME;
+
 import static io.stealingdapenta.mc2048.utils.ActiveGame.makeSecondsATimestamp;
 import static io.stealingdapenta.mc2048.utils.FileManager.FILE_MANAGER;
 import static io.stealingdapenta.mc2048.utils.ItemBuilder.setCustomModelDataTo;
 
 import io.stealingdapenta.mc2048.MC2048;
 import io.stealingdapenta.mc2048.config.ConfigKey;
+import io.stealingdapenta.mc2048.config.PlayerConfigField;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -74,6 +76,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -127,7 +130,7 @@ public class InventoryUtil {
     }
 
     public Inventory createGameInventory(ActiveGame activeGame) {
-        Inventory inventory = createGUIWindow(activeGame.getPlayer(), GAME_GUI_TITLE);
+        Inventory inventory = createGUIWindowVariable(activeGame.getPlayer(), GAME_GUI_TITLE, activeGame.getScore());
         fillSides(inventory);
         activeGame.setGameWindow(inventory);
         setButtonsAndStats(activeGame);
@@ -154,7 +157,7 @@ public class InventoryUtil {
                                                                                                                         .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
                                                                                                                         .create(), INFO_ITEM_MATERIAL_CMD));
         setItemInSlot(helpGUI, playButtonSlot, setCustomModelDataTo(new ItemBuilder(PLAY_BUTTON_MATERIAL.getMaterialValue()).setDisplayName(PLAY_BUTTON_NAME.getFormattedValue())
-                                                                                                                                     .addLore(PLAY_BUTTON_LORE)
+                                                                                                                                     .addLore(PLAY_BUTTON_LORE.getFormattedValue())
                                                                                                                                      .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
                                                                                                                                      .create(), PLAY_BUTTON_MATERIAL_CMD));
         fillEmptySlots(helpGUI);
@@ -231,14 +234,14 @@ public class InventoryUtil {
 
     private ItemStack createButton(ConfigKey buttonName, ConfigKey materialName, ConfigKey customMetaData) {
         return setCustomModelDataTo(new ItemBuilder(materialName.getMaterialValue()).setDisplayName(buttonName.getFormattedValue())
-                                                                                    .addLore(MOVE_BUTTON_LORE)
+                                                                                    .addLore(MOVE_BUTTON_LORE.getFormattedValue())
                                                                                     .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
                                                                                     .create(), customMetaData);
     }
 
     private ItemStack createUndoButton(int numberOfUndoLeft) {
-        return setCustomModelDataTo(new ItemBuilder(UNDO_BUTTON_UNUSED_MATERIAL.getMaterialValue()).setDisplayName(UNDO_BUTTON_UNUSED_NAME)
-                                                                                            .addLore(UNDO_BUTTON_UNUSED_LORE)
+        return setCustomModelDataTo(new ItemBuilder(UNDO_BUTTON_UNUSED_MATERIAL.getMaterialValue()).setDisplayName(UNDO_BUTTON_UNUSED_NAME.getFormattedValue())
+                                                                                            .addLore(UNDO_BUTTON_UNUSED_LORE.getFormattedValue())
                                                                                             .addLore(UNDO_BUTTON_UNUSED_USES.getFormattedValue()
                                                                                                                             .append(Component.text(numberOfUndoLeft)))
                                                                                             .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
@@ -246,16 +249,16 @@ public class InventoryUtil {
     }
 
     private ItemStack createUsedUndoButton() {
-        return setCustomModelDataTo(new ItemBuilder(UNDO_BUTTON_USED_MATERIAL.getMaterialValue()).setDisplayName(UNDO_BUTTON_USED_NAME)
-                                                                                                 .addLore(UNDO_BUTTON_USED_LORE)
-                                                                                                 .addLore(UNDO_BUTTON_USED_USES)
+        return setCustomModelDataTo(new ItemBuilder(UNDO_BUTTON_USED_MATERIAL.getMaterialValue()).setDisplayName(UNDO_BUTTON_USED_NAME.getFormattedValue())
+                                                                                                 .addLore(UNDO_BUTTON_USED_LORE.getFormattedValue())
+                                                                                                 .addLore(UNDO_BUTTON_USED_USES.getFormattedValue())
                                                                                                  .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
                                                                                                  .create(), UNDO_BUTTON_USED_MATERIAL_CMD);
     }
 
     private ItemStack createSpeedButton(int currentSpeed) {
-        return setCustomModelDataTo(new ItemBuilder(SPEED_BUTTON_MATERIAL.getMaterialValue()).setDisplayName(SPEED_BUTTON_NAME)
-                                                                                            .addLore(SPEED_BUTTON_LORE)
+        return setCustomModelDataTo(new ItemBuilder(SPEED_BUTTON_MATERIAL.getMaterialValue()).setDisplayName(SPEED_BUTTON_NAME.getFormattedValue())
+                                                                                            .addLore(SPEED_BUTTON_LORE.getFormattedValue())
                                                                                             .addLore(SPEED_BUTTON_SPEED.getFormattedValue()
                                                                                                                             .append(Component.text(currentSpeed)))
                                                                                             .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
@@ -275,8 +278,14 @@ public class InventoryUtil {
                                                                                              .serialize(title.getFormattedValue()));
     }
 
+    private Inventory createGUIWindowVariable(Player player, ConfigKey title, int score) {
+        return createInventory(new GameHolder(player), InventoryUtil.REQUIRED_SIZE, LegacyComponentSerializer.legacySection()
+                                                                                             .serialize(title.getFormattedValue(score+"")));
+    }
+
     public boolean isGameWindow(InventoryView inventoryView) {
-        return isKnownWindow(inventoryView, GAME_GUI_TITLE);
+        InventoryHolder holder = inventoryView.getTopInventory().getHolder();
+        return holder instanceof GameHolder;
     }
 
     public boolean isHelpWindow(InventoryView inventoryView) {
@@ -293,13 +302,13 @@ public class InventoryUtil {
     /**
      * @return tick delay for caller method continuation
      */
-    public int moveItemsInDirection(ActiveGame activeGame, Direction direction) {
+    public int moveItemsInDirection(ActiveGame activeGame, ButtonAction action) {
         Inventory gameWindow = activeGame.getGameWindow();
         ItemStack[][] itemsInGame = new ItemStack[ROW_AND_COLUMN_SIZE][ROW_AND_COLUMN_SIZE];
 
         copyGameWindowContentsToArray(gameWindow, itemsInGame);
 
-        if (!direction.equals(Direction.UNDO)) {
+        if (!action.equals(ButtonAction.UNDO)) {
             // Create a deep copy of the current state before making moves
             ItemStack[][] lastPosition = new ItemStack[ROW_AND_COLUMN_SIZE][ROW_AND_COLUMN_SIZE];
             for (int i = 0; i < itemsInGame.length; i++) {
@@ -310,16 +319,17 @@ public class InventoryUtil {
         }
 
         int tickDelay;
-        if (direction.equals(Direction.UNDO)) {
+        if (action.equals(ButtonAction.UNDO)) {
             tickDelay = undoLastMove(itemsInGame, activeGame); 
         } else {
-            tickDelay = moveItems(activeGame.getPlayer(), itemsInGame, activeGame, direction);
+            tickDelay = moveItems(activeGame.getPlayer(), itemsInGame, activeGame, action);
         }
 
         // [debug] javaPlugin.getLogger().info("moveItemsInDirection.tickDelay == " + tickDelay);
 
-        if (tickDelay<0 || Direction.UNDO.equals(direction)) {
+        if (tickDelay<0 || ButtonAction.UNDO.equals(action)) {
             copyItemArrayToGameWindow(gameWindow, itemsInGame);
+            activeGame.updateInventoryTitle(activeGame.getScore());
         } else if (tickDelay>0) {
             new BukkitRunnable() {
                 @Override
@@ -327,6 +337,7 @@ public class InventoryUtil {
                     activeGame.setLastMoveUndo(false);
 
                     copyItemArrayToGameWindow(gameWindow, itemsInGame);
+                    activeGame.updateInventoryTitle(activeGame.getScore());
                 }
             }.runTaskLater(javaPlugin, tickDelay);
         }
@@ -339,10 +350,10 @@ public class InventoryUtil {
      * 
      * @return tick delay for caller method continuation
      */
-    private int moveItems(Player player, ItemStack[][] inventoryArray, ActiveGame activeGame, Direction direction) {
+    private int moveItems(Player player, ItemStack[][] inventoryArray, ActiveGame activeGame, ButtonAction action) {
 
         // Calculate moves (updates board simulation and scores)
-        List<MovementInstruction> instructions = calculateMoves(inventoryArray, activeGame, direction);
+        List<MovementInstruction> instructions = calculateMoves(inventoryArray, activeGame, action);
         if (instructions.isEmpty()) {
             // [debug] javaPlugin.getLogger().info("moveItems.instructions.isEmpty() == true");
             return 0;
@@ -363,10 +374,10 @@ public class InventoryUtil {
      * 
      * @return list of movements to preform
      */
-    private List<MovementInstruction> calculateMoves(ItemStack[][] board, ActiveGame activeGame, Direction direction) {
+    private List<MovementInstruction> calculateMoves(ItemStack[][] board, ActiveGame activeGame, ButtonAction action) {
         List<MovementInstruction> instructions = new ArrayList<>();
         
-        switch(direction) {
+        switch(action) {
             case UP:
                 for (int row = 1; row < ROW_AND_COLUMN_SIZE; row++) {
                     for (int col = 0; col < ROW_AND_COLUMN_SIZE; col++) {
@@ -409,6 +420,7 @@ public class InventoryUtil {
                 break;
             case UNDO:
             case SPEED:
+            case PLAY:
                 return null;
         }
         return instructions;
@@ -573,6 +585,7 @@ public class InventoryUtil {
                 gameWindow.setItem(mergeSlots[row][column], itemsInGame[row][column]);
             }
         }
+        
     }
 
     /**
@@ -597,7 +610,7 @@ public class InventoryUtil {
             System.arraycopy(lastPosition[i], 0, inventoryArray[i], 0, inventoryArray[i].length);
         }
 
-        activeGame.addToScore(-activeGame.getScoreGainedAfterLastMove());
+        activeGame.removeFromScore(activeGame.getScoreGainedAfterLastMove());
         activeGame.decrementUndoLastMoveCounter();
 
         setItemInSlot(activeGame.getGameWindow(), UNDO_BUTTON_SLOT.getIntValue(), activeGame.hasNoUndoLastMoveLeft() ? createUsedUndoButton() : createUndoButton(activeGame.getUndoLastMoveCounter()));

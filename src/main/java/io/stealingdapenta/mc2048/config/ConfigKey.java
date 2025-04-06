@@ -6,60 +6,26 @@ import static io.stealingdapenta.mc2048.MC2048.logger;
 import io.stealingdapenta.mc2048.MC2048;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+
 import org.bukkit.Material;
 
 public enum ConfigKey {
 
-    MSG_NO_PERMS("<red>You don't have the required <bold>permission</bold> to execute this command.</red>"),
     MSG_RELOADED("<green>Successfully MSG_RELOADED the <italic>MC2048</italic> configuration file.</green>"),
+    MSG_NO_PERMS("<red>You don't have the required <bold>permission</bold> to execute this command.</red>"),
     MSG_PARSING_ERROR("<yellow>Error parsing the value in the config file for <red><bold>%s</bold></red></yellow>"),
     MSG_NOT_PLAYER("<light_purple>You can only execute this command as a <bold>player</bold>.</light_purple>"),
-    MSG_GOOD_LUCK("<aqua>Good luck and <bold>have fun</bold>!</aqua>"),
-    MSG_TOP_TEN("<gold>Top 10 High Scores on this server:</gold>"),
-    MSG_PLAYER_POSITION("<white>Your <bold>Position</bold>: </white>"),
+    MSG_GAME_STARTED("<aqua>Good luck and <bold>have fun</bold>!</aqua>"),
     MSG_INVALID_MOVE("<red>Sorry! <bold>That's not a valid move</bold>.</red>"),
     MSG_UNDID_LAST_MOVE("<green>Successfully undid the <bold>last move</bold>!</green>"),
     MSG_GAME_OVER("<dark_red><bold>Game over!</bold></dark_red>"),
+    MSG_GAME_OVER_SUB("Score: %s | Playtime: %k"),
     MSG_ATTEMPT_PROTECTION("<gray>The game wasn't saved because you didn't do anything. Your <bold>average score</bold> and <italic>attempts</italic> were protected.</gray>"),
-    
-    MATERIAL_TWO("RAW_COPPER"),
-    MATERIAL_TWO_CMD("1000"),
-    MATERIAL_FOUR("COPPER_INGOT"),
-    MATERIAL_FOUR_CMD("1000"),
-    MATERIAL_EIGHT("COPPER_BLOCK"),
-    MATERIAL_EIGHT_CMD("1000"),
-    MATERIAL_SIXTEEN("RAW_IRON"),
-    MATERIAL_SIXTEEN_CMD("1000"),
-    MATERIAL_THIRTY_TWO("IRON_NUGGET"),
-    MATERIAL_THIRTY_TWO_CMD("1000"),
-    MATERIAL_SIXTY_FOUR("IRON_INGOT"),
-    MATERIAL_SIXTY_FOUR_CMD("1000"),
-    MATERIAL_HUNDRED_TWENTY_EIGHT("IRON_BLOCK"),
-    MATERIAL_HUNDRED_TWENTY_EIGHT_CMD("1000"),
-    MATERIAL_TWO_HUNDRED_FIFTY_SIX("RAW_GOLD"),
-    MATERIAL_TWO_HUNDRED_FIFTY_SIX_CMD("1000"),
-    MATERIAL_FIVE_HUNDRED_TWELVE("GOLD_NUGGET"),
-    MATERIAL_FIVE_HUNDRED_TWELVE_CMD("1000"),
-    MATERIAL_ONE_THOUSAND_TWENTY_FOUR("GOLD_INGOT"),
-    MATERIAL_ONE_THOUSAND_TWENTY_FOUR_CMD("1000"),
-    MATERIAL_TWO_THOUSAND_FORTY_EIGHT("GOLD_BLOCK"),
-    MATERIAL_TWO_THOUSAND_FORTY_EIGHT_CMD("1000"),
-    MATERIAL_FOUR_THOUSAND_NINETY_SIX("EMERALD"),
-    MATERIAL_FOUR_THOUSAND_NINETY_SIX_CMD("1000"),
-    MATERIAL_EIGHT_THOUSAND_ONE_HUNDRED_NINETY_TWO("EMERALD_BLOCK"),
-    MATERIAL_EIGHT_THOUSAND_ONE_HUNDRED_NINETY_TWO_CMD("1000"),
-    MATERIAL_SIXTEEN_THOUSAND_THREE_HUNDRED_EIGHTY_FOUR("LAPIS_LAZULI"),
-    MATERIAL_SIXTEEN_THOUSAND_THREE_HUNDRED_EIGHTY_FOUR_CMD("1000"),
-    MATERIAL_THIRTY_TWO_THOUSAND_SEVEN_HUNDRED_SIXTY_EIGHT("LAPIS_BLOCK"),
-    MATERIAL_THIRTY_TWO_THOUSAND_SEVEN_HUNDRED_SIXTY_EIGHT_CMD("1000"),
-    MATERIAL_SIXTY_FIVE_THOUSAND_FIVE_HUNDRED_THIRTY_SIX("DIAMOND"),
-    MATERIAL_SIXTY_FIVE_THOUSAND_FIVE_HUNDRED_THIRTY_SIX_CMD("1000"),
-    MATERIAL_HUNDRED_THIRTY_ONE_THOUSAND_SEVENTY_TWO("DIAMOND_BLOCK"),
-    MATERIAL_HUNDRED_THIRTY_ONE_THOUSAND_SEVENTY_TWO_CMD("1000"),
-    MATERIAL_INFINITY("END_STONE"),
-    MATERIAL_INFINITY_CMD("1000"),
+    MSG_TOP_TEN("<gold>Top 10 High Scores on this server:</gold>"),
+    MSG_PLAYER_POSITION("<white>Your <bold>Position</bold>: %s</white>"),
 
-    GAME_GUI_TITLE("              <blue><b>MC 2048"),
+    GAME_GUI_TITLE("        <blue><b>MC 2048:</b></blue> <dark_gray>%s Points"),
     GAME_GUI_FILLER_MATERIAL("WHITE_STAINED_GLASS_PANE"),
     GAME_GUI_FILLER_MATERIAL_CMD("1000"),
 
@@ -102,11 +68,11 @@ public enum ConfigKey {
     PLAYER_ITEM_MATERIAL("PLAYER_HEAD"),
     PLAYER_ITEM_MATERIAL_CMD("1000"),
     PLAYER_ITEM_LORE_TOTAL_PLAYTIME("<b>Total playtime: <green>%s</green></b>"),
-    PLAYER_ITEM_LORE_CURRENT_PLAYTIME("<b>Current playtime: <green>%s</green></b>"),
-    PLAYER_ITEM_LORE_HIGH_SCORE("<b>HiScore: <green>%s</green></b>"),
-    PLAYER_ITEM_LORE_CURRENT_SCORE("Current score: <green>%s</green>"),
     PLAYER_ITEM_LORE_GAMES_PLAYED("Amount of games played: <green>%s</green>"),
+    PLAYER_ITEM_LORE_HIGH_SCORE("<b>HiScore: <green>%s</green></b>"),
     PLAYER_ITEM_LORE_AVERAGE_SCORE("Average Score: <green>%s</green>"),
+    PLAYER_ITEM_LORE_CURRENT_SCORE("Current score: <green>%s</green>"),
+    PLAYER_ITEM_LORE_CURRENT_PLAYTIME("<b>Current playtime: <green>%s</green></b>"),
 
     HELP_GUI_TITLE("     <blue><b>MC2048 HELP WINDOW"),
     HELP_GUI_FILLER_MATERIAL("LIGHT_BLUE_STAINED_GLASS_PANE"),
@@ -130,7 +96,44 @@ public enum ConfigKey {
     INFO_ITEM_LORE_2("If you put two of the same numbers together, they combine into their sum."),
     INFO_ITEM_LORE_3("Keep combining numbers to make the biggest one you can."),
     INFO_ITEM_LORE_4("If the board fills up, the game is over."),
-    INFO_ITEM_LORE_5("Aim for the highest number!");
+    INFO_ITEM_LORE_5("Aim for the highest number!"),
+
+    MATERIAL_TWO("RAW_COPPER"),
+    MATERIAL_TWO_CMD("1000"),
+    MATERIAL_FOUR("COPPER_INGOT"),
+    MATERIAL_FOUR_CMD("1000"),
+    MATERIAL_EIGHT("COPPER_BLOCK"),
+    MATERIAL_EIGHT_CMD("1000"),
+    MATERIAL_SIXTEEN("RAW_IRON"),
+    MATERIAL_SIXTEEN_CMD("1000"),
+    MATERIAL_THIRTY_TWO("IRON_NUGGET"),
+    MATERIAL_THIRTY_TWO_CMD("1000"),
+    MATERIAL_SIXTY_FOUR("IRON_INGOT"),
+    MATERIAL_SIXTY_FOUR_CMD("1000"),
+    MATERIAL_HUNDRED_TWENTY_EIGHT("IRON_BLOCK"),
+    MATERIAL_HUNDRED_TWENTY_EIGHT_CMD("1000"),
+    MATERIAL_TWO_HUNDRED_FIFTY_SIX("RAW_GOLD"),
+    MATERIAL_TWO_HUNDRED_FIFTY_SIX_CMD("1000"),
+    MATERIAL_FIVE_HUNDRED_TWELVE("GOLD_NUGGET"),
+    MATERIAL_FIVE_HUNDRED_TWELVE_CMD("1000"),
+    MATERIAL_ONE_THOUSAND_TWENTY_FOUR("GOLD_INGOT"),
+    MATERIAL_ONE_THOUSAND_TWENTY_FOUR_CMD("1000"),
+    MATERIAL_TWO_THOUSAND_FORTY_EIGHT("GOLD_BLOCK"),
+    MATERIAL_TWO_THOUSAND_FORTY_EIGHT_CMD("1000"),
+    MATERIAL_FOUR_THOUSAND_NINETY_SIX("EMERALD"),
+    MATERIAL_FOUR_THOUSAND_NINETY_SIX_CMD("1000"),
+    MATERIAL_EIGHT_THOUSAND_ONE_HUNDRED_NINETY_TWO("EMERALD_BLOCK"),
+    MATERIAL_EIGHT_THOUSAND_ONE_HUNDRED_NINETY_TWO_CMD("1000"),
+    MATERIAL_SIXTEEN_THOUSAND_THREE_HUNDRED_EIGHTY_FOUR("LAPIS_LAZULI"),
+    MATERIAL_SIXTEEN_THOUSAND_THREE_HUNDRED_EIGHTY_FOUR_CMD("1000"),
+    MATERIAL_THIRTY_TWO_THOUSAND_SEVEN_HUNDRED_SIXTY_EIGHT("LAPIS_BLOCK"),
+    MATERIAL_THIRTY_TWO_THOUSAND_SEVEN_HUNDRED_SIXTY_EIGHT_CMD("1000"),
+    MATERIAL_SIXTY_FIVE_THOUSAND_FIVE_HUNDRED_THIRTY_SIX("DIAMOND"),
+    MATERIAL_SIXTY_FIVE_THOUSAND_FIVE_HUNDRED_THIRTY_SIX_CMD("1000"),
+    MATERIAL_HUNDRED_THIRTY_ONE_THOUSAND_SEVENTY_TWO("DIAMOND_BLOCK"),
+    MATERIAL_HUNDRED_THIRTY_ONE_THOUSAND_SEVENTY_TWO_CMD("1000"),
+    MATERIAL_INFINITY("END_STONE"),
+    MATERIAL_INFINITY_CMD("1000");
 
     private final String defaultValue;
 
@@ -168,8 +171,12 @@ public enum ConfigKey {
      * @return the stored value from the config as a Spigot 1.18+ formatted component
      */
     public Component getFormattedValue() {
-        return MiniMessage.miniMessage()
-                          .deserialize(getStringValue());
+        String raw = getStringValue();
+
+        if (raw.contains("&"))
+            return LegacyComponentSerializer.legacyAmpersand().deserialize(raw);
+        else 
+            return MiniMessage.miniMessage().deserialize(raw);
     }
 
 
@@ -182,6 +189,18 @@ public enum ConfigKey {
     public Component getFormattedValue(String replacementOfPercentS) {
         return getFormattedValue().replaceText(builder -> builder.match("%s")
                                                                  .replacement(replacementOfPercentS));
+    }
+
+    /**
+     * Replace %s in the component with the provided replacement value
+     *
+     * @param replacementOfPercentS the desired replacement text
+     * @param replacementOfPercentK the desired replacement text
+     * @return the original formatted component but with %s replaced
+     */
+    public Component getFormattedValue(String replacementOfPercentS, String replacementOfPercentK) {
+        return getFormattedValue(replacementOfPercentS).replaceText(builder -> builder.match("%k")
+                                                                 .replacement(replacementOfPercentK));
     }
 
     /**
