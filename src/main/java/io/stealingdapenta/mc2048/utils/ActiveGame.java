@@ -6,8 +6,8 @@ import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_LORE_CURREN
 import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_LORE_CURRENT_SCORE;
 import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_LORE_GAMES_PLAYED;
 import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_LORE_HIGH_SCORE;
-import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_USAGES;
 import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_LORE_TOTAL_PLAYTIME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_USAGES;
 import static io.stealingdapenta.mc2048.utils.FileManager.FILE_MANAGER;
 import static io.stealingdapenta.mc2048.utils.InventoryUtil.getPlayerSkullItem;
 
@@ -39,10 +39,10 @@ public class ActiveGame {
         this.score = 0;
         this.gameOpenTime = System.currentTimeMillis();
 
-        this.highScore = FILE_MANAGER.getIntByKey(player, PlayerConfigField.PLAYER_ITEM_LORE_HIGH_SCORE.getKey());
+        this.highScore = FILE_MANAGER.getIntByKey(player, PlayerConfigField.HIGH_SCORE.getKey());
         this.attempts = FILE_MANAGER.getIntByKey(player, PlayerConfigField.ATTEMPTS.getKey());
-        this.totalPlayTime = FILE_MANAGER.getLongByKey(player, PlayerConfigField.PLAYER_ITEM_LORE_TOTAL_PLAYTIME.getKey());
-        this.averageScore = FILE_MANAGER.getDoubleByKey(player, PlayerConfigField.PLAYER_ITEM_LORE_AVERAGE_SCORE.getKey());
+        this.totalPlayTime = FILE_MANAGER.getLongByKey(player, PlayerConfigField.PLAYTIME.getKey());
+        this.averageScore = FILE_MANAGER.getDoubleByKey(player, PlayerConfigField.AVERAGE_SCORE.getKey());
         this.undoLastMoveCounter = UNDO_BUTTON_USAGES.getIntValue();
     }
 

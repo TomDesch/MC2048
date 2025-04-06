@@ -3,8 +3,8 @@ package io.stealingdapenta.mc2048.utils;
 import static io.stealingdapenta.mc2048.MC2048.logger;
 import static io.stealingdapenta.mc2048.config.ConfigKey.HIGH_SCORE_ITEM_LORE_FORMAT;
 import static io.stealingdapenta.mc2048.config.ConfigKey.HIGH_SCORE_ITEM_NAME;
-import static io.stealingdapenta.mc2048.config.ConfigKey.HIGH_SCORE_ITEM_MATERIAL;
 import static io.stealingdapenta.mc2048.utils.FileManager.FILE_MANAGER;
+import static io.stealingdapenta.mc2048.config.ConfigKey.HIGH_SCORE_ITEM_MATERIAL;
 
 import java.io.File;
 import java.util.AbstractMap;
@@ -110,7 +110,7 @@ public class HighScoreManager {
         String uuid = getPlayerUUIDFrom(playerFile);
         String playerName = getPlayerName(uuid);
         if (Objects.nonNull(playerName)) {
-            int hiScore = FILE_MANAGER.getIntByKey(uuid, PlayerConfigField.PLAYER_ITEM_LORE_HIGH_SCORE.getKey());
+            int hiScore = FILE_MANAGER.getIntByKey(uuid, PlayerConfigField.HIGH_SCORE.getKey());
             return new AbstractMap.SimpleEntry<>(playerName, hiScore);
         }
         return null;

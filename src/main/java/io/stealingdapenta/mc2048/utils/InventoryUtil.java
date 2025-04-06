@@ -57,8 +57,8 @@ import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_UNUSED_LORE
 import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_UNUSED_USES;
 import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_USED_USES;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_UP_NAME;
-import static io.stealingdapenta.mc2048.utils.FileManager.FILE_MANAGER;
 import static io.stealingdapenta.mc2048.utils.ActiveGame.makeSecondsATimestamp;
+import static io.stealingdapenta.mc2048.utils.FileManager.FILE_MANAGER;
 import static io.stealingdapenta.mc2048.utils.ItemBuilder.setCustomModelDataTo;
 
 import io.stealingdapenta.mc2048.MC2048;
@@ -660,10 +660,10 @@ public class InventoryUtil {
     }
 
     private ItemStack getHelpGUIPlayerStatsHead(Player player) {
-        return (new ItemBuilder(getPlayerSkullItem(player))).addLore(PLAYER_ITEM_LORE_TOTAL_PLAYTIME.getFormattedValue(makeSecondsATimestamp(FILE_MANAGER.getLongByKey(player, PlayerConfigField.PLAYER_ITEM_LORE_TOTAL_PLAYTIME.getKey()))))
-                                                            .addLore(PLAYER_ITEM_LORE_HIGH_SCORE.getFormattedValue(String.valueOf(FILE_MANAGER.getLongByKey(player, PlayerConfigField.PLAYER_ITEM_LORE_HIGH_SCORE.getKey()))))
+        return (new ItemBuilder(getPlayerSkullItem(player))).addLore(PLAYER_ITEM_LORE_TOTAL_PLAYTIME.getFormattedValue(makeSecondsATimestamp(FILE_MANAGER.getLongByKey(player, PlayerConfigField.PLAYTIME.getKey()))))
+                                                            .addLore(PLAYER_ITEM_LORE_HIGH_SCORE.getFormattedValue(String.valueOf(FILE_MANAGER.getLongByKey(player, PlayerConfigField.HIGH_SCORE.getKey()))))
                                                             .addLore(PLAYER_ITEM_LORE_GAMES_PLAYED.getFormattedValue(String.valueOf(FILE_MANAGER.getLongByKey(player, PlayerConfigField.ATTEMPTS.getKey()))))
-                                                            .addLore(PLAYER_ITEM_LORE_AVERAGE_SCORE.getFormattedValue(String.valueOf(Math.round(FILE_MANAGER.getLongByKey(player, PlayerConfigField.PLAYER_ITEM_LORE_AVERAGE_SCORE.getKey())))))
+                                                            .addLore(PLAYER_ITEM_LORE_AVERAGE_SCORE.getFormattedValue(String.valueOf(Math.round(FILE_MANAGER.getLongByKey(player, PlayerConfigField.AVERAGE_SCORE.getKey())))))
                                                             .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
                                                             .create();
     }
