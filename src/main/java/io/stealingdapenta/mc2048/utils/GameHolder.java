@@ -3,20 +3,16 @@ package io.stealingdapenta.mc2048.utils;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
+import org.jetbrains.annotations.NotNull;
 
-public class GameHolder implements InventoryHolder {
-    private final Player player;
+public record GameHolder(Player player) implements InventoryHolder {
 
-    public GameHolder(Player player) {
-        this.player = player;
-    }
 
+    /**
+     * @throws UnsupportedOperationException if this is ever called.
+     */
     @Override
-    public Inventory getInventory() {
-        return null;
-    }
-
-    public Player getPlayer() {
-        return player;
+    public @NotNull Inventory getInventory() throws UnsupportedOperationException {
+        throw new UnsupportedOperationException("Don't implement me.");
     }
 }

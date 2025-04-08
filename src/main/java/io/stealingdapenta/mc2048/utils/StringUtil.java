@@ -1,17 +1,22 @@
 package io.stealingdapenta.mc2048.utils;
 
-import org.bukkit.ChatColor;
-
+import java.util.Objects;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.bukkit.ChatColor;
+import org.jetbrains.annotations.NotNull;
 
 public class StringUtil {
     
     /**
-     * Helper to process a Component through the translate method.
+     * Helper to process a Component through the 'translate' method.
+     * @return the translated component, or an empty component if the input is null.
      */
+    @NotNull
     public static Component processComponent(Component component) {
-        if (component == null) return null;
+        if (Objects.isNull(component)) {
+            return Component.empty();
+        }
 
         String legacy = LegacyComponentSerializer.legacyAmpersand().serialize(component);
         String translated = translate(legacy);

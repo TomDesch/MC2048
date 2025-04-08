@@ -1,14 +1,14 @@
 package io.stealingdapenta.mc2048.listeners;
 
 import static io.stealingdapenta.mc2048.MC2048.logger;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MSG_GAME_OVER;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MSG_GAME_OVER_SUB;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MSG_INVALID_MOVE;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MSG_UNDID_LAST_MOVE;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_DOWN_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_LEFT_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_RIGHT_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_UP_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MSG_GAME_OVER;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MSG_GAME_OVER_SUB;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MSG_INVALID_MOVE;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MSG_UNDID_LAST_MOVE;
 import static io.stealingdapenta.mc2048.config.ConfigKey.PLAY_BUTTON_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.SPEED_BUTTON_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_UNUSED_NAME;
@@ -21,7 +21,6 @@ import io.stealingdapenta.mc2048.config.PlayerConfigField;
 import io.stealingdapenta.mc2048.utils.ActiveGame;
 import io.stealingdapenta.mc2048.utils.ButtonAction;
 import io.stealingdapenta.mc2048.utils.InventoryUtil;
-
 import java.util.Map;
 import java.util.Objects;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -66,9 +65,9 @@ public class GameControlsListener implements Listener {
         // Don't care if it's not a game or help window
         if (!inventoryUtil.isAnyGameWindow(clickedInventoryView) && !inventoryUtil.isHelpWindow(clickedInventoryView)) {
             return;
-        } 
+        }
 
-        // Cancel all default interaction behaviour if it's any game or help window
+        // Cancel all default interaction behavior if it's any game or help window
         event.setCancelled(true);
 
         if (inventoryUtil.isGameWindow(clickedInventoryView)) {
@@ -95,8 +94,9 @@ public class GameControlsListener implements Listener {
                                            .map(Map.Entry::getValue)
                                            .findFirst()
                                            .orElse(null);
-        if (Objects.isNull(action)) return;
-        else if (action.equals(ButtonAction.PLAY)) gameManager.activateGame(player);
+        if (Objects.nonNull(action) && action.equals(ButtonAction.PLAY)) {
+            gameManager.activateGame(player);
+        }
     }
 
     /**
@@ -170,7 +170,6 @@ public class GameControlsListener implements Listener {
         if (tickDelay==-1 || ButtonAction.UNDO.equals(action)) {
             MESSAGE_SENDER.sendMessage(player, MSG_UNDID_LAST_MOVE);
             activeGame.setLock(false);
-            return;
         } else if (tickDelay>0) {
             new BukkitRunnable() {
                 @Override
@@ -186,7 +185,7 @@ public class GameControlsListener implements Listener {
                         doGameOver(activeGame);
                     }
                 }
-            }.runTaskLater(inventoryUtil.javaPlugin, tickDelay + (2*FILE_MANAGER.getIntByKey(player, PlayerConfigField.ANIMATION_SPEED.getKey())+2));
+            }.runTaskLater(inventoryUtil.javaPlugin, tickDelay + (2L * FILE_MANAGER.getIntByKey(player, PlayerConfigField.ANIMATION_SPEED.getKey()) + 2));
         }
     }
 
@@ -216,6 +215,6 @@ public class GameControlsListener implements Listener {
 
     private void doGameOver(ActiveGame activeGame) {
         MESSAGE_SENDER.sendMessage(activeGame.getPlayer(), MSG_GAME_OVER);
-        MESSAGE_SENDER.sendTitle(activeGame.getPlayer(), MSG_GAME_OVER.getFormattedValue(), MSG_GAME_OVER_SUB.getFormattedValue(activeGame.getScore()+"", activeGame.getCurrentPlayTimeFormatted()+""));
+        MESSAGE_SENDER.sendTitle(activeGame.getPlayer(), MSG_GAME_OVER.getFormattedValue(), MSG_GAME_OVER_SUB.getFormattedValue(String.valueOf(activeGame.getScore()), activeGame.getCurrentPlayTimeFormatted()));
     }
 }

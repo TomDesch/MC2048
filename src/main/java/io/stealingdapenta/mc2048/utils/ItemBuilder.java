@@ -24,7 +24,7 @@ public class ItemBuilder {
     public ItemBuilder(ItemStack itemStack) {
         this.itemStack = itemStack.clone();
         this.itemMeta = this.itemStack.getItemMeta();
-        this.loreList = (itemMeta != null && itemMeta.hasLore()) ? itemMeta.getLore() : new ArrayList<>();
+        this.loreList = (Objects.nonNull(itemMeta) && Objects.nonNull(itemMeta.getLore())) ? itemMeta.getLore() : new ArrayList<>();
     }
 
     public ItemBuilder(Material material) {
@@ -64,7 +64,7 @@ public class ItemBuilder {
 
     public ItemBuilder addLoreList(List<Component> lore) {
         setItemMeta();
-        List<String> currentLore = itemMeta.hasLore() ? itemMeta.getLore() : new ArrayList<>();
+        List<String> currentLore = (Objects.nonNull(itemMeta.getLore())) ? itemMeta.getLore() : new ArrayList<>();
 
         lore.stream()
             .map(this::convertToString)
@@ -78,7 +78,9 @@ public class ItemBuilder {
     public ItemBuilder addLore(Object lore) {
         setItemMeta();
         String loreString = convertToString(lore);
-        if (loreString == null) return this;
+        if (Objects.isNull(loreString)) {
+            return this;
+        }
 
         loreList.add(loreString);
         itemMeta.setLore(loreList);
@@ -86,25 +88,34 @@ public class ItemBuilder {
     }
 
     private String convertToString(Object obj) {
-        String result = switch (obj) {
+        return switch (obj) {
             case ConfigKey configKey -> {
                 Component formatted = configKey.getFormattedValue();
-                String legacy = LegacyComponentSerializer.legacySection().serialize(formatted);
-                if (legacy.isEmpty()) yield null;
-                yield LegacyComponentSerializer.legacySection().serialize(StringUtil.processComponent(formatted));
+                String legacy = LegacyComponentSerializer.legacySection()
+                                                         .serialize(formatted);
+                if (legacy.isEmpty()) {
+                    yield null;
+                }
+                yield LegacyComponentSerializer.legacySection()
+                                               .serialize(StringUtil.processComponent(formatted));
             }
             case Component component -> {
-                String legacy = LegacyComponentSerializer.legacySection().serialize(component);
-                if (legacy.isEmpty()) yield null;
-                yield LegacyComponentSerializer.legacySection().serialize(StringUtil.processComponent(component));
+                String legacy = LegacyComponentSerializer.legacySection()
+                                                         .serialize(component);
+                if (legacy.isEmpty()) {
+                    yield null;
+                }
+                yield LegacyComponentSerializer.legacySection()
+                                               .serialize(StringUtil.processComponent(component));
             }
             case String str -> {
-                if (str.isEmpty()) yield null;
+                if (str.isEmpty()) {
+                    yield null;
+                }
                 yield StringUtil.translate(str);
             }
             default -> throw new IllegalArgumentException("Unsupported lore type: " + obj.getClass());
         };
-        return result;
     }
 
     public static ItemStack setCustomModelDataTo(ItemStack itemStack, ConfigKey configKey) {

@@ -14,6 +14,7 @@ import net.kyori.adventure.title.Title;
 import net.kyori.adventure.title.Title.Times;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 public enum MessageSender {
     MESSAGE_SENDER;
@@ -36,7 +37,9 @@ public enum MessageSender {
         if (Objects.isNull(sender)) {
             logger.severe(PLAYER_IS_NULL);
             return;
-        } else if (Objects.isNull(messageConfig)) {
+        }
+
+        if (Objects.isNull(messageConfig)) {
             return;
         }
 
@@ -53,7 +56,9 @@ public enum MessageSender {
         if (Objects.isNull(player)) {
             logger.severe(PLAYER_IS_NULL);
             return;
-        } else if (Objects.isNull(message)) {
+        }
+
+        if (Objects.isNull(message)) {
             return;
         }
 
@@ -72,16 +77,21 @@ public enum MessageSender {
         sendTitle(player, StringUtil.processComponent(title.getFormattedValue()), StringUtil.processComponent(Component.text(subtitle)));
     }
 
-    public void sendTitle(Player player, Component titleComponent, Component subtitleComponent) {
+    /**
+     * Sends a {@link Title} and subtitle to the specified {@link Player} with default fade-in, stay, and fade-out durations.
+     *
+     * @param player            the {@link Player} to whom the title should be sent
+     * @param titleComponent    the main title {@link Component} to display
+     * @param subtitleComponent the subtitle {@link Component} to display beneath the main title
+     */
+    public void sendTitle(Player player, @NotNull Component titleComponent, @NotNull Component subtitleComponent) {
         if (Objects.isNull(player)) {
             logger.severe(PLAYER_IS_NULL);
             return;
-        } else if (titleComponent == null && subtitleComponent == null) {
-            return;
         }
-        
-        Component processedTitle = titleComponent != null ? StringUtil.processComponent(titleComponent) : null;
-        Component processedSubtitle = subtitleComponent != null ? StringUtil.processComponent(subtitleComponent) : null;
+
+        Component processedTitle = StringUtil.processComponent(titleComponent);
+        Component processedSubtitle = StringUtil.processComponent(subtitleComponent);
         
         Times times = Title.Times.times(Duration.ofSeconds(1), Duration.ofSeconds(3), Duration.ofSeconds(1));
         Title title = Title.title(processedTitle, processedSubtitle, times);
