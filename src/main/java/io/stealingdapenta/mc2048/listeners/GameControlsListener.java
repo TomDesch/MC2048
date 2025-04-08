@@ -47,15 +47,20 @@ public class GameControlsListener implements Listener {
     }
 
     private void initActionMap() {
+        if (Objects.nonNull(ACTION_MAP) && !ACTION_MAP.isEmpty()) {
+            return;
+        }
         ACTION_MAP = Map.of(LegacyComponentSerializer.legacySection()
-                                                        .serialize(MOVE_BUTTON_UP_NAME.getFormattedValue()), ButtonAction.UP, LegacyComponentSerializer.legacySection()
-                                                                                                                                               .serialize(MOVE_BUTTON_LEFT_NAME.getFormattedValue()), ButtonAction.LEFT, LegacyComponentSerializer.legacySection()
-                                                                                                                                                                                                                                          .serialize(
-                                                                                                                                                                                                                                                  MOVE_BUTTON_RIGHT_NAME.getFormattedValue()), ButtonAction.RIGHT, LegacyComponentSerializer.legacySection()
-                                                        .serialize(MOVE_BUTTON_DOWN_NAME.getFormattedValue()), ButtonAction.DOWN, LegacyComponentSerializer.legacySection()
-                                                                                                                                                .serialize(UNDO_BUTTON_UNUSED_NAME.getFormattedValue()), ButtonAction.UNDO, LegacyComponentSerializer.legacySection()
-                                                                                                                                                                                                                                            .serialize(SPEED_BUTTON_NAME.getFormattedValue()), ButtonAction.SPEED, LegacyComponentSerializer.legacySection()
-                                                        .serialize(PLAY_BUTTON_NAME.getFormattedValue()), ButtonAction.PLAY);
+                                                     .serialize(MOVE_BUTTON_UP_NAME.getFormattedValue()), ButtonAction.UP, LegacyComponentSerializer.legacySection()
+                                                                                                                                                    .serialize(MOVE_BUTTON_LEFT_NAME.getFormattedValue()), ButtonAction.LEFT,
+                            LegacyComponentSerializer.legacySection()
+                                                     .serialize(MOVE_BUTTON_RIGHT_NAME.getFormattedValue()), ButtonAction.RIGHT, LegacyComponentSerializer.legacySection()
+                                                                                                                                                          .serialize(MOVE_BUTTON_DOWN_NAME.getFormattedValue()), ButtonAction.DOWN,
+                            LegacyComponentSerializer.legacySection()
+                                                     .serialize(UNDO_BUTTON_UNUSED_NAME.getFormattedValue()), ButtonAction.UNDO, LegacyComponentSerializer.legacySection()
+                                                                                                                                                          .serialize(SPEED_BUTTON_NAME.getFormattedValue()), ButtonAction.SPEED,
+                            LegacyComponentSerializer.legacySection()
+                                                     .serialize(PLAY_BUTTON_NAME.getFormattedValue()), ButtonAction.PLAY);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -70,31 +75,40 @@ public class GameControlsListener implements Listener {
         // Cancel all default interaction behavior if it's any game or help window
         event.setCancelled(true);
 
+        Player player = (Player) event.getWhoClicked();
+        ActiveGame activeGame = gameManager.getActiveGame(player);
+        if (Objects.isNull(activeGame) || Objects.isNull(activeGame.getGameWindow())) {
+            return;
+        }
+
+        if (activeGame.isLocked()) {
+            return;
+        }
+
+        String clickedItemDisplayName = getItemDisplayName(event.getCurrentItem());
+        if (Objects.isNull(clickedItemDisplayName)) {
+            return;
+        }
+
+        initActionMap();
+
         if (inventoryUtil.isGameWindow(clickedInventoryView)) {
-            handleGameWindowActions(event);
+            handleGameWindowActions(player, activeGame, clickedItemDisplayName);
         } else if (inventoryUtil.isHelpWindow(clickedInventoryView)) {
-            handleHelpWindowAction(event);
+            handleHelpWindowAction(player, clickedItemDisplayName);
         } else {
             logger.warning("The inventory is an MC2048 window, yet not recognized: %s".formatted(clickedInventoryView.toString()));
         }
     }
 
-    private void handleHelpWindowAction(InventoryClickEvent event) {
-        Player player = (Player) event.getWhoClicked();
-        String clickedItemDisplayName = getItemDisplayName(event.getCurrentItem());
-        if (Objects.isNull(clickedItemDisplayName)) {
-            logger.info("null clickedItemDisplayName");
-            return;
-        }
-        
-        initActionMap();
+    private void handleHelpWindowAction(Player player, String clickedItemDisplayName) {
         ButtonAction action = ACTION_MAP.entrySet()
-                                           .stream()
-                                           .filter(entry -> clickedItemDisplayName.contains(entry.getKey()))
-                                           .map(Map.Entry::getValue)
-                                           .findFirst()
-                                           .orElse(null);
-        if (Objects.nonNull(action) && action.equals(ButtonAction.PLAY)) {
+                                        .stream()
+                                        .filter(entry -> clickedItemDisplayName.contains(entry.getKey()))
+                                        .map(Map.Entry::getValue)
+                                        .findFirst()
+                                        .orElse(null);
+        if (ButtonAction.PLAY.equals(action)) {
             gameManager.activateGame(player);
         }
     }
@@ -116,30 +130,13 @@ public class GameControlsListener implements Listener {
         return itemMeta.getDisplayName();
     }
 
-    private void handleGameWindowActions(InventoryClickEvent event) {
-        Player player = (Player) event.getWhoClicked();
-        ActiveGame activeGame = gameManager.getActiveGame(player);
-        if (Objects.isNull(activeGame) || Objects.isNull(activeGame.getGameWindow())) {
-            return;
-        }
-
-        if (activeGame.isLocked()) {
-            return;
-        }
-
-        String clickedItemDisplayName = getItemDisplayName(event.getCurrentItem());
-        if (Objects.isNull(clickedItemDisplayName)) {
-            return;
-        }
-
-        initActionMap();
+    private void handleGameWindowActions(Player player, ActiveGame activeGame, String clickedItemDisplayName) {
         ButtonAction action = ACTION_MAP.entrySet()
-                                           .stream()
-                                           .filter(entry -> clickedItemDisplayName.contains(entry.getKey()))
-                                           .map(Map.Entry::getValue)
-                                           .findFirst()
-                                           .orElse(null);
-        
+                                        .stream()
+                                        .filter(entry -> clickedItemDisplayName.contains(entry.getKey()))
+                                        .map(Map.Entry::getValue)
+                                        .findFirst()
+                                        .orElse(null);
 
         if (Objects.isNull(action)) {
             invalidMoveMessage(player);
@@ -148,10 +145,13 @@ public class GameControlsListener implements Listener {
 
         if (ButtonAction.SPEED.equals(action)) {
             int curr = FILE_MANAGER.getIntByKey(player, PlayerConfigField.ANIMATION_SPEED.getKey());
-            if (0 <= curr && curr <= 4) curr++;
-            else if (curr == 5)         curr = 0;
-            else                        curr = ConfigKey.DEFAULT_ANIMATION_SPEED.getIntValue();
-
+            if (0 <= curr && curr <= 4) {
+                curr++;
+            } else if (curr == 5) {
+                curr = 0;
+            } else {
+                curr = ConfigKey.DEFAULT_ANIMATION_SPEED.getIntValue();
+            }
 
             FILE_MANAGER.setValueByKey(player, PlayerConfigField.ANIMATION_SPEED.getKey(), curr);
             inventoryUtil.updateSpeedButton(activeGame, curr);
@@ -159,18 +159,18 @@ public class GameControlsListener implements Listener {
         }
 
         activeGame.setLock(true);
-        
+
         int tickDelay = inventoryUtil.moveItemsInDirection(activeGame, action);
-        if (tickDelay==0) {
+        if (tickDelay == 0) {
             invalidMoveMessage(player);
             activeGame.setLock(false);
             return;
         }
 
-        if (tickDelay==-1 || ButtonAction.UNDO.equals(action)) {
+        if (tickDelay == -1 || ButtonAction.UNDO.equals(action)) {
             MESSAGE_SENDER.sendMessage(player, MSG_UNDID_LAST_MOVE);
             activeGame.setLock(false);
-        } else if (tickDelay>0) {
+        } else if (tickDelay > 0) {
             new BukkitRunnable() {
                 @Override
                 public void run() {
@@ -207,7 +207,9 @@ public class GameControlsListener implements Listener {
             return;
         }
 
-        if (activeGame.isLocked()) return;
+        if (activeGame.isLocked()) {
+            return;
+        }
 
         doGameOver(activeGame);
         gameManager.deactivateGameFor(player);
