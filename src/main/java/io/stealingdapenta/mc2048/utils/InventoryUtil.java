@@ -303,7 +303,7 @@ public class InventoryUtil {
     /**
      * @return tick delay for caller method continuation
      */
-    public int moveItemsInDirection(ActiveGame activeGame, ButtonAction action) {
+    public int processGameAction(ActiveGame activeGame, ButtonAction action) {
         Inventory gameWindow = activeGame.getGameWindow();
         ItemStack[][] itemsInGame = new ItemStack[ROW_AND_COLUMN_SIZE][ROW_AND_COLUMN_SIZE];
 
@@ -311,14 +311,14 @@ public class InventoryUtil {
 
         int tickDelay;
         if (action.equals(ButtonAction.UNDO)) {
-            // [debug] javaPlugin.getLogger().info("moveItemsInDirection: undoing last move");
+            // [debug] javaPlugin.getLogger().info("processGameAction: undoing last move");
             tickDelay = undoLastMove(itemsInGame, activeGame);
         } else {
-            // [debug] javaPlugin.getLogger().info("moveItemsInDirection: moving items");
+            // [debug] javaPlugin.getLogger().info("processGameAction: moving items");
             tickDelay = moveItems(activeGame.getPlayer(), itemsInGame, activeGame, action);
         }
 
-        // [debug] javaPlugin.getLogger().info("moveItemsInDirection.tickDelay == " + tickDelay);
+        // [debug] javaPlugin.getLogger().info("processGameAction.tickDelay == " + tickDelay);
 
         if (tickDelay < 0 || ButtonAction.UNDO.equals(action)) {
             copyItemArrayToGameWindow(gameWindow, itemsInGame);

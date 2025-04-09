@@ -161,7 +161,7 @@ public class GameControlsListener implements Listener {
 
         activeGame.setLock(true);
 
-        int tickDelay = inventoryUtil.moveItemsInDirection(activeGame, action);
+        int tickDelay = inventoryUtil.processGameAction(activeGame, action);
         if (tickDelay == 0) {
             invalidMoveMessage(player);
             activeGame.setLock(false);
