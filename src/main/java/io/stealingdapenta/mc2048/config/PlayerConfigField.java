@@ -20,9 +20,9 @@ public enum PlayerConfigField {
     }
 
     /**
-     * @return the stored value from the config as an integer NumberFormatException safe
+     * @return the stored animation speed from the player's config as an integer
      */
-    public int getIntValue() {
+    public int getAnimationSpeed() {
         String value = MC2048.getInstance().getConfig().getString(name().toLowerCase());
         try {
             return Integer.parseInt(value);

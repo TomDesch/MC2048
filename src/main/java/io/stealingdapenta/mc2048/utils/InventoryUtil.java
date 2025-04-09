@@ -226,7 +226,7 @@ public class InventoryUtil {
             setItemInSlot(activeGame.getGameWindow(), SLOT_UNDO, createUndoButton(UNDO_BUTTON_USAGES.getIntValue()));
         }
         if (SLOT_SPEED >= 0) {
-            setItemInSlot(activeGame.getGameWindow(), SLOT_SPEED, createSpeedButton(FILE_MANAGER.getIntByKey(activeGame.getPlayer(), PlayerConfigField.ANIMATION_SPEED.getKey())));
+            setItemInSlot(activeGame.getGameWindow(), SLOT_SPEED, createSpeedButton(FILE_MANAGER.getAnimationSpeed(activeGame.getPlayer())));
         }
     }
 
@@ -369,7 +369,7 @@ public class InventoryUtil {
         int maxSteps = animateMovementsSimultaneous(player, activeGame.getGameWindow(), instructions);
 
         // Compute tick delay for final board update (ensure at least 1 tick delay)
-        return Math.max((maxSteps - 1) * PlayerConfigField.ANIMATION_SPEED.getIntValue(), 1);
+        return Math.max((maxSteps - 1) * FILE_MANAGER.getAnimationSpeed(player), 1);
     }
 
 
@@ -531,7 +531,7 @@ public class InventoryUtil {
                         }
                     }
                 }
-            }.runTaskLater(javaPlugin, (currentStep - 1L) * FILE_MANAGER.getIntByKey(player, PlayerConfigField.ANIMATION_SPEED.getKey()));
+            }.runTaskLater(javaPlugin, (currentStep - 1L) * FILE_MANAGER.getAnimationSpeed(player));
         }
         return maxSteps;
     }
@@ -676,9 +676,4 @@ public class InventoryUtil {
                                                             .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
                                                             .create();
     }
-
-    // [debug]
-        public MC2048 getPlugin() {
-            return javaPlugin;
-        }
 }

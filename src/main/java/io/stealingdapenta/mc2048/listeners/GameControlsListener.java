@@ -1,5 +1,6 @@
 package io.stealingdapenta.mc2048.listeners;
 
+import static io.stealingdapenta.mc2048.MC2048.logger;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_DOWN_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_LEFT_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_RIGHT_NAME;
@@ -108,7 +109,7 @@ public class GameControlsListener implements Listener {
         } else if (inventoryUtil.isHelpWindow(clickedInventoryView)) {
             handleHelpWindowAction(player, action);
         } else {
-            inventoryUtil.getPlugin().getLogger().warning("The inventory is an MC2048 window, yet not recognized: %s".formatted(clickedInventoryView.toString()));
+            logger.warning("The inventory is an MC2048 window, yet not recognized: %s".formatted(clickedInventoryView.toString()));
         }
     }
 
@@ -143,7 +144,7 @@ public class GameControlsListener implements Listener {
         }
 
         if (ButtonAction.SPEED.equals(action)) {
-            int curr = FILE_MANAGER.getIntByKey(player, PlayerConfigField.ANIMATION_SPEED.getKey());
+            int curr = FILE_MANAGER.getAnimationSpeed(player);
             if (0 <= curr && curr <= 4) {
                 curr++;
             } else if (curr == 5) {
@@ -184,7 +185,7 @@ public class GameControlsListener implements Listener {
                         doGameOver(activeGame);
                     }
                 }
-            }.runTaskLater(inventoryUtil.javaPlugin, tickDelay + (2L * FILE_MANAGER.getIntByKey(player, PlayerConfigField.ANIMATION_SPEED.getKey()) + 2));
+            }.runTaskLater(inventoryUtil.javaPlugin, tickDelay + (2L * FILE_MANAGER.getAnimationSpeed(player) + 2));
         }
     }
 
