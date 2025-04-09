@@ -170,12 +170,14 @@ public class GameControlsListener implements Listener {
 
         if (tickDelay == -1 || ButtonAction.UNDO.equals(action)) {
             MESSAGE_SENDER.sendMessage(player, MSG_UNDID_LAST_MOVE);
+            inventoryUtil.updateUndoButton(activeGame);
             activeGame.setLock(false);
         } else if (tickDelay > 0) {
             new BukkitRunnable() {
                 @Override
                 public void run() {
                     inventoryUtil.spawnNewBlock(activeGame.getGameWindow());
+                    inventoryUtil.updateUndoButton(activeGame);
                     activeGame.setLock(false);
 
                     if (inventoryUtil.noValidMovesLeft(activeGame.getGameWindow()) && activeGame.hasNoUndoLastMoveLeft()) {

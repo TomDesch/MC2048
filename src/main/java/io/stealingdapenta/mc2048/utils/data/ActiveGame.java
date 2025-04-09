@@ -121,10 +121,14 @@ public class ActiveGame {
     }
 
     public void decrementUndoLastMoveCounter() {
+        if (undoLastMoveCounter<0) return; // infinite undo
+
         undoLastMoveCounter--;
     }
 
     public boolean hasNoUndoLastMoveLeft() {
+        if (undoLastMoveCounter<0) return false; // infinite undo
+
         return undoLastMoveCounter <= 0;
     }
 

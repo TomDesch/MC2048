@@ -223,7 +223,17 @@ public class InventoryUtil {
         setItemInSlot(activeGame.getGameWindow(), SLOT_RIGHT, createButton(MOVE_BUTTON_RIGHT_NAME, MOVE_BUTTON_RIGHT_MATERIAL, MOVE_BUTTON_RIGHT_MATERIAL_CMD));
         setItemInSlot(activeGame.getGameWindow(), SLOT_DOWN, createButton(MOVE_BUTTON_DOWN_NAME, MOVE_BUTTON_DOWN_MATERIAL, MOVE_BUTTON_DOWN_MATERIAL_CMD));
         if (SLOT_UNDO >= 0) {
-            setItemInSlot(activeGame.getGameWindow(), SLOT_UNDO, createUndoButton(UNDO_BUTTON_USAGES.getIntValue()));
+            if (activeGame.hasNoUndoLastMoveLeft()) {
+                setItemInSlot(activeGame.getGameWindow(), SLOT_UNDO, createEmptyUndoButton());
+            }
+            else {
+                if (!activeGame.isLastMoveUndo()) {
+                    setItemInSlot(activeGame.getGameWindow(), SLOT_UNDO, createUnblockedUndoButton(UNDO_BUTTON_USAGES.getIntValue()));
+                }
+                else {
+                    setItemInSlot(activeGame.getGameWindow(), SLOT_UNDO, createBlockedUndoButton(UNDO_BUTTON_USAGES.getIntValue()));
+                }
+            }
         }
         if (SLOT_SPEED >= 0) {
             setItemInSlot(activeGame.getGameWindow(), SLOT_SPEED, createSpeedButton(FILE_MANAGER.getAnimationSpeed(activeGame.getPlayer())));
@@ -237,16 +247,29 @@ public class InventoryUtil {
                                                                                     .create(), customMetaData);
     }
 
-    private ItemStack createUndoButton(int numberOfUndoLeft) {
+    private ItemStack createUnblockedUndoButton(int numberOfUndoLeft) {
         return setCustomModelDataTo(new ItemBuilder(UNDO_BUTTON_UNUSED_MATERIAL.getMaterialValue()).setDisplayName(UNDO_BUTTON_UNUSED_NAME.getFormattedValue())
                                                                                                    .addLore(UNDO_BUTTON_UNUSED_LORE.getFormattedValue())
                                                                                                    .addLore(UNDO_BUTTON_UNUSED_USES.getFormattedValue()
-                                                                                                                                   .append(Component.text(numberOfUndoLeft)))
+                                                                                                                                   .append(Component.text(
+                                                                                                                                            numberOfUndoLeft >= 0 ? numberOfUndoLeft+"" : "∞"
+                                                                                                                                    )))
                                                                                                    .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
                                                                                                    .create(), UNDO_BUTTON_UNUSED_MATERIAL_CMD);
     }
 
-    private ItemStack createUsedUndoButton() {
+    private ItemStack createBlockedUndoButton(int numberOfUndoLeft) {
+        return setCustomModelDataTo(new ItemBuilder(UNDO_BUTTON_UNUSED_MATERIAL.getMaterialValue()).setDisplayName(UNDO_BUTTON_UNUSED_NAME.getFormattedValue())
+                                                                                                   .addLore(UNDO_BUTTON_USED_LORE.getFormattedValue())
+                                                                                                   .addLore(UNDO_BUTTON_UNUSED_USES.getFormattedValue()
+                                                                                                                                    .append(Component.text(
+                                                                                                                                        numberOfUndoLeft >= 0 ? numberOfUndoLeft+"" : "∞"
+                                                                                                                                    )))
+                                                                                                   .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
+                                                                                                   .create(), UNDO_BUTTON_UNUSED_MATERIAL_CMD);
+    }
+
+    private ItemStack createEmptyUndoButton() {
         return setCustomModelDataTo(new ItemBuilder(UNDO_BUTTON_USED_MATERIAL.getMaterialValue()).setDisplayName(UNDO_BUTTON_USED_NAME.getFormattedValue())
                                                                                                  .addLore(UNDO_BUTTON_USED_LORE.getFormattedValue())
                                                                                                  .addLore(UNDO_BUTTON_USED_USES.getFormattedValue())
@@ -261,6 +284,25 @@ public class InventoryUtil {
                                                                                                                         .append(Component.text(currentSpeed)))
                                                                                              .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
                                                                                              .create(), SPEED_BUTTON_MATERIAL_CMD);
+    }
+
+    public void updateUndoButton(ActiveGame activeGame) {
+        final int SLOT_UNDO = UNDO_BUTTON_SLOT.getIntValue();
+        if (SLOT_UNDO >= 0) {
+            if (activeGame.hasNoUndoLastMoveLeft()) {
+                activeGame.getGameWindow().setItem(SLOT_UNDO, null);
+                setItemInSlot(activeGame.getGameWindow(), SLOT_UNDO, createEmptyUndoButton());
+            } else {
+                if (!activeGame.isLastMoveUndo()) {
+                    activeGame.getGameWindow().setItem(SLOT_UNDO, null);
+                    setItemInSlot(activeGame.getGameWindow(), SLOT_UNDO, createUnblockedUndoButton(activeGame.getUndoLastMoveCounter()));
+                }
+                else {
+                    activeGame.getGameWindow().setItem(SLOT_UNDO, null);
+                    setItemInSlot(activeGame.getGameWindow(), SLOT_UNDO, createBlockedUndoButton(activeGame.getUndoLastMoveCounter()));
+                }
+            }
+        }
     }
 
     public void updateSpeedButton(ActiveGame activeGame, int newSpeed) {
@@ -615,7 +657,12 @@ public class InventoryUtil {
         activeGame.removeFromScore(activeGame.getScoreGainedAfterLastMove());
         activeGame.decrementUndoLastMoveCounter();
 
-        setItemInSlot(activeGame.getGameWindow(), UNDO_BUTTON_SLOT.getIntValue(), activeGame.hasNoUndoLastMoveLeft() ? createUsedUndoButton() : createUndoButton(activeGame.getUndoLastMoveCounter()));
+        if (activeGame.hasNoUndoLastMoveLeft()) {
+            setItemInSlot(activeGame.getGameWindow(), UNDO_BUTTON_SLOT.getIntValue(), createEmptyUndoButton());
+        } else {
+            setItemInSlot(activeGame.getGameWindow(), UNDO_BUTTON_SLOT.getIntValue(), createBlockedUndoButton(activeGame.getUndoLastMoveCounter()));
+        }
+
         activeGame.setLastMoveUndo(true);
         return -1;
     }
