@@ -12,18 +12,19 @@ import org.bukkit.Material;
 
 public enum ConfigKey {
 
-    MSG_RELOADED("<green>Successfully MSG_RELOADED the <italic>MC2048</italic> configuration file.</green>"),
+    MSG_TOP_TEN("<gold>Top 10 High Scores on this server:</gold>"),
+    MSG_TOP_SELF("<white>Your <bold>Position</bold>: %s</white>"),
     MSG_NO_PERMS("<red>You don't have the required <bold>permission</bold> to execute this command.</red>"),
-    MSG_PARSING_ERROR("<yellow>Error parsing the value in the config file for <red><bold>%s</bold></red></yellow>"),
     MSG_NOT_PLAYER("<light_purple>You can only execute this command as a <bold>player</bold>.</light_purple>"),
+    MSG_RELOADED("<green>Successfully MSG_RELOADED the <italic>MC2048</italic> configuration file.</green>"),
+    MSG_PARSING_ERROR("<yellow>Error parsing the value in the config file for <red><bold>%s</bold></red></yellow>"),
     MSG_GAME_STARTED("<aqua>Good luck and <bold>have fun</bold>!</aqua>"),
     MSG_INVALID_MOVE("<red>Sorry! <bold>That's not a valid move</bold>.</red>"),
     MSG_UNDID_LAST_MOVE("<green>Successfully undid the <bold>last move</bold>!</green>"),
-    MSG_GAME_OVER("<dark_red><bold>Game over!</bold></dark_red>"),
-    MSG_GAME_OVER_SUB("Score: %s | Playtime: %k"),
     MSG_ATTEMPT_PROTECTION("<gray>The game wasn't saved because you didn't do anything. Your <bold>average score</bold> and <italic>attempts</italic> were protected.</gray>"),
-    MSG_TOP_TEN("<gold>Top 10 High Scores on this server:</gold>"),
-    MSG_PLAYER_POSITION("<white>Your <bold>Position</bold>: %s</white>"),
+    MSG_GAME_OVER("<dark_red><bold>Game over!</bold></dark_red>"),
+    TITLE_GAME_OVER("<dark_red><bold>Game over!</bold></dark_red>"),
+    TITLE_GAME_OVER_SUB("Score: %s | Playtime: %k"),
 
     GAME_GUI_TITLE("        <blue><b>MC 2048:</b></blue> <dark_gray>%s Points"),
     GAME_GUI_FILLER_MATERIAL("WHITE_STAINED_GLASS_PANE"),

@@ -6,7 +6,8 @@ import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_LEFT_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_RIGHT_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_UP_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MSG_GAME_OVER;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MSG_GAME_OVER_SUB;
+import static io.stealingdapenta.mc2048.config.ConfigKey.TITLE_GAME_OVER;
+import static io.stealingdapenta.mc2048.config.ConfigKey.TITLE_GAME_OVER_SUB;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MSG_INVALID_MOVE;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MSG_UNDID_LAST_MOVE;
 import static io.stealingdapenta.mc2048.config.ConfigKey.START_BUTTON_NAME;
@@ -217,6 +218,6 @@ public class GameControlsListener implements Listener {
 
     private void doGameOver(ActiveGame activeGame) {
         MESSAGE_SENDER.sendMessage(activeGame.getPlayer(), MSG_GAME_OVER);
-        MESSAGE_SENDER.sendTitle(activeGame.getPlayer(), MSG_GAME_OVER.getFormattedValue(), MSG_GAME_OVER_SUB.getFormattedValue(String.valueOf(activeGame.getScore()), activeGame.getCurrentPlayTimeFormatted()));
+        MESSAGE_SENDER.sendTitle(activeGame.getPlayer(), TITLE_GAME_OVER.getFormattedValue(), TITLE_GAME_OVER_SUB.getFormattedValue(String.valueOf(activeGame.getScore()), activeGame.getCurrentPlayTimeFormatted()));
     }
 }

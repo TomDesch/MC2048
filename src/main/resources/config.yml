@@ -1,18 +1,19 @@
 # Alternative Default Config for MC2048 v1.2.0
 
 # Messages sent to players
-msg_reloaded: "&aReloaded MC2048 config!"
+msg_top_ten: "&6--- Top 10 2048 High Scores ---"
+msg_top_self: "&6Your Position: %s"
 msg_no_perms: "&cNo permission."
-msg_parsing_error: "&cError parsing the %s value in the config file!"
 msg_not_player: "&cOnly players can run this command!"
+msg_reloaded: "&aReloaded MC2048 config!"
+msg_parsing_error: "&cError parsing the %s value in the config file!"
 msg_game_started: "" # "&aGame started, good luck!"
 msg_invalid_move: "" # "&cInvalid move!"
 msg_undid_last_move: "" # "&aUndid last move!"
-msg_game_over: "" # "&4Game over!"
-msg_game_over_sub: "Score: %s | Playtime: %k"
 msg_attempt_protection: "" # "&7Game wasn't saved because you didn't do anything!"
-msg_top_ten: "&6--- Top 10 2048 High Scores ---"
-msg_player_position: "&6Your Position: %s"
+msg_game_over: "" # "&4Game over!"
+title_game_over: "&4Game over!"
+title_game_over_sub: "Score: %s | Playtime: %k"
 
 # Game GUI
 game_gui_title: "&l2048: &r&8%s Points"
@@ -78,7 +79,7 @@ high_score_item_lore_format: "&7%s"
 info_item_name: "&e2048 Guide"
 info_item_material: BOOK
 info_item_material_cmd: 1000
-info_item_lore_1: "&fMC2048 is a game where you match numbers."
+info_item_lore_1: "&fThis is a game where you match numbers."
 info_item_lore_2: "&7- If you put two of the same items together, they combine!"
 info_item_lore_3: "&7- Keep combining items to make the biggest one you can."
 info_item_lore_4: "&7- Once the board fills up and you run out of moves, the game ends!"
@@ -119,5 +120,5 @@ material_sixty_five_thousand_five_hundred_thirty_six: DIAMOND
 material_sixty_five_thousand_five_hundred_thirty_six_cmd: 1000
 material_hundred_thirty_one_thousand_seventy_two: DIAMOND_BLOCK
 material_hundred_thirty_one_thousand_seventy_two_cmd: 1000
-material_infinity: END_STONE
+material_infinity: NETHERITE_BLOCK
 material_infinity_cmd: 1000
