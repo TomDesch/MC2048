@@ -300,20 +300,12 @@ public class InventoryUtil {
 
         copyGameWindowContentsToArray(gameWindow, itemsInGame);
 
-        if (!action.equals(ButtonAction.UNDO)) {
-            // Create a deep copy of the current state before making moves
-            ItemStack[][] lastPosition = new ItemStack[ROW_AND_COLUMN_SIZE][ROW_AND_COLUMN_SIZE];
-            for (int i = 0; i < itemsInGame.length; i++) {
-                lastPosition[i] = Arrays.copyOf(itemsInGame[i], itemsInGame[i].length);
-            }
-            activeGame.setLastPosition(lastPosition);
-            activeGame.resetGainedAfterLastMove();
-        }
-
         int tickDelay;
         if (action.equals(ButtonAction.UNDO)) {
+            // [debug] javaPlugin.getLogger().info("moveItemsInDirection: undoing last move");
             tickDelay = undoLastMove(itemsInGame, activeGame);
         } else {
+            // [debug] javaPlugin.getLogger().info("moveItemsInDirection: moving items");
             tickDelay = moveItems(activeGame.getPlayer(), itemsInGame, activeGame, action);
         }
 
@@ -344,13 +336,25 @@ public class InventoryUtil {
      */
     private int moveItems(Player player, ItemStack[][] inventoryArray, ActiveGame activeGame, ButtonAction action) {
 
+        // Create a deep copy of the current state before making moves
+        ItemStack[][] lastPosition = new ItemStack[ROW_AND_COLUMN_SIZE][ROW_AND_COLUMN_SIZE];
+        for (int i = 0; i < inventoryArray.length; i++) {
+            lastPosition[i] = Arrays.copyOf(inventoryArray[i], inventoryArray[i].length);
+        }
+
         // Calculate moves (updates board simulation and scores)
         List<MovementInstruction> instructions = calculateMoves(inventoryArray, activeGame, action);
         if ((Objects.isNull(instructions)) || instructions.isEmpty()) {
             // [debug] javaPlugin.getLogger().info("moveItems.instructions.isEmpty() == true");
             return 0;
         }
+        
         // [debug] javaPlugin.getLogger().info("moveItems.instructions.isEmpty() == false");
+
+        // Since there will be movement, we can update the acitveGame's saved lastPosition
+        activeGame.setLastPosition(lastPosition);
+        activeGame.resetGainedAfterLastMove();
+        // [debug] javaPlugin.getLogger().info("moveItems.lastPosition saved");
 
         // Animate the moves and get the maximum number of steps (ticks) needed
         int maxSteps = animateMovementsSimultaneous(player, activeGame.getGameWindow(), instructions);
@@ -574,6 +578,7 @@ public class InventoryUtil {
             }
         }
 
+        // [debug] javaPlugin.getLogger().info("ran copyItemArrayToGameWindow()");
     }
 
     /**
