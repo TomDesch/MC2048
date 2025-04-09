@@ -35,10 +35,10 @@ import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_LORE_TOTAL_
 import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_MATERIAL;
 import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_MATERIAL_CMD;
 import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_NAME;
-import static io.stealingdapenta.mc2048.config.ConfigKey.PLAY_BUTTON_LORE;
-import static io.stealingdapenta.mc2048.config.ConfigKey.PLAY_BUTTON_MATERIAL;
-import static io.stealingdapenta.mc2048.config.ConfigKey.PLAY_BUTTON_MATERIAL_CMD;
-import static io.stealingdapenta.mc2048.config.ConfigKey.PLAY_BUTTON_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.START_BUTTON_LORE;
+import static io.stealingdapenta.mc2048.config.ConfigKey.START_BUTTON_MATERIAL;
+import static io.stealingdapenta.mc2048.config.ConfigKey.START_BUTTON_MATERIAL_CMD;
+import static io.stealingdapenta.mc2048.config.ConfigKey.START_BUTTON_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.SPEED_BUTTON_LORE;
 import static io.stealingdapenta.mc2048.config.ConfigKey.SPEED_BUTTON_MATERIAL;
 import static io.stealingdapenta.mc2048.config.ConfigKey.SPEED_BUTTON_MATERIAL_CMD;
@@ -57,14 +57,21 @@ import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_USED_MATERI
 import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_USED_MATERIAL_CMD;
 import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_USED_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_USED_USES;
-import static io.stealingdapenta.mc2048.utils.ActiveGame.makeSecondsATimestamp;
 import static io.stealingdapenta.mc2048.utils.FileManager.FILE_MANAGER;
 import static io.stealingdapenta.mc2048.utils.ItemBuilder.setCustomModelDataTo;
+import static io.stealingdapenta.mc2048.utils.data.ActiveGame.makeSecondsATimestamp;
 import static org.bukkit.Bukkit.createInventory;
 
 import io.stealingdapenta.mc2048.MC2048;
 import io.stealingdapenta.mc2048.config.ConfigKey;
 import io.stealingdapenta.mc2048.config.PlayerConfigField;
+import io.stealingdapenta.mc2048.utils.data.ActiveGame;
+import io.stealingdapenta.mc2048.utils.data.ButtonAction;
+import io.stealingdapenta.mc2048.utils.data.GameHolder;
+import io.stealingdapenta.mc2048.utils.data.HelperHolder;
+import io.stealingdapenta.mc2048.utils.data.MovementInstruction;
+import io.stealingdapenta.mc2048.utils.data.NumberRepresentation;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -117,7 +124,7 @@ public class InventoryUtil {
     }
 
     public Inventory createGameInventory(ActiveGame activeGame) {
-        Inventory inventory = createGUIWindowVariable(activeGame.getPlayer(), GAME_GUI_TITLE, activeGame.getScore());
+        Inventory inventory = createGameGUIWindow(activeGame.getPlayer(), GAME_GUI_TITLE, activeGame.getScore());
         fillSides(inventory);
         activeGame.setGameWindow(inventory);
         setButtonsAndStats(activeGame);
@@ -125,7 +132,7 @@ public class InventoryUtil {
     }
 
     public Inventory createHelpInventory(Player player) {
-        Inventory helpGUI = createGUIWindow(player, HELP_GUI_TITLE);
+        Inventory helpGUI = createHelperGUIWindow(player, HELP_GUI_TITLE);
 
         final int playerStatsSlot = 28;
         final int highScoreSlot = 34;
@@ -143,10 +150,10 @@ public class InventoryUtil {
                                                                                                                     .addLore(INFO_ITEM_LORE_5.getFormattedValue())
                                                                                                                     .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
                                                                                                                     .create(), INFO_ITEM_MATERIAL_CMD));
-        setItemInSlot(helpGUI, playButtonSlot, setCustomModelDataTo(new ItemBuilder(PLAY_BUTTON_MATERIAL.getMaterialValue()).setDisplayName(PLAY_BUTTON_NAME.getFormattedValue())
-                                                                                                                            .addLore(PLAY_BUTTON_LORE.getFormattedValue())
+        setItemInSlot(helpGUI, playButtonSlot, setCustomModelDataTo(new ItemBuilder(START_BUTTON_MATERIAL.getMaterialValue()).setDisplayName(START_BUTTON_NAME.getFormattedValue())
+                                                                                                                            .addLore(START_BUTTON_LORE.getFormattedValue())
                                                                                                                             .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
-                                                                                                                            .create(), PLAY_BUTTON_MATERIAL_CMD));
+                                                                                                                            .create(), START_BUTTON_MATERIAL_CMD));
         fillEmptySlots(helpGUI);
 
         return helpGUI;
@@ -264,12 +271,12 @@ public class InventoryUtil {
         inventory.setItem(slot, itemStack);
     }
 
-    private Inventory createGUIWindow(Player player, ConfigKey title) {
-        return createInventory(player, InventoryUtil.REQUIRED_SIZE, LegacyComponentSerializer.legacySection()
-                                                                                             .serialize(title.getFormattedValue()));
+    private Inventory createHelperGUIWindow(Player player, ConfigKey title) {
+        return createInventory(new HelperHolder(player), InventoryUtil.REQUIRED_SIZE, LegacyComponentSerializer.legacySection()
+                                                                                                             .serialize(title.getFormattedValue()));
     }
 
-    private Inventory createGUIWindowVariable(Player player, ConfigKey title, int score) {
+    private Inventory createGameGUIWindow(Player player, ConfigKey title, int score) {
         return createInventory(new GameHolder(player), InventoryUtil.REQUIRED_SIZE, LegacyComponentSerializer.legacySection()
                                                                                                              .serialize(title.getFormattedValue(score + "")));
     }
@@ -281,7 +288,9 @@ public class InventoryUtil {
     }
 
     public boolean isHelpWindow(InventoryView inventoryView) {
-        return isKnownWindow(inventoryView, HELP_GUI_TITLE);
+        InventoryHolder holder = inventoryView.getTopInventory()
+                                              .getHolder();
+        return holder instanceof HelperHolder;
     }
 
     /**
@@ -415,7 +424,7 @@ public class InventoryUtil {
                 break;
             case UNDO:
             case SPEED:
-            case PLAY:
+            case START:
                 return null;
         }
         return instructions;
@@ -659,12 +668,6 @@ public class InventoryUtil {
         return new ItemBuilder(chosenNumber.getDisplayableBlock()).create();
     }
 
-    private boolean isKnownWindow(InventoryView inventoryView, ConfigKey titleKey) {
-        return inventoryView.getTitle()
-                            .contains(LegacyComponentSerializer.legacySection()
-                                                               .serialize(titleKey.getFormattedValue()));
-    }
-
     private ItemStack getHelpGUIPlayerStatsHead(Player player) {
         return (new ItemBuilder(getPlayerSkullItem(player))).addLore(PLAYER_ITEM_LORE_TOTAL_PLAYTIME.getFormattedValue(makeSecondsATimestamp(FILE_MANAGER.getLongByKey(player, PlayerConfigField.PLAYTIME.getKey()))))
                                                             .addLore(PLAYER_ITEM_LORE_HIGH_SCORE.getFormattedValue(String.valueOf(FILE_MANAGER.getLongByKey(player, PlayerConfigField.HIGH_SCORE.getKey()))))
@@ -673,4 +676,9 @@ public class InventoryUtil {
                                                             .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
                                                             .create();
     }
+
+    // [debug]
+        public MC2048 getPlugin() {
+            return javaPlugin;
+        }
 }

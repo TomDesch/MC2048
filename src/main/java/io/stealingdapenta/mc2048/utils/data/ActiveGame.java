@@ -1,4 +1,4 @@
-package io.stealingdapenta.mc2048.utils;
+package io.stealingdapenta.mc2048.utils.data;
 
 import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_LORE_AVERAGE_SCORE;
 import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_LORE_CURRENT_PLAYTIME;
@@ -18,6 +18,7 @@ import org.bukkit.inventory.ItemStack;
 
 import io.stealingdapenta.mc2048.config.ConfigKey;
 import io.stealingdapenta.mc2048.config.PlayerConfigField;
+import io.stealingdapenta.mc2048.utils.ItemBuilder;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 public class ActiveGame {

@@ -10,9 +10,10 @@ import static io.stealingdapenta.mc2048.config.PlayerConfigField.PLAYTIME;
 import static io.stealingdapenta.mc2048.utils.FileManager.FILE_MANAGER;
 import static io.stealingdapenta.mc2048.utils.MessageSender.MESSAGE_SENDER;
 
-import io.stealingdapenta.mc2048.utils.ActiveGame;
 import io.stealingdapenta.mc2048.utils.InventoryUtil;
-import io.stealingdapenta.mc2048.utils.RepeatingUpdateTask;
+import io.stealingdapenta.mc2048.utils.data.ActiveGame;
+import io.stealingdapenta.mc2048.utils.data.RepeatingUpdateTask;
+
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.UUID;

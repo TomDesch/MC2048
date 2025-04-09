@@ -1,4 +1,4 @@
-package io.stealingdapenta.mc2048.utils;
+package io.stealingdapenta.mc2048.utils.data;
 
 public enum ButtonAction {
     UP,
@@ -7,7 +7,7 @@ public enum ButtonAction {
     RIGHT,
     UNDO,
     SPEED,
-    PLAY;
+    START;
 
     ButtonAction() {
     }

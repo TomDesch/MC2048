@@ -1,4 +1,4 @@
-package io.stealingdapenta.mc2048.utils;
+package io.stealingdapenta.mc2048.utils.data;
 
 import static io.stealingdapenta.mc2048.MC2048.logger;
 import static io.stealingdapenta.mc2048.config.ConfigKey.HELP_GUI_LEGEND_ITEM_NAME_PREFIX;

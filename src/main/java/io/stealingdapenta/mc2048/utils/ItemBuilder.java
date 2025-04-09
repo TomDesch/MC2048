@@ -1,6 +1,8 @@
 package io.stealingdapenta.mc2048.utils;
 
 import io.stealingdapenta.mc2048.config.ConfigKey;
+import io.stealingdapenta.mc2048.utils.data.NumberRepresentation;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;

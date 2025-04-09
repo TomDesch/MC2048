@@ -67,10 +67,10 @@ help_gui_title: "&l2048: &r&8Menu"
 help_gui_filler_material: WHITE_STAINED_GLASS_PANE
 help_gui_filler_material_cmd: 1000
 help_gui_legend_item_name_prefix: "&bPoints: &f"
-play_button_material: TOTEM_OF_UNDYING
-play_button_material_cmd: 1000
-play_button_name: "&6Start Game"
-play_button_lore: "&7Click to start a new 2048 game"
+start_button_material: TOTEM_OF_UNDYING
+start_button_material_cmd: 1000
+start_button_name: "&6Start Game"
+start_button_lore: "&7Click to start a new 2048 game"
 high_score_item_name: "&eHigh Scores"
 high_score_item_material: PAPER
 high_score_item_material_cmd: 1000
