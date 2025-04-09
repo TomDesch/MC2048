@@ -22,15 +22,19 @@ game_gui_filler_material_cmd: 1000
 move_button_up_name: "&eShift UP"
 move_button_up_material: LIGHTNING_ROD
 move_button_up_material_cmd: 1000
+move_button_up_slot: "16"
 move_button_down_name: "&eShift DOWN"
 move_button_down_material: LIGHTNING_ROD
 move_button_down_material_cmd: 1000
+move_button_down_slot: "34"
 move_button_left_name: "&eShift LEFT"
 move_button_left_material: LIGHTNING_ROD
 move_button_left_material_cmd: 1000
+move_button_left_slot: "24"
 move_button_right_name: "&eShift RIGHT"
 move_button_right_material: LIGHTNING_ROD
 move_button_right_material_cmd: 1000
+move_button_right_slot: "26"
 move_button_lore: "&7Click to move game items"
 undo_button_unused_name: "&eUndo Move"
 undo_button_unused_material: WATER_BUCKET

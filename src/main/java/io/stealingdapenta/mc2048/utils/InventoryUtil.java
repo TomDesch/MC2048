@@ -18,16 +18,20 @@ import static io.stealingdapenta.mc2048.config.ConfigKey.INFO_ITEM_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_DOWN_MATERIAL;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_DOWN_MATERIAL_CMD;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_DOWN_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_DOWN_SLOT;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_LEFT_MATERIAL;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_LEFT_MATERIAL_CMD;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_LEFT_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_LEFT_SLOT;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_LORE;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_RIGHT_MATERIAL;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_RIGHT_MATERIAL_CMD;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_RIGHT_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_RIGHT_SLOT;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_UP_MATERIAL;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_UP_MATERIAL_CMD;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_UP_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_UP_SLOT;
 import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_LORE_AVERAGE_SCORE;
 import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_LORE_GAMES_PLAYED;
 import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_LORE_HIGH_SCORE;
@@ -212,16 +216,16 @@ public class InventoryUtil {
     }
 
     private void setButtonsAndStats(ActiveGame activeGame) {
-        final int SLOT_UP = 16;
-        final int SLOT_LEFT = 24;
-        final int SLOT_RIGHT = 26;
-        final int SLOT_DOWN = 34;
+        final int SLOT_UP = MOVE_BUTTON_UP_SLOT.getIntValue();
+        final int SLOT_DOWN = MOVE_BUTTON_DOWN_SLOT.getIntValue();
+        final int SLOT_LEFT = MOVE_BUTTON_LEFT_SLOT.getIntValue();
+        final int SLOT_RIGHT = MOVE_BUTTON_RIGHT_SLOT.getIntValue();
         final int SLOT_UNDO = UNDO_BUTTON_SLOT.getIntValue();
         final int SLOT_SPEED = SPEED_BUTTON_SLOT.getIntValue();
         setItemInSlot(activeGame.getGameWindow(), SLOT_UP, createButton(MOVE_BUTTON_UP_NAME, MOVE_BUTTON_UP_MATERIAL, MOVE_BUTTON_UP_MATERIAL_CMD));
+        setItemInSlot(activeGame.getGameWindow(), SLOT_DOWN, createButton(MOVE_BUTTON_DOWN_NAME, MOVE_BUTTON_DOWN_MATERIAL, MOVE_BUTTON_DOWN_MATERIAL_CMD));
         setItemInSlot(activeGame.getGameWindow(), SLOT_LEFT, createButton(MOVE_BUTTON_LEFT_NAME, MOVE_BUTTON_LEFT_MATERIAL, MOVE_BUTTON_LEFT_MATERIAL_CMD));
         setItemInSlot(activeGame.getGameWindow(), SLOT_RIGHT, createButton(MOVE_BUTTON_RIGHT_NAME, MOVE_BUTTON_RIGHT_MATERIAL, MOVE_BUTTON_RIGHT_MATERIAL_CMD));
-        setItemInSlot(activeGame.getGameWindow(), SLOT_DOWN, createButton(MOVE_BUTTON_DOWN_NAME, MOVE_BUTTON_DOWN_MATERIAL, MOVE_BUTTON_DOWN_MATERIAL_CMD));
 
         if (SLOT_UNDO >= 0) {
             if (activeGame.hasNoUndoLastMoveLeft()) {
