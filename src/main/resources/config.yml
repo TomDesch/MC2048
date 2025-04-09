@@ -19,6 +19,9 @@ title_game_over_sub: "Score: %s | Playtime: %k"
 game_gui_title: "&l2048: &r&8%s Points"
 game_gui_filler_material: WHITE_STAINED_GLASS_PANE
 game_gui_filler_material_cmd: 1000
+game_gui_filler_animation: enabled
+game_gui_filler_animation_material: BLACK_STAINED_GLASS_PANE
+game_gui_filler_animation_material_cmd: 1000
 move_button_up_name: "&eShift UP"
 move_button_up_material: LIGHTNING_ROD
 move_button_up_material_cmd: 1000

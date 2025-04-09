@@ -1,6 +1,8 @@
 package io.stealingdapenta.mc2048.utils;
 
 import static io.stealingdapenta.mc2048.MC2048.logger;
+import static io.stealingdapenta.mc2048.config.ConfigKey.GAME_GUI_FILLER_ANIMATION_MATERIAL;
+import static io.stealingdapenta.mc2048.config.ConfigKey.GAME_GUI_FILLER_ANIMATION_MATERIAL_CMD;
 import static io.stealingdapenta.mc2048.config.ConfigKey.GAME_GUI_FILLER_MATERIAL;
 import static io.stealingdapenta.mc2048.config.ConfigKey.GAME_GUI_FILLER_MATERIAL_CMD;
 import static io.stealingdapenta.mc2048.config.ConfigKey.GAME_GUI_TITLE;
@@ -39,6 +41,7 @@ import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_LORE_TOTAL_
 import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_MATERIAL;
 import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_MATERIAL_CMD;
 import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_SLOT;
 import static io.stealingdapenta.mc2048.config.ConfigKey.START_BUTTON_LORE;
 import static io.stealingdapenta.mc2048.config.ConfigKey.START_BUTTON_MATERIAL;
 import static io.stealingdapenta.mc2048.config.ConfigKey.START_BUTTON_MATERIAL_CMD;
@@ -127,6 +130,63 @@ public class InventoryUtil {
         return playerHead;
     }
 
+    public void showEndAnimation(Inventory inventory, long delay) {
+        if (inventory.getSize() != REQUIRED_SIZE) {
+            logger.warning(WRONG_SIZE);
+            return;
+        }
+
+        for (int i = 0; i < REQUIRED_SIZE; i++) {
+            if (isInvalidGameSlot(i) && i!=PLAYER_ITEM_SLOT.getIntValue()) {
+                inventory.setItem(i, getGameEndItem());
+            }
+        }
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                for (int i = 0; i < REQUIRED_SIZE; i++) {
+                    if (isInvalidGameSlot(i) && i!=PLAYER_ITEM_SLOT.getIntValue()) {
+                        inventory.setItem(i, getGameFillerItem());
+                    }
+                }
+            }
+        }.runTaskLater(javaPlugin, delay);
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                for (int i = 0; i < REQUIRED_SIZE; i++) {
+                    if (isInvalidGameSlot(i) && i!=PLAYER_ITEM_SLOT.getIntValue()) {
+                        inventory.setItem(i, getGameEndItem());
+                    }
+                }
+            }
+        }.runTaskLater(javaPlugin, delay*2);
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                for (int i = 0; i < REQUIRED_SIZE; i++) {
+                    if (isInvalidGameSlot(i) && i!=PLAYER_ITEM_SLOT.getIntValue()) {
+                        inventory.setItem(i, getGameFillerItem());
+                    }
+                }
+            }
+        }.runTaskLater(javaPlugin, delay*3);
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                for (int i = 0; i < REQUIRED_SIZE; i++) {
+                    if (isInvalidGameSlot(i) && i!=PLAYER_ITEM_SLOT.getIntValue()) {
+                        inventory.setItem(i, getGameEndItem());
+                    }
+                }
+            }
+        }.runTaskLater(javaPlugin, delay*4);
+    }
+
     public Inventory createGameInventory(ActiveGame activeGame) {
         Inventory inventory = createGameGUIWindow(activeGame.getPlayer(), GAME_GUI_TITLE, activeGame.getScore());
         fillSides(inventory);
@@ -194,7 +254,7 @@ public class InventoryUtil {
         }
     }
 
-    public boolean isInvalidGameSlot(int slot) {
+    private boolean isInvalidGameSlot(int slot) {
         for (int[] row : mergeSlots) {
             for (int validSlot : row) {
                 if (validSlot == slot) {
@@ -205,13 +265,18 @@ public class InventoryUtil {
         return true;
     }
 
-    public static ItemStack getGameFillerItem() {
+    private ItemStack getGameFillerItem() {
         return new ItemBuilder(setCustomModelDataTo(new ItemStack(GAME_GUI_FILLER_MATERIAL.getMaterialValue(), 1), GAME_GUI_FILLER_MATERIAL_CMD)).setDisplayName(" ")
                                                                                                                                                  .create();
     }
 
     private ItemStack getHelpGuiFillerItem() {
         return new ItemBuilder(setCustomModelDataTo(new ItemStack(HELP_GUI_FILLER_MATERIAL.getMaterialValue(), 1), HELP_GUI_FILLER_MATERIAL_CMD)).setDisplayName(" ")
+                                                                                                                                                 .create();
+    }
+
+    private ItemStack getGameEndItem() {
+        return new ItemBuilder(setCustomModelDataTo(new ItemStack(GAME_GUI_FILLER_ANIMATION_MATERIAL.getMaterialValue(), 1), GAME_GUI_FILLER_ANIMATION_MATERIAL_CMD)).setDisplayName(" ")
                                                                                                                                                  .create();
     }
 
@@ -229,18 +294,18 @@ public class InventoryUtil {
 
         if (SLOT_UNDO >= 0) {
             if (activeGame.hasNoUndoLastMoveLeft()) {
-                setItemInSlot(activeGame.getGameWindow(), SLOT_UNDO, createEmptyUndoButton());
+                setItemInSlot(activeGame.getGameWindow(), SLOT_UNDO, getEmptyUndoButton());
             } else {
                 if (!activeGame.isLastMoveUndo()) {
-                    setItemInSlot(activeGame.getGameWindow(), SLOT_UNDO, createUnblockedUndoButton(UNDO_BUTTON_USAGES.getIntValue()));
+                    setItemInSlot(activeGame.getGameWindow(), SLOT_UNDO, getUnblockedUndoButton(UNDO_BUTTON_USAGES.getIntValue()));
                 } else {
-                    setItemInSlot(activeGame.getGameWindow(), SLOT_UNDO, createBlockedUndoButton(UNDO_BUTTON_USAGES.getIntValue()));
+                    setItemInSlot(activeGame.getGameWindow(), SLOT_UNDO, getBlockedUndoButton(UNDO_BUTTON_USAGES.getIntValue()));
                 }
             }
         }
 
         if (SLOT_SPEED >= 0) {
-            setItemInSlot(activeGame.getGameWindow(), SLOT_SPEED, createSpeedButton(FILE_MANAGER.getAnimationSpeed(activeGame.getPlayer())));
+            setItemInSlot(activeGame.getGameWindow(), SLOT_SPEED, getSpeedButton(FILE_MANAGER.getAnimationSpeed(activeGame.getPlayer())));
         }
     }
 
@@ -251,7 +316,7 @@ public class InventoryUtil {
                                                                                     .create(), customMetaData);
     }
 
-    private ItemStack createUnblockedUndoButton(int numberOfUndoLeft) {
+    private ItemStack getUnblockedUndoButton(int numberOfUndoLeft) {
         return setCustomModelDataTo(new ItemBuilder(UNDO_BUTTON_UNUSED_MATERIAL.getMaterialValue()).setDisplayName(UNDO_BUTTON_UNUSED_NAME.getFormattedValue())
                                                                                                    .addLore(UNDO_BUTTON_UNUSED_LORE.getFormattedValue())
                                                                                                    .addLore(UNDO_BUTTON_UNUSED_USES.getFormattedValue()
@@ -262,7 +327,7 @@ public class InventoryUtil {
                                                                                                    .create(), UNDO_BUTTON_UNUSED_MATERIAL_CMD);
     }
 
-    private ItemStack createBlockedUndoButton(int numberOfUndoLeft) {
+    private ItemStack getBlockedUndoButton(int numberOfUndoLeft) {
         return setCustomModelDataTo(new ItemBuilder(UNDO_BUTTON_UNUSED_MATERIAL.getMaterialValue()).setDisplayName(UNDO_BUTTON_UNUSED_NAME.getFormattedValue())
                                                                                                    .addLore(UNDO_BUTTON_USED_LORE.getFormattedValue())
                                                                                                    .addLore(UNDO_BUTTON_UNUSED_USES.getFormattedValue()
@@ -273,7 +338,7 @@ public class InventoryUtil {
                                                                                                    .create(), UNDO_BUTTON_UNUSED_MATERIAL_CMD);
     }
 
-    private ItemStack createEmptyUndoButton() {
+    private ItemStack getEmptyUndoButton() {
         return setCustomModelDataTo(new ItemBuilder(UNDO_BUTTON_USED_MATERIAL.getMaterialValue()).setDisplayName(UNDO_BUTTON_USED_NAME.getFormattedValue())
                                                                                                  .addLore(UNDO_BUTTON_USED_LORE.getFormattedValue())
                                                                                                  .addLore(UNDO_BUTTON_USED_USES.getFormattedValue())
@@ -281,7 +346,7 @@ public class InventoryUtil {
                                                                                                  .create(), UNDO_BUTTON_USED_MATERIAL_CMD);
     }
 
-    private ItemStack createSpeedButton(int currentSpeed) {
+    private ItemStack getSpeedButton(int currentSpeed) {
         return setCustomModelDataTo(new ItemBuilder(SPEED_BUTTON_MATERIAL.getMaterialValue()).setDisplayName(SPEED_BUTTON_NAME.getFormattedValue())
                                                                                              .addLore(SPEED_BUTTON_LORE.getFormattedValue())
                                                                                              .addLore(SPEED_BUTTON_SPEED.getFormattedValue()
@@ -295,14 +360,14 @@ public class InventoryUtil {
         if (SLOT_UNDO >= 0) {
             if (activeGame.hasNoUndoLastMoveLeft()) {
                 activeGame.getGameWindow().setItem(SLOT_UNDO, null);
-                setItemInSlot(activeGame.getGameWindow(), SLOT_UNDO, createEmptyUndoButton());
+                setItemInSlot(activeGame.getGameWindow(), SLOT_UNDO, getEmptyUndoButton());
             } else {
                 if (!activeGame.isLastMoveUndo()) {
                     activeGame.getGameWindow().setItem(SLOT_UNDO, null);
-                    setItemInSlot(activeGame.getGameWindow(), SLOT_UNDO, createUnblockedUndoButton(activeGame.getUndoLastMoveCounter()));
+                    setItemInSlot(activeGame.getGameWindow(), SLOT_UNDO, getUnblockedUndoButton(activeGame.getUndoLastMoveCounter()));
                 } else {
                     activeGame.getGameWindow().setItem(SLOT_UNDO, null);
-                    setItemInSlot(activeGame.getGameWindow(), SLOT_UNDO, createBlockedUndoButton(activeGame.getUndoLastMoveCounter()));
+                    setItemInSlot(activeGame.getGameWindow(), SLOT_UNDO, getBlockedUndoButton(activeGame.getUndoLastMoveCounter()));
                 }
             }
         }
@@ -310,7 +375,7 @@ public class InventoryUtil {
 
     // Doesn't need a disabled check as the caller method implies its enabled
     public void updateSpeedButton(ActiveGame activeGame, int newSpeed) {
-        setItemInSlot(activeGame.getGameWindow(), SPEED_BUTTON_SLOT.getIntValue(), createSpeedButton(newSpeed));
+        setItemInSlot(activeGame.getGameWindow(), SPEED_BUTTON_SLOT.getIntValue(), getSpeedButton(newSpeed));
     }
 
     private void setItemInSlot(Inventory inventory, int slot, ItemStack itemStack) {
@@ -662,9 +727,9 @@ public class InventoryUtil {
         activeGame.decrementUndoLastMoveCounter();
 
         if (activeGame.hasNoUndoLastMoveLeft()) {
-            setItemInSlot(activeGame.getGameWindow(), UNDO_BUTTON_SLOT.getIntValue(), createEmptyUndoButton());
+            setItemInSlot(activeGame.getGameWindow(), UNDO_BUTTON_SLOT.getIntValue(), getEmptyUndoButton());
         } else {
-            setItemInSlot(activeGame.getGameWindow(), UNDO_BUTTON_SLOT.getIntValue(), createBlockedUndoButton(activeGame.getUndoLastMoveCounter()));
+            setItemInSlot(activeGame.getGameWindow(), UNDO_BUTTON_SLOT.getIntValue(), getBlockedUndoButton(activeGame.getUndoLastMoveCounter()));
         }
 
         activeGame.setLastMoveUndo(true);

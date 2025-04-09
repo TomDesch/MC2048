@@ -1,6 +1,7 @@
 package io.stealingdapenta.mc2048.listeners;
 
 import static io.stealingdapenta.mc2048.MC2048.logger;
+import static io.stealingdapenta.mc2048.config.ConfigKey.GAME_GUI_FILLER_ANIMATION;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_DOWN_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_LEFT_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_RIGHT_NAME;
@@ -173,22 +174,37 @@ public class GameControlsListener implements Listener {
             inventoryUtil.updateUndoButton(activeGame);
             activeGame.setLock(false);
         } else if (tickDelay > 0) {
+            final long caclualtedDelay = tickDelay + (2L * FILE_MANAGER.getAnimationSpeed(player) + 2);
             new BukkitRunnable() {
                 @Override
                 public void run() {
                     inventoryUtil.spawnNewBlock(activeGame.getGameWindow());
                     inventoryUtil.updateUndoButton(activeGame);
-                    activeGame.setLock(false);
 
                     if (inventoryUtil.noValidMovesLeft(activeGame.getGameWindow()) && activeGame.hasNoUndoLastMoveLeft()) {
-                        gameManager.deactivateGameFor(player);
-                        activeGame.getPlayer()
-                                  .getOpenInventory()
-                                  .close();
-                        doGameOver(activeGame);
+                        long endDelay;
+                        if (GAME_GUI_FILLER_ANIMATION.getStringValue().contains("enable")) {
+                            endDelay = caclualtedDelay*5;
+                            inventoryUtil.showEndAnimation(activeGame.getGameWindow(), caclualtedDelay);
+                        } else {
+                            endDelay = caclualtedDelay*3;
+                        }
+
+                        new BukkitRunnable() {
+                            @Override
+                            public void run() {
+                                gameManager.deactivateGameFor(player);
+                                activeGame.getPlayer()
+                                            .getOpenInventory()
+                                            .close();
+                                doGameOver(activeGame);
+                            }
+                        }.runTaskLater(inventoryUtil.javaPlugin, endDelay);
+                    } else {
+                        activeGame.setLock(false);
                     }
                 }
-            }.runTaskLater(inventoryUtil.javaPlugin, tickDelay + (2L * FILE_MANAGER.getAnimationSpeed(player) + 2));
+            }.runTaskLater(inventoryUtil.javaPlugin, caclualtedDelay);
         }
     }
 
