@@ -151,7 +151,7 @@ public class GameControlsListener implements Listener {
             } else if (curr == 5) {
                 curr = 0;
             } else {
-                curr = ConfigKey.DEFAULT_ANIMATION_SPEED.getIntValue();
+                curr = ConfigKey.SPEED_BUTTON_SPEED_DEFAULT.getIntValue();
             }
 
             FILE_MANAGER.setValueByKey(player, PlayerConfigField.ANIMATION_SPEED.getKey(), curr);

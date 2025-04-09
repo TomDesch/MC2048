@@ -27,7 +27,7 @@ public enum PlayerConfigField {
         try {
             return Integer.parseInt(value);
         } catch (Exception e) {
-            return ConfigKey.DEFAULT_ANIMATION_SPEED.getIntValue();
+            return ConfigKey.SPEED_BUTTON_SPEED_DEFAULT.getIntValue();
         }
     }
 }

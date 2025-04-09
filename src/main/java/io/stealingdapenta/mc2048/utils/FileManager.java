@@ -40,7 +40,7 @@ public enum FileManager {
 
     public int getAnimationSpeed(Player player) {
         int savedValue = getConfig(player).getInt("speed", -1);
-        if (savedValue<0) return ConfigKey.DEFAULT_ANIMATION_SPEED.getIntValue();
+        if (savedValue<0) return ConfigKey.SPEED_BUTTON_SPEED_DEFAULT.getIntValue();
         else return savedValue;
     }
 

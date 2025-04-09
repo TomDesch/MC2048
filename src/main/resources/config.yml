@@ -42,15 +42,16 @@ undo_button_used_material: BUCKET
 undo_button_used_material_cmd: 1000
 undo_button_used_lore: "&7You cannot undo your last move"
 undo_button_used_uses: "&7&oUses left: 0"
-undo_button_slot: "42"
-undo_button_usages: "1"
+undo_button_usages: "1" # "-1" for infinite
+undo_button_slot: "42" # "-1" to disable
 speed_button_name: "&eChange Speed"
 speed_button_material: STONE_BUTTON
 speed_button_material_cmd: 1000
 speed_button_lore: "&7Click to change animaton speed"
 speed_button_speed: "&7&oCurrent speed: "
-speed_button_slot: "44"
-default_animation_speed: "3"
+speed_button_speed_default: "3"
+speed_button_slot: "44" # "-1" to disable
+player_item_slot: "25" # "-1" to disable
 
 # Both GUIs
 player_item_name: "&e%s's Stats"

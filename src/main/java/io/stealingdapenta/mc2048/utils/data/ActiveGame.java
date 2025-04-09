@@ -6,6 +6,7 @@ import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_LORE_CURREN
 import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_LORE_GAMES_PLAYED;
 import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_LORE_HIGH_SCORE;
 import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_LORE_TOTAL_PLAYTIME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_SLOT;
 import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_USAGES;
 import static io.stealingdapenta.mc2048.utils.FileManager.FILE_MANAGER;
 import static io.stealingdapenta.mc2048.utils.InventoryUtil.getPlayerSkullItem;
@@ -180,9 +181,9 @@ public class ActiveGame {
         return (getAttempts() * getAverageScore() + getScore()) / (getAttempts() + 1);
     }
 
+    // Doesn't need a disabled check as the caller method implies its enabled
     public void updateStatisticsItem() {
-        final int SLOT_STATS = 25;
-        getGameWindow().setItem(SLOT_STATS, getPlayerStatsHead());
+        getGameWindow().setItem(PLAYER_ITEM_SLOT.getIntValue(), getPlayerStatsHead());
     }
 
     private ItemStack getPlayerStatsHead() {

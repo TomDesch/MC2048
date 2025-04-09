@@ -201,7 +201,7 @@ public class InventoryUtil {
         return true;
     }
 
-    private ItemStack getGameFillerItem() {
+    public static ItemStack getGameFillerItem() {
         return new ItemBuilder(setCustomModelDataTo(new ItemStack(GAME_GUI_FILLER_MATERIAL.getMaterialValue(), 1), GAME_GUI_FILLER_MATERIAL_CMD)).setDisplayName(" ")
                                                                                                                                                  .create();
     }
@@ -222,19 +222,19 @@ public class InventoryUtil {
         setItemInSlot(activeGame.getGameWindow(), SLOT_LEFT, createButton(MOVE_BUTTON_LEFT_NAME, MOVE_BUTTON_LEFT_MATERIAL, MOVE_BUTTON_LEFT_MATERIAL_CMD));
         setItemInSlot(activeGame.getGameWindow(), SLOT_RIGHT, createButton(MOVE_BUTTON_RIGHT_NAME, MOVE_BUTTON_RIGHT_MATERIAL, MOVE_BUTTON_RIGHT_MATERIAL_CMD));
         setItemInSlot(activeGame.getGameWindow(), SLOT_DOWN, createButton(MOVE_BUTTON_DOWN_NAME, MOVE_BUTTON_DOWN_MATERIAL, MOVE_BUTTON_DOWN_MATERIAL_CMD));
+
         if (SLOT_UNDO >= 0) {
             if (activeGame.hasNoUndoLastMoveLeft()) {
                 setItemInSlot(activeGame.getGameWindow(), SLOT_UNDO, createEmptyUndoButton());
-            }
-            else {
+            } else {
                 if (!activeGame.isLastMoveUndo()) {
                     setItemInSlot(activeGame.getGameWindow(), SLOT_UNDO, createUnblockedUndoButton(UNDO_BUTTON_USAGES.getIntValue()));
-                }
-                else {
+                } else {
                     setItemInSlot(activeGame.getGameWindow(), SLOT_UNDO, createBlockedUndoButton(UNDO_BUTTON_USAGES.getIntValue()));
                 }
             }
         }
+
         if (SLOT_SPEED >= 0) {
             setItemInSlot(activeGame.getGameWindow(), SLOT_SPEED, createSpeedButton(FILE_MANAGER.getAnimationSpeed(activeGame.getPlayer())));
         }
@@ -296,8 +296,7 @@ public class InventoryUtil {
                 if (!activeGame.isLastMoveUndo()) {
                     activeGame.getGameWindow().setItem(SLOT_UNDO, null);
                     setItemInSlot(activeGame.getGameWindow(), SLOT_UNDO, createUnblockedUndoButton(activeGame.getUndoLastMoveCounter()));
-                }
-                else {
+                } else {
                     activeGame.getGameWindow().setItem(SLOT_UNDO, null);
                     setItemInSlot(activeGame.getGameWindow(), SLOT_UNDO, createBlockedUndoButton(activeGame.getUndoLastMoveCounter()));
                 }
@@ -305,6 +304,7 @@ public class InventoryUtil {
         }
     }
 
+    // Doesn't need a disabled check as the caller method implies its enabled
     public void updateSpeedButton(ActiveGame activeGame, int newSpeed) {
         setItemInSlot(activeGame.getGameWindow(), SPEED_BUTTON_SLOT.getIntValue(), createSpeedButton(newSpeed));
     }

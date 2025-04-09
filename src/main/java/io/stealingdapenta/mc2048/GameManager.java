@@ -3,6 +3,7 @@ package io.stealingdapenta.mc2048;
 import static io.stealingdapenta.mc2048.MC2048.logger;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MSG_ATTEMPT_PROTECTION;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MSG_GAME_STARTED;
+import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_SLOT;
 import static io.stealingdapenta.mc2048.config.PlayerConfigField.ATTEMPTS;
 import static io.stealingdapenta.mc2048.config.PlayerConfigField.AVERAGE_SCORE;
 import static io.stealingdapenta.mc2048.config.PlayerConfigField.HIGH_SCORE;
@@ -51,9 +52,13 @@ public class GameManager {
             logger.warning(ERROR_DEACTIVATING.formatted(player.getName()));
             return;
         }
+
         saveActiveGame(activeGame);
-        activeGame.getRelatedTask()
-                  .cancel();
+        
+        if (PLAYER_ITEM_SLOT.getIntValue()>=0) {
+            activeGame.getRelatedTask()
+                .cancel();
+        }
 
         activeGames.remove(player.getUniqueId());
     }
@@ -78,6 +83,10 @@ public class GameManager {
     }
 
     public RepeatingUpdateTask createTaskUpdatingPlayerStatItem(Player player) {
+        if (PLAYER_ITEM_SLOT.getIntValue()<0) {
+            return null;
+        }
+
         return new RepeatingUpdateTask(0, ONE_SECOND_IN_TICKS) {
             public void run() {
                 getActiveGame(player).updateStatisticsItem();
