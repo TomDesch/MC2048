@@ -8,7 +8,7 @@ msg_not_player: "&cOnly players can run this command!"
 msg_reloaded: "&aReloaded MC2048 config!"
 msg_parsing_error: "&cError parsing the %s value in the config file!"
 msg_game_started: "&aGame started, good luck!"
-msg_invalid_move: "&cInvalid move!"
+msg_invalid_move: "" # "&cInvalid move!"
 msg_undid_last_move: "&aUndid last move!"
 msg_attempt_protection: "&7Game wasn't saved because you didn't do anything!"
 msg_game_over: "&4Game over!"
@@ -25,19 +25,19 @@ game_gui_filler_animation_material_cmd: 1000
 move_button_up_name: "&eShift UP"
 move_button_up_material: LIGHTNING_ROD
 move_button_up_material_cmd: 1000
-move_button_up_slot: "16"
+move_button_up_slot: 16
 move_button_down_name: "&eShift DOWN"
 move_button_down_material: LIGHTNING_ROD
 move_button_down_material_cmd: 1000
-move_button_down_slot: "34"
+move_button_down_slot: 34
 move_button_left_name: "&eShift LEFT"
 move_button_left_material: LIGHTNING_ROD
 move_button_left_material_cmd: 1000
-move_button_left_slot: "24"
+move_button_left_slot: 24
 move_button_right_name: "&eShift RIGHT"
 move_button_right_material: LIGHTNING_ROD
 move_button_right_material_cmd: 1000
-move_button_right_slot: "26"
+move_button_right_slot: 26
 move_button_lore: "&7Click to move game items"
 undo_button_unused_name: "&eUndo Move"
 undo_button_unused_material: WATER_BUCKET
@@ -49,16 +49,16 @@ undo_button_used_material: BUCKET
 undo_button_used_material_cmd: 1000
 undo_button_used_lore: "&7You cannot undo your last move"
 undo_button_used_uses: "&7&oUses left: 0"
-undo_button_usages: "1" # "-1" for infinite
-undo_button_slot: "42" # "-1" to disable
+undo_button_usages: 1 # -1 for infinite, 0 for disabled
+undo_button_slot: 42 # -1 to hide
 speed_button_name: "&eChange Speed"
 speed_button_material: STONE_BUTTON
 speed_button_material_cmd: 1000
 speed_button_lore: "&7Click to change animaton speed"
 speed_button_speed: "&7&oCurrent speed: "
-speed_button_speed_default: "3"
-speed_button_slot: "44" # "-1" to disable
-player_item_slot: "25" # "-1" to disable
+speed_button_speed_default: 3
+speed_button_slot: 44 # -1 to hide
+player_item_slot: 25 # -1 to hide
 
 # Both GUIs
 player_item_name: "&e%s's Stats"

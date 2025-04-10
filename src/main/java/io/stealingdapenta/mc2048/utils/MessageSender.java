@@ -9,6 +9,7 @@ import java.util.Objects;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.title.Title;
 import net.kyori.adventure.title.Title.Times;
 import org.bukkit.command.CommandSender;
@@ -17,8 +18,9 @@ import org.jetbrains.annotations.NotNull;
 
 public enum MessageSender {
     MESSAGE_SENDER;
-
+    
     public static final String ERROR_IS_NULL = "Error sending message, %s is null.";
+    private final LegacyComponentSerializer serializer = LegacyComponentSerializer.legacySection();
     private BukkitAudiences audiences;
 
     private BukkitAudiences getAudiences() {
@@ -58,6 +60,11 @@ public enum MessageSender {
 
         if (Objects.isNull(message)) {
             return;
+        }
+
+        String processedStr = serializer.serialize(message).trim();
+        if (processedStr.isEmpty()) {
+            return; // Don't send a blank message, this is a feature for admins to disable config messages
         }
 
         getAudiences().player(player)
