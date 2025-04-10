@@ -1,5 +1,8 @@
 # Alternative Default Config for MC2048 v1.2.0
 
+# What percentage of newly generated game items should be FOUR, instead of TWO?
+generate_new_block_four_percent: 40
+
 # Messages sent to players
 msg_top_ten: "&6--- Top 10 2048 High Scores ---"
 msg_top_self: "&6Your Position: %s"

@@ -11,6 +11,8 @@ import org.bukkit.Material;
 
 public enum ConfigKey {
 
+    GENERATE_NEW_BLOCK_FOUR_PERCENT("50"),
+
     MSG_TOP_TEN("<gold>Top 10 High Scores on this server:</gold>"),
     MSG_TOP_SELF("<white>Your <bold>Position</bold>: %s</white>"),
     MSG_NO_PERMS("<red>You don't have the required <bold>permission</bold> to execute this command.</red>"),

@@ -6,6 +6,7 @@ import static io.stealingdapenta.mc2048.config.ConfigKey.GAME_GUI_FILLER_ANIMATI
 import static io.stealingdapenta.mc2048.config.ConfigKey.GAME_GUI_FILLER_MATERIAL;
 import static io.stealingdapenta.mc2048.config.ConfigKey.GAME_GUI_FILLER_MATERIAL_CMD;
 import static io.stealingdapenta.mc2048.config.ConfigKey.GAME_GUI_TITLE;
+import static io.stealingdapenta.mc2048.config.ConfigKey.GENERATE_NEW_BLOCK_FOUR_PERCENT;
 import static io.stealingdapenta.mc2048.config.ConfigKey.HELP_GUI_FILLER_MATERIAL;
 import static io.stealingdapenta.mc2048.config.ConfigKey.HELP_GUI_FILLER_MATERIAL_CMD;
 import static io.stealingdapenta.mc2048.config.ConfigKey.HELP_GUI_TITLE;
@@ -780,7 +781,9 @@ public class InventoryUtil {
     */
 
     private ItemStack generateNewBlock() {
-        NumberRepresentation chosenNumber = random.nextInt(2) == 0 ? NumberRepresentation.TWO : NumberRepresentation.FOUR;
+        int fourPercentage = GENERATE_NEW_BLOCK_FOUR_PERCENT.getIntValue();
+        NumberRepresentation chosenNumber = random.nextInt(100) < fourPercentage ? NumberRepresentation.FOUR : NumberRepresentation.TWO;
+        
         return new ItemBuilder(chosenNumber.getDisplayableBlock()).create();
     }
 
