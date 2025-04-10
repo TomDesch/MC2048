@@ -321,7 +321,7 @@ public class InventoryUtil {
                                                                                                    .addLore(UNDO_BUTTON_UNUSED_LORE.getFormattedValue())
                                                                                                    .addLore(UNDO_BUTTON_UNUSED_USES.getFormattedValue()
                                                                                                                                    .append(Component.text(
-                                                                                                                                            numberOfUndoLeft >= 0 ? numberOfUndoLeft+"" : "∞"
+                                                                                                                                            numberOfUndoLeft >= 0 ? StringUtil.formatInt(numberOfUndoLeft) : "∞"
                                                                                                                                     )))
                                                                                                    .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
                                                                                                    .create(), UNDO_BUTTON_UNUSED_MATERIAL_CMD);
@@ -332,7 +332,7 @@ public class InventoryUtil {
                                                                                                    .addLore(UNDO_BUTTON_USED_LORE.getFormattedValue())
                                                                                                    .addLore(UNDO_BUTTON_UNUSED_USES.getFormattedValue()
                                                                                                                                     .append(Component.text(
-                                                                                                                                        numberOfUndoLeft >= 0 ? numberOfUndoLeft+"" : "∞"
+                                                                                                                                        numberOfUndoLeft >= 0 ? StringUtil.formatInt(numberOfUndoLeft) : "∞"
                                                                                                                                     )))
                                                                                                    .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
                                                                                                    .create(), UNDO_BUTTON_UNUSED_MATERIAL_CMD);
@@ -389,7 +389,7 @@ public class InventoryUtil {
 
     private Inventory createGameGUIWindow(Player player, ConfigKey title, int score) {
         return createInventory(new GameHolder(player), InventoryUtil.REQUIRED_SIZE, LegacyComponentSerializer.legacySection()
-                                                                                                             .serialize(title.getFormattedValue(score + "")));
+                                                                                                             .serialize(title.getFormattedValue(StringUtil.formatInt(score))));
     }
 
     public boolean isGameWindow(InventoryView inventoryView) {
@@ -785,10 +785,10 @@ public class InventoryUtil {
     }
 
     private ItemStack getHelpGUIPlayerStatsHead(Player player) {
-        return (new ItemBuilder(getPlayerSkullItem(player))).addLore(PLAYER_ITEM_LORE_GAMES_PLAYED.getFormattedValue(String.valueOf(FILE_MANAGER.getLongByKey(player, PlayerConfigField.ATTEMPTS.getKey()))))
+        return (new ItemBuilder(getPlayerSkullItem(player))).addLore(PLAYER_ITEM_LORE_GAMES_PLAYED.getFormattedValue(StringUtil.formatLong(FILE_MANAGER.getLongByKey(player, PlayerConfigField.ATTEMPTS.getKey()))))
                                                             .addLore(PLAYER_ITEM_LORE_TOTAL_PLAYTIME.getFormattedValue(makeSecondsATimestamp(FILE_MANAGER.getLongByKey(player, PlayerConfigField.PLAYTIME.getKey()))))
-                                                            .addLore(PLAYER_ITEM_LORE_HIGH_SCORE.getFormattedValue(String.valueOf(FILE_MANAGER.getLongByKey(player, PlayerConfigField.HIGH_SCORE.getKey()))))
-                                                            .addLore(PLAYER_ITEM_LORE_AVERAGE_SCORE.getFormattedValue(String.valueOf(Math.round(FILE_MANAGER.getLongByKey(player, PlayerConfigField.AVERAGE_SCORE.getKey())))))
+                                                            .addLore(PLAYER_ITEM_LORE_HIGH_SCORE.getFormattedValue(StringUtil.formatLong(FILE_MANAGER.getLongByKey(player, PlayerConfigField.HIGH_SCORE.getKey()))))
+                                                            .addLore(PLAYER_ITEM_LORE_AVERAGE_SCORE.getFormattedValue(StringUtil.formatLong(Math.round(FILE_MANAGER.getLongByKey(player, PlayerConfigField.AVERAGE_SCORE.getKey())))))
                                                             .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
                                                             .create();
     }

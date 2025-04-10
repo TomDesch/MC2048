@@ -21,6 +21,7 @@ import io.stealingdapenta.mc2048.GameManager;
 import io.stealingdapenta.mc2048.config.ConfigKey;
 import io.stealingdapenta.mc2048.config.PlayerConfigField;
 import io.stealingdapenta.mc2048.utils.InventoryUtil;
+import io.stealingdapenta.mc2048.utils.StringUtil;
 import io.stealingdapenta.mc2048.utils.data.ActiveGame;
 import io.stealingdapenta.mc2048.utils.data.ButtonAction;
 
@@ -236,6 +237,6 @@ public class GameControlsListener implements Listener {
 
     private void doGameOver(ActiveGame activeGame) {
         MESSAGE_SENDER.sendMessage(activeGame.getPlayer(), MSG_GAME_OVER);
-        MESSAGE_SENDER.sendTitle(activeGame.getPlayer(), TITLE_GAME_OVER.getFormattedValue(), TITLE_GAME_OVER_SUB.getFormattedValue(String.valueOf(activeGame.getScore()), activeGame.getCurrentPlayTimeFormatted()));
+        MESSAGE_SENDER.sendTitle(activeGame.getPlayer(), TITLE_GAME_OVER.getFormattedValue(), TITLE_GAME_OVER_SUB.getFormattedValue(StringUtil.formatInt(activeGame.getScore()), activeGame.getCurrentPlayTimeFormatted()));
     }
 }

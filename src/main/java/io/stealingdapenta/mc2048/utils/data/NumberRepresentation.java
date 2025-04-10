@@ -16,8 +16,8 @@ import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_HUNDRED_THIRTY
 import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_HUNDRED_THIRTY_ONE_THOUSAND_SEVENTY_TWO_CMD;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_HUNDRED_TWENTY_EIGHT;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_HUNDRED_TWENTY_EIGHT_CMD;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_INFINITY;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_INFINITY_CMD;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_TWO_HUNDRED_SIXTY_TWO_THOUSAND_HUNDRED_FOURTY_FOUR;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_TWO_HUNDRED_SIXTY_TWO_THOUSAND_HUNDRED_FOURTY_FOUR_CMD;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_ONE_THOUSAND_TWENTY_FOUR;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_ONE_THOUSAND_TWENTY_FOUR_CMD;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_SIXTEEN;
@@ -48,6 +48,8 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import io.stealingdapenta.mc2048.utils.StringUtil;
+
 public enum NumberRepresentation {
     TWO(2, 2, MATERIAL_TWO::getMaterialValue, MATERIAL_TWO_CMD::getIntValue),
     FOUR(4, 4, MATERIAL_FOUR::getMaterialValue, MATERIAL_FOUR_CMD::getIntValue),
@@ -66,7 +68,7 @@ public enum NumberRepresentation {
     THIRTY_TWO_THOUSAND_SEVEN_HUNDRED_SIXTY_EIGHT(8, 32768, MATERIAL_THIRTY_TWO_THOUSAND_SEVEN_HUNDRED_SIXTY_EIGHT::getMaterialValue, MATERIAL_THIRTY_TWO_THOUSAND_SEVEN_HUNDRED_SIXTY_EIGHT_CMD::getIntValue),
     SIXTY_FIVE_THOUSAND_FIVE_HUNDRED_THIRTY_SIX(16, 65536, MATERIAL_SIXTY_FIVE_THOUSAND_FIVE_HUNDRED_THIRTY_SIX::getMaterialValue, MATERIAL_SIXTY_FIVE_THOUSAND_FIVE_HUNDRED_THIRTY_SIX_CMD::getIntValue),
     HUNDRED_THIRTY_ONE_THOUSAND_SEVENTY_TWO(32, 131072, MATERIAL_HUNDRED_THIRTY_ONE_THOUSAND_SEVENTY_TWO::getMaterialValue, MATERIAL_HUNDRED_THIRTY_ONE_THOUSAND_SEVENTY_TWO_CMD::getIntValue),
-    INFINITY(64, Integer.MAX_VALUE, MATERIAL_INFINITY::getMaterialValue, MATERIAL_INFINITY_CMD::getIntValue);
+    TWO_HUNDRED_SIXTY_TWO_THOUSAND_HUNDRED_FOURTY_FOUR(64, 262144, MATERIAL_TWO_HUNDRED_SIXTY_TWO_THOUSAND_HUNDRED_FOURTY_FOUR::getMaterialValue, MATERIAL_TWO_HUNDRED_SIXTY_TWO_THOUSAND_HUNDRED_FOURTY_FOUR_CMD::getIntValue);
 
     private static final String ERROR_REPRESENTATION = "Error getting representation for %s. Returning 0!";
     private static final String ERROR_NEXT_REPRESENTATION = "Error getting next representation for %s. Returning TWO!";
@@ -128,7 +130,7 @@ public enum NumberRepresentation {
         ItemMeta blockMeta = block.getItemMeta();
         assert Objects.nonNull(blockMeta);
         blockMeta.setDisplayName(LegacyComponentSerializer.legacySection()
-                                                          .serialize(HELP_GUI_LEGEND_ITEM_NAME_PREFIX.getFormattedValue()) + getScore());
+                                                          .serialize(HELP_GUI_LEGEND_ITEM_NAME_PREFIX.getFormattedValue()) + StringUtil.formatInt(getScore()));
         block.setItemMeta(blockMeta);
         return block;
     }

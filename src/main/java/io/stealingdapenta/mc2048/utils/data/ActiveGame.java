@@ -14,6 +14,8 @@ import static io.stealingdapenta.mc2048.utils.InventoryUtil.getPlayerSkullItem;
 import io.stealingdapenta.mc2048.config.ConfigKey;
 import io.stealingdapenta.mc2048.config.PlayerConfigField;
 import io.stealingdapenta.mc2048.utils.ItemBuilder;
+import io.stealingdapenta.mc2048.utils.StringUtil;
+
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -190,12 +192,12 @@ public class ActiveGame {
     }
 
     private ItemStack getPlayerStatsHead() {
-        return (new ItemBuilder(getPlayerSkullItem(getPlayer()))).addLore(PLAYER_ITEM_LORE_CURRENT_SCORE.getFormattedValue(String.valueOf(getScore())))
+        return (new ItemBuilder(getPlayerSkullItem(getPlayer()))).addLore(PLAYER_ITEM_LORE_CURRENT_SCORE.getFormattedValue(StringUtil.formatInt(getScore())))
                                                                  .addLore(PLAYER_ITEM_LORE_CURRENT_PLAYTIME.getFormattedValue(getCurrentPlayTimeFormatted()))
                                                                  .addLore(PLAYER_ITEM_LORE_TOTAL_PLAYTIME.getFormattedValue(getTotalPlusCurrentPlayTimeFormatted()))
-                                                                 .addLore(PLAYER_ITEM_LORE_GAMES_PLAYED.getFormattedValue(String.valueOf(getAttempts())))
-                                                                 .addLore(PLAYER_ITEM_LORE_HIGH_SCORE.getFormattedValue(String.valueOf(getHighScore())))
-                                                                 .addLore(PLAYER_ITEM_LORE_AVERAGE_SCORE.getFormattedValue(String.valueOf(Math.round(getAverageScore()))))
+                                                                 .addLore(PLAYER_ITEM_LORE_GAMES_PLAYED.getFormattedValue(StringUtil.formatInt(getAttempts())))
+                                                                 .addLore(PLAYER_ITEM_LORE_HIGH_SCORE.getFormattedValue(StringUtil.formatInt(getHighScore())))
+                                                                 .addLore(PLAYER_ITEM_LORE_AVERAGE_SCORE.getFormattedValue(StringUtil.formatLong(Math.round(getAverageScore()))))
                                                                  .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
                                                                  .create();
     }
@@ -204,7 +206,7 @@ public class ActiveGame {
         Inventory oldInventory = this.gameWindow;
 
         Inventory newInventory = Bukkit.createInventory(new GameHolder(player), oldInventory.getSize(), LegacyComponentSerializer.legacySection()
-                                                                                                                                 .serialize(ConfigKey.GAME_GUI_TITLE.getFormattedValue(score + "")));
+                                                                                                                                 .serialize(ConfigKey.GAME_GUI_TITLE.getFormattedValue(StringUtil.formatInt(score))));
 
         newInventory.setContents(oldInventory.getContents());
         setGameWindow(newInventory);

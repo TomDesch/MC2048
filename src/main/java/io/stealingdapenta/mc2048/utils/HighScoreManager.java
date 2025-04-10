@@ -41,7 +41,7 @@ public class HighScoreManager {
     }
 
     private List<Component> getTopTenLore() {
-        final String PLAYER_SCORE = "%d. %s: %d"; // e.g. 3. StealingDaPenta: 45987
+        final String PLAYER_SCORE = "%d. %s: " + StringUtil.translate("&f"); // e.g. 3. StealingDaPenta:
 
         // Get top 10 scores and convert to list for indexed access
         List<Entry<String, Integer>> highScoresList = new ArrayList<>(getTop10HiScores().entrySet());
@@ -49,10 +49,10 @@ public class HighScoreManager {
         List<Component> lore = new ArrayList<>();
         for (int i = 0; i < highScoresList.size(); i++) {
             Entry<String, Integer> entry = highScoresList.get(i);
-            String scoreText = String.format(PLAYER_SCORE, i + 1,                  // Position (1-based)
-                                             entry.getKey(),         // Player name
-                                             entry.getValue()        // Score
+            String scoreText = String.format(PLAYER_SCORE, i + 1,                   // Position (1-based)
+                                             entry.getKey()                         // Player name
                                             );
+            scoreText = scoreText + StringUtil.formatInt(entry.getValue());         // Score
 
             lore.add(HIGH_SCORE_ITEM_LORE_FORMAT.getFormattedValue(scoreText));
         }
