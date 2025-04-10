@@ -88,7 +88,11 @@ public class GameManager {
 
         return new RepeatingUpdateTask(0, ONE_SECOND_IN_TICKS) {
             public void run() {
-                getActiveGame(player).updateStatisticsItem();
+                try {
+                    getActiveGame(player).updateStatisticsItem();
+                } catch (NullPointerException e) {
+                    cancel();
+                }
             }
         };
     }
