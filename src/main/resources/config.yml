@@ -13,7 +13,7 @@ msg_undid_last_move: "&aUndid last move!"
 msg_attempt_protection: "&7Game wasn't saved because you didn't do anything!"
 msg_game_over: "&4Game over!"
 title_game_over: "&4Game over!"
-title_game_over_sub: "Score: %s | Playtime: %k"
+title_game_over_sub: "Score: %s | Playtime: %s"
 
 # Game GUI
 game_gui_title: "&l2048: &r&8%s Points"

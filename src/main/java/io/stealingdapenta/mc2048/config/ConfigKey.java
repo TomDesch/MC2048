@@ -23,7 +23,7 @@ public enum ConfigKey {
     MSG_ATTEMPT_PROTECTION("<gray>The game wasn't saved because you didn't do anything. Your <bold>average score</bold> and <italic>attempts</italic> were protected.</gray>"),
     MSG_GAME_OVER("<dark_red><bold>Game over!</bold></dark_red>"),
     TITLE_GAME_OVER("<dark_red><bold>Game over!</bold></dark_red>"),
-    TITLE_GAME_OVER_SUB("Score: %s | Playtime: %k"),
+    TITLE_GAME_OVER_SUB("Score: %s | Playtime: %s"),
 
     GAME_GUI_TITLE("        <blue><b>MC 2048:</b></blue> <dark_gray>%s Points"),
     GAME_GUI_FILLER_MATERIAL("WHITE_STAINED_GLASS_PANE"),
