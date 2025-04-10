@@ -20,7 +20,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class HighScoreCommand implements CommandExecutor {
 
-    private static final String PLAYER_SCORE = "%d. %s: %d";
+    private static final String PLAYER_SCORE = "%d. %s: ";
 
     private final HighScoreManager highScoreManager;
 
@@ -42,7 +42,7 @@ public class HighScoreCommand implements CommandExecutor {
         List<Entry<String, Integer>> highScoresList = new ArrayList<>(highScores.entrySet());
 
         highScoresList.stream()
-                      .map(entry -> String.format(PLAYER_SCORE, highScoresList.indexOf(entry) + 1, entry.getKey(), entry.getValue()))
+                      .map(entry -> String.format(PLAYER_SCORE, highScoresList.indexOf(entry) + 1, entry.getKey()) + StringUtil.formatInt(entry.getValue()))
                       .forEach(player::sendMessage);
 
         MESSAGE_SENDER.sendMessage(player, MSG_TOP_SELF.getFormattedValue(StringUtil.formatInt(playersPosition)));

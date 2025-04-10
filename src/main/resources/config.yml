@@ -4,7 +4,7 @@
 generate_new_block_four_percent: 40
 
 # Messages sent to players
-msg_top_ten: "&6--- Top 10 2048 High Scores ---"
+msg_top_ten: "&6--- Top 10 2048 Scores ---"
 msg_top_self: "&6Your Position: %s"
 msg_no_perms: "&cNo permission."
 msg_not_player: "&cOnly players can run this command!"
