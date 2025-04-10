@@ -43,7 +43,8 @@ import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_MATERIAL;
 import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_MATERIAL_CMD;
 import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_SLOT;
-import static io.stealingdapenta.mc2048.config.ConfigKey.START_BUTTON_LORE;
+import static io.stealingdapenta.mc2048.config.ConfigKey.START_BUTTON_LORE_1;
+import static io.stealingdapenta.mc2048.config.ConfigKey.START_BUTTON_LORE_2;
 import static io.stealingdapenta.mc2048.config.ConfigKey.START_BUTTON_MATERIAL;
 import static io.stealingdapenta.mc2048.config.ConfigKey.START_BUTTON_MATERIAL_CMD;
 import static io.stealingdapenta.mc2048.config.ConfigKey.START_BUTTON_NAME;
@@ -216,7 +217,8 @@ public class InventoryUtil {
                                                                                                                     .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
                                                                                                                     .create(), INFO_ITEM_MATERIAL_CMD));
         setItemInSlot(helpGUI, playButtonSlot, setCustomModelDataTo(new ItemBuilder(START_BUTTON_MATERIAL.getMaterialValue()).setDisplayName(START_BUTTON_NAME.getFormattedValue())
-                                                                                                                            .addLore(START_BUTTON_LORE.getFormattedValue())
+                                                                                                                            .addLore(START_BUTTON_LORE_1.getFormattedValue())
+                                                                                                                            .addLore(START_BUTTON_LORE_2.getFormattedValue())
                                                                                                                             .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
                                                                                                                             .create(), START_BUTTON_MATERIAL_CMD));
         fillEmptySlots(helpGUI);

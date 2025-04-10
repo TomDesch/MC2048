@@ -82,7 +82,8 @@ help_gui_legend_item_name_prefix: "&bPoints: &f"
 start_button_material: TOTEM_OF_UNDYING
 start_button_material_cmd: 1000
 start_button_name: "&6Start Game"
-start_button_lore: "&7Click to start a new 2048 game"
+start_button_lore_1: "&7Click to start a new 2048 game"
+start_button_lore_2: ""
 high_score_item_name: "&eHigh Scores"
 high_score_item_material: PAPER
 high_score_item_material_cmd: 1000

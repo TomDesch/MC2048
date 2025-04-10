@@ -91,7 +91,8 @@ public enum ConfigKey {
     START_BUTTON_MATERIAL("NETHERITE_UPGRADE_SMITHING_TEMPLATE"),
     START_BUTTON_MATERIAL_CMD("1000"),
     START_BUTTON_NAME("Click to start game!"),
-    START_BUTTON_LORE("Click to play the iconic 2048 game!"),
+    START_BUTTON_LORE_1("Click to play the iconic 2048 game!"),
+    START_BUTTON_LORE_2(""),
 
     HIGH_SCORE_ITEM_NAME("<blue><bold>High scores"),
     HIGH_SCORE_ITEM_MATERIAL("SKULL_BANNER_PATTERN"),
