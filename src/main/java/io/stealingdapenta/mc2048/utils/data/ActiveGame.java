@@ -11,16 +11,15 @@ import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_USAGES;
 import static io.stealingdapenta.mc2048.utils.FileManager.FILE_MANAGER;
 import static io.stealingdapenta.mc2048.utils.InventoryUtil.getPlayerSkullItem;
 
+import io.stealingdapenta.mc2048.config.ConfigKey;
+import io.stealingdapenta.mc2048.config.PlayerConfigField;
+import io.stealingdapenta.mc2048.utils.ItemBuilder;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
-
-import io.stealingdapenta.mc2048.config.ConfigKey;
-import io.stealingdapenta.mc2048.config.PlayerConfigField;
-import io.stealingdapenta.mc2048.utils.ItemBuilder;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 public class ActiveGame {
 
@@ -122,15 +121,19 @@ public class ActiveGame {
     }
 
     public void decrementUndoLastMoveCounter() {
-        if (undoLastMoveCounter<0) return; // infinite undo
+        if (undoLastMoveCounter < 0) {
+            return; // infinite undo
+        }
 
         undoLastMoveCounter--;
     }
 
     public boolean hasNoUndoLastMoveLeft() {
-        if (undoLastMoveCounter<0) return false; // infinite undo
+        if (undoLastMoveCounter < 0) {
+            return false; // infinite undo
+        }
 
-        return undoLastMoveCounter <= 0;
+        return undoLastMoveCounter == 0;
     }
 
     public int getUndoLastMoveCounter() {
@@ -200,11 +203,8 @@ public class ActiveGame {
     public void updateInventoryTitle(int score) {
         Inventory oldInventory = this.gameWindow;
 
-        Inventory newInventory = Bukkit.createInventory(
-            new GameHolder(player),
-            oldInventory.getSize(),
-            LegacyComponentSerializer.legacySection().serialize(ConfigKey.GAME_GUI_TITLE.getFormattedValue(score + ""))
-        );
+        Inventory newInventory = Bukkit.createInventory(new GameHolder(player), oldInventory.getSize(), LegacyComponentSerializer.legacySection()
+                                                                                                                                 .serialize(ConfigKey.GAME_GUI_TITLE.getFormattedValue(score + "")));
 
         newInventory.setContents(oldInventory.getContents());
         setGameWindow(newInventory);
