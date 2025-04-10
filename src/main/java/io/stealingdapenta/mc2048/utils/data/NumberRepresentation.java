@@ -122,7 +122,11 @@ public enum NumberRepresentation {
     }
 
     public ItemStack getDisplayableBlock() {
-        return setCustomModelDataTo(new ItemStack(getRepresentation(), amount), this);
+        ItemStack stack = new ItemStack(getRepresentation(), amount);
+        ItemMeta meta = stack.getItemMeta();
+        meta.setDisplayName(StringUtil.formatInt(score));
+        stack.setItemMeta(meta);
+        return setCustomModelDataTo(stack, this);
     }
 
     public ItemStack getDisplayableLegendBlock() {
