@@ -18,7 +18,7 @@ import org.jetbrains.annotations.NotNull;
 public enum MessageSender {
     MESSAGE_SENDER;
 
-    public static final String PLAYER_IS_NULL = "Error sending message, player is null.";
+    public static final String ERROR_IS_NULL = "Error sending message, %s is null.";
     private BukkitAudiences audiences;
 
     private BukkitAudiences getAudiences() {
@@ -34,7 +34,7 @@ public enum MessageSender {
 
     public void sendMessage(CommandSender sender, ConfigKey messageConfig) {
         if (Objects.isNull(sender)) {
-            logger.severe(PLAYER_IS_NULL);
+            logger.severe(ERROR_IS_NULL.formatted("Sender"));
             return;
         }
 
@@ -52,7 +52,7 @@ public enum MessageSender {
 
     public void sendMessage(Player player, Component message) {
         if (Objects.isNull(player)) {
-            logger.severe(PLAYER_IS_NULL);
+            logger.severe(ERROR_IS_NULL.formatted("Player"));
             return;
         }
 
@@ -73,7 +73,7 @@ public enum MessageSender {
      */
     public void sendTitle(Player player, @NotNull Component titleComponent, @NotNull Component subtitleComponent) {
         if (Objects.isNull(player)) {
-            logger.severe(PLAYER_IS_NULL);
+            logger.severe(ERROR_IS_NULL.formatted("Player"));
             return;
         }
         
