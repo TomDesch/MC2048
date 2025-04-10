@@ -2,7 +2,6 @@ package io.stealingdapenta.mc2048.utils;
 
 import io.stealingdapenta.mc2048.config.ConfigKey;
 import io.stealingdapenta.mc2048.utils.data.NumberRepresentation;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -99,7 +98,7 @@ public class ItemBuilder {
                     yield null;
                 }
                 yield LegacyComponentSerializer.legacySection()
-                                               .serialize(StringUtil.processComponent(formatted));
+                                               .serialize(formatted);
             }
             case Component component -> {
                 String legacy = LegacyComponentSerializer.legacySection()
@@ -108,7 +107,7 @@ public class ItemBuilder {
                     yield null;
                 }
                 yield LegacyComponentSerializer.legacySection()
-                                               .serialize(StringUtil.processComponent(component));
+                                               .serialize(component);
             }
             case String str -> {
                 if (str.isEmpty()) {

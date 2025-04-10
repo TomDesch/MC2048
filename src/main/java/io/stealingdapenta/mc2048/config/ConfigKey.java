@@ -7,7 +7,6 @@ import io.stealingdapenta.mc2048.MC2048;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-
 import org.bukkit.Material;
 
 public enum ConfigKey {
@@ -183,7 +182,7 @@ public enum ConfigKey {
 
         if (raw.contains("&"))
             return LegacyComponentSerializer.legacyAmpersand().deserialize(raw);
-        else 
+        else
             return MiniMessage.miniMessage().deserialize(raw);
     }
 

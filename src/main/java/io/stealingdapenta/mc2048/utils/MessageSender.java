@@ -9,7 +9,6 @@ import java.util.Objects;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.title.Title;
 import net.kyori.adventure.title.Title.Times;
 import org.bukkit.command.CommandSender;
@@ -43,13 +42,12 @@ public enum MessageSender {
             return;
         }
 
-        Audience audience = getAudiences().sender(sender);
-        Component processed = StringUtil.processComponent(messageConfig.getFormattedValue());
-        audience.sendMessage(processed);
+        getAudiences().sender(sender)
+                      .sendMessage(messageConfig.getFormattedValue());
     }
 
     public void sendMessage(Player player, ConfigKey messageConfig) {
-        sendMessage(player, StringUtil.processComponent(messageConfig.getFormattedValue()));
+        sendMessage(player, messageConfig.getFormattedValue());
     }
 
     public void sendMessage(Player player, Component message) {
@@ -62,19 +60,8 @@ public enum MessageSender {
             return;
         }
 
-        Component processed = StringUtil.processComponent(message);
-        String processedStr = LegacyComponentSerializer.legacyAmpersand().serialize(processed).trim();
-        if (processedStr.isEmpty()) {
-            return; // Don't send a blank message.
-        }
-        
-        Audience audience = getAudiences().player(player);
-        audience.sendMessage(processed);
-    }
-
-
-    public void sendTitle(Player player, ConfigKey title, String subtitle) {
-        sendTitle(player, StringUtil.processComponent(title.getFormattedValue()), StringUtil.processComponent(Component.text(subtitle)));
+        getAudiences().player(player)
+                      .sendMessage(message);
     }
 
     /**
@@ -89,12 +76,9 @@ public enum MessageSender {
             logger.severe(PLAYER_IS_NULL);
             return;
         }
-
-        Component processedTitle = StringUtil.processComponent(titleComponent);
-        Component processedSubtitle = StringUtil.processComponent(subtitleComponent);
         
         Times times = Title.Times.times(Duration.ofSeconds(1), Duration.ofSeconds(3), Duration.ofSeconds(1));
-        Title title = Title.title(processedTitle, processedSubtitle, times);
+        Title title = Title.title(titleComponent, subtitleComponent, times);
         
         Audience audience = getAudiences().player(player);
         audience.showTitle(title);
