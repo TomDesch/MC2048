@@ -64,8 +64,8 @@ player_item_slot: 25 # -1 to hide
 player_item_name: "&e%s's Stats"
 player_item_material: PLAYER_HEAD
 player_item_material_cmd: 1000
-player_item_lore_total_playtime: "&7Total Gametime: &f%s"
 player_item_lore_games_played: "&7Games Played: &f%s"
+player_item_lore_total_playtime: "&7Total Gametime: &f%s"
 player_item_lore_high_score: "&7High Score: &f%s"
 player_item_lore_average_score: "&7Average Score: &f%s"
 

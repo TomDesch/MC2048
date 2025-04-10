@@ -190,12 +190,12 @@ public class ActiveGame {
     }
 
     private ItemStack getPlayerStatsHead() {
-        return (new ItemBuilder(getPlayerSkullItem(getPlayer()))).addLore(PLAYER_ITEM_LORE_TOTAL_PLAYTIME.getFormattedValue(getTotalPlusCurrentPlayTimeFormatted()))
-                                                                 .addLore(PLAYER_ITEM_LORE_CURRENT_PLAYTIME.getFormattedValue(getCurrentPlayTimeFormatted()))
+        return (new ItemBuilder(getPlayerSkullItem(getPlayer()))).addLore(PLAYER_ITEM_LORE_GAMES_PLAYED.getFormattedValue(String.valueOf(getAttempts())))
+                                                                 .addLore(PLAYER_ITEM_LORE_TOTAL_PLAYTIME.getFormattedValue(getTotalPlusCurrentPlayTimeFormatted()))
                                                                  .addLore(PLAYER_ITEM_LORE_HIGH_SCORE.getFormattedValue(String.valueOf(getHighScore())))
-                                                                 .addLore(PLAYER_ITEM_LORE_CURRENT_SCORE.getFormattedValue(String.valueOf(getScore())))
-                                                                 .addLore(PLAYER_ITEM_LORE_GAMES_PLAYED.getFormattedValue(String.valueOf(getAttempts())))
                                                                  .addLore(PLAYER_ITEM_LORE_AVERAGE_SCORE.getFormattedValue(String.valueOf(Math.round(getAverageScore()))))
+                                                                 .addLore(PLAYER_ITEM_LORE_CURRENT_SCORE.getFormattedValue(String.valueOf(getScore())))
+                                                                 .addLore(PLAYER_ITEM_LORE_CURRENT_PLAYTIME.getFormattedValue(getCurrentPlayTimeFormatted()))
                                                                  .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
                                                                  .create();
     }

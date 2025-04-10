@@ -785,9 +785,9 @@ public class InventoryUtil {
     }
 
     private ItemStack getHelpGUIPlayerStatsHead(Player player) {
-        return (new ItemBuilder(getPlayerSkullItem(player))).addLore(PLAYER_ITEM_LORE_TOTAL_PLAYTIME.getFormattedValue(makeSecondsATimestamp(FILE_MANAGER.getLongByKey(player, PlayerConfigField.PLAYTIME.getKey()))))
+        return (new ItemBuilder(getPlayerSkullItem(player))).addLore(PLAYER_ITEM_LORE_GAMES_PLAYED.getFormattedValue(String.valueOf(FILE_MANAGER.getLongByKey(player, PlayerConfigField.ATTEMPTS.getKey()))))
+                                                            .addLore(PLAYER_ITEM_LORE_TOTAL_PLAYTIME.getFormattedValue(makeSecondsATimestamp(FILE_MANAGER.getLongByKey(player, PlayerConfigField.PLAYTIME.getKey()))))
                                                             .addLore(PLAYER_ITEM_LORE_HIGH_SCORE.getFormattedValue(String.valueOf(FILE_MANAGER.getLongByKey(player, PlayerConfigField.HIGH_SCORE.getKey()))))
-                                                            .addLore(PLAYER_ITEM_LORE_GAMES_PLAYED.getFormattedValue(String.valueOf(FILE_MANAGER.getLongByKey(player, PlayerConfigField.ATTEMPTS.getKey()))))
                                                             .addLore(PLAYER_ITEM_LORE_AVERAGE_SCORE.getFormattedValue(String.valueOf(Math.round(FILE_MANAGER.getLongByKey(player, PlayerConfigField.AVERAGE_SCORE.getKey())))))
                                                             .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
                                                             .create();
