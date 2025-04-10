@@ -186,28 +186,20 @@ public enum ConfigKey {
             return MiniMessage.miniMessage().deserialize(raw);
     }
 
-
     /**
-     * Replace %s in the component with the provided replacement value
+     * Replace each %s in the component with the provided replacement values in order.
      *
-     * @param replacementOfPercentS the desired replacement text
-     * @return the original formatted component but with %s replaced
+     * @param replacements the values to replace each %s with
+     * @return the formatted component with all %s replaced
      */
-    public Component getFormattedValue(String replacementOfPercentS) {
-        return getFormattedValue().replaceText(builder -> builder.match("%s")
-                                                                 .replacement(replacementOfPercentS));
-    }
-
-    /**
-     * Replace %s in the component with the provided replacement value
-     *
-     * @param replacementOfPercentS the desired replacement text
-     * @param replacementOfPercentK the desired replacement text
-     * @return the original formatted component but with %s replaced
-     */
-    public Component getFormattedValue(String replacementOfPercentS, String replacementOfPercentK) {
-        return getFormattedValue(replacementOfPercentS).replaceText(builder -> builder.match("%k")
-                                                                 .replacement(replacementOfPercentK));
+    public Component getFormattedValue(String... replacements) {
+        Component component = getFormattedValue();
+        for (String replacement : replacements) {
+            component = component.replaceText(builder -> builder.match("%s")
+                                                                .replacement(replacement)
+                                                                .once()); // Replace one at a time
+        }
+        return component;
     }
 
     /**
