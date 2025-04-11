@@ -1,4 +1,4 @@
-package io.stealingdapenta.mc2048.utils;
+package io.stealingdapenta.mc2048.utils.data;
 
 import io.stealingdapenta.mc2048.MC2048;
 import org.bukkit.Bukkit;

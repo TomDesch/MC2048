@@ -1,59 +1,87 @@
 package io.stealingdapenta.mc2048.utils;
 
 import static io.stealingdapenta.mc2048.MC2048.logger;
-import static io.stealingdapenta.mc2048.config.ConfigKey.AVERAGE_SCORE;
-import static io.stealingdapenta.mc2048.config.ConfigKey.DOWN_BUTTON_NAME;
-import static io.stealingdapenta.mc2048.config.ConfigKey.GAMES_PLAYED;
-import static io.stealingdapenta.mc2048.config.ConfigKey.GAME_TITLE;
-import static io.stealingdapenta.mc2048.config.ConfigKey.HELP_GUI_GAME_SUMMARY_LORE_1;
-import static io.stealingdapenta.mc2048.config.ConfigKey.HELP_GUI_GAME_SUMMARY_LORE_2;
-import static io.stealingdapenta.mc2048.config.ConfigKey.HELP_GUI_GAME_SUMMARY_LORE_3;
-import static io.stealingdapenta.mc2048.config.ConfigKey.HELP_GUI_GAME_SUMMARY_LORE_4;
-import static io.stealingdapenta.mc2048.config.ConfigKey.HELP_GUI_GAME_SUMMARY_LORE_5;
-import static io.stealingdapenta.mc2048.config.ConfigKey.HELP_GUI_INFO_NAME;
-import static io.stealingdapenta.mc2048.config.ConfigKey.HELP_GUI_PLAY_BUTTON_LORE;
-import static io.stealingdapenta.mc2048.config.ConfigKey.HELP_GUI_PLAY_BUTTON_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.GAME_GUI_FILLER_ANIMATION_MATERIAL;
+import static io.stealingdapenta.mc2048.config.ConfigKey.GAME_GUI_FILLER_ANIMATION_MATERIAL_CMD;
+import static io.stealingdapenta.mc2048.config.ConfigKey.GAME_GUI_FILLER_MATERIAL;
+import static io.stealingdapenta.mc2048.config.ConfigKey.GAME_GUI_FILLER_MATERIAL_CMD;
+import static io.stealingdapenta.mc2048.config.ConfigKey.GAME_GUI_TITLE;
+import static io.stealingdapenta.mc2048.config.ConfigKey.GENERATE_NEW_BLOCK_FOUR_PERCENT;
+import static io.stealingdapenta.mc2048.config.ConfigKey.HELP_GUI_FILLER_MATERIAL;
+import static io.stealingdapenta.mc2048.config.ConfigKey.HELP_GUI_FILLER_MATERIAL_CMD;
 import static io.stealingdapenta.mc2048.config.ConfigKey.HELP_GUI_TITLE;
-import static io.stealingdapenta.mc2048.config.ConfigKey.HIGH_SCORE;
-import static io.stealingdapenta.mc2048.config.ConfigKey.LEFT_BUTTON_NAME;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_BUTTON_DOWN;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_BUTTON_DOWN_CMD;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_BUTTON_LEFT;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_BUTTON_LEFT_CMD;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_BUTTON_RIGHT;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_BUTTON_RIGHT_CMD;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_BUTTON_UNDO;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_BUTTON_UNDO_CMD;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_BUTTON_UNDO_USED;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_BUTTON_UNDO_USED_CMD;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_BUTTON_UP;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_BUTTON_UP_CMD;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_GUI_FILLER;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_GUI_FILLER_CMD;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_GUI_PLAYER;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_GUI_PLAYER_CMD;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_HELP_GUI_FILLER;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_HELP_GUI_FILLER_CMD;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_HELP_GUI_INFO;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_HELP_GUI_INFO_CMD;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_HELP_GUI_PLAY_BUTTON;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_HELP_GUI_PLAY_BUTTON_CMD;
+import static io.stealingdapenta.mc2048.config.ConfigKey.INFO_ITEM_LORE_1;
+import static io.stealingdapenta.mc2048.config.ConfigKey.INFO_ITEM_LORE_2;
+import static io.stealingdapenta.mc2048.config.ConfigKey.INFO_ITEM_LORE_3;
+import static io.stealingdapenta.mc2048.config.ConfigKey.INFO_ITEM_LORE_4;
+import static io.stealingdapenta.mc2048.config.ConfigKey.INFO_ITEM_LORE_5;
+import static io.stealingdapenta.mc2048.config.ConfigKey.INFO_ITEM_MATERIAL;
+import static io.stealingdapenta.mc2048.config.ConfigKey.INFO_ITEM_MATERIAL_CMD;
+import static io.stealingdapenta.mc2048.config.ConfigKey.INFO_ITEM_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_DOWN_MATERIAL;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_DOWN_MATERIAL_CMD;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_DOWN_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_DOWN_SLOT;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_LEFT_MATERIAL;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_LEFT_MATERIAL_CMD;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_LEFT_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_LEFT_SLOT;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_LORE;
-import static io.stealingdapenta.mc2048.config.ConfigKey.NUMBER_OF_UNDO;
-import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_STATS_TITLE;
-import static io.stealingdapenta.mc2048.config.ConfigKey.RIGHT_BUTTON_NAME;
-import static io.stealingdapenta.mc2048.config.ConfigKey.TOTAL_PLAYTIME;
-import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_RIGHT_MATERIAL;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_RIGHT_MATERIAL_CMD;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_RIGHT_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_RIGHT_SLOT;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_UP_MATERIAL;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_UP_MATERIAL_CMD;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_UP_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_UP_SLOT;
+import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_LORE_AVERAGE_SCORE;
+import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_LORE_GAMES_PLAYED;
+import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_LORE_HIGH_SCORE;
+import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_LORE_TOTAL_PLAYTIME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_MATERIAL;
+import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_MATERIAL_CMD;
+import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_SLOT;
+import static io.stealingdapenta.mc2048.config.ConfigKey.START_BUTTON_LORE_1;
+import static io.stealingdapenta.mc2048.config.ConfigKey.START_BUTTON_LORE_2;
+import static io.stealingdapenta.mc2048.config.ConfigKey.START_BUTTON_MATERIAL;
+import static io.stealingdapenta.mc2048.config.ConfigKey.START_BUTTON_MATERIAL_CMD;
+import static io.stealingdapenta.mc2048.config.ConfigKey.START_BUTTON_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.SPEED_BUTTON_LORE;
+import static io.stealingdapenta.mc2048.config.ConfigKey.SPEED_BUTTON_MATERIAL;
+import static io.stealingdapenta.mc2048.config.ConfigKey.SPEED_BUTTON_MATERIAL_CMD;
+import static io.stealingdapenta.mc2048.config.ConfigKey.SPEED_BUTTON_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.SPEED_BUTTON_SLOT;
+import static io.stealingdapenta.mc2048.config.ConfigKey.SPEED_BUTTON_SPEED;
+import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_SLOT;
 import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_UNUSED_LORE;
+import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_UNUSED_MATERIAL;
+import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_UNUSED_MATERIAL_CMD;
+import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_UNUSED_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_UNUSED_USES;
+import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_USAGES;
+import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_USED_LORE;
+import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_USED_MATERIAL;
+import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_USED_MATERIAL_CMD;
+import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_USED_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_USED_USES;
-import static io.stealingdapenta.mc2048.config.ConfigKey.UP_BUTTON_NAME;
-import static io.stealingdapenta.mc2048.utils.ActiveGame.makeSecondsATimestamp;
 import static io.stealingdapenta.mc2048.utils.FileManager.FILE_MANAGER;
 import static io.stealingdapenta.mc2048.utils.ItemBuilder.setCustomModelDataTo;
+import static io.stealingdapenta.mc2048.utils.data.ActiveGame.makeSecondsATimestamp;
 import static org.bukkit.Bukkit.createInventory;
 
+import io.stealingdapenta.mc2048.MC2048;
 import io.stealingdapenta.mc2048.config.ConfigKey;
+import io.stealingdapenta.mc2048.config.PlayerConfigField;
+import io.stealingdapenta.mc2048.utils.data.ActiveGame;
+import io.stealingdapenta.mc2048.utils.data.ButtonAction;
+import io.stealingdapenta.mc2048.utils.data.GameHolder;
+import io.stealingdapenta.mc2048.utils.data.HelperHolder;
+import io.stealingdapenta.mc2048.utils.data.MovementInstruction;
+import io.stealingdapenta.mc2048.utils.data.NumberRepresentation;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -63,17 +91,16 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.scheduler.BukkitRunnable;
 
-/**
- * Dear visitor, If you've found this class, and you're a programmer yourself, then I challenge you to rewrite the moveItem functions (e.g., moveItemsUp) to be DRY instead of this hot mess. (And make a pull request) I promise the current version
- * works, but man is it ugly. Kind regards. Edit: rewrite it whole. This is not SRP nor good Java in general.
- */
 public class InventoryUtil {
 
+    public final MC2048 javaPlugin;
     private final HighScoreManager highScoreManager;
 
     public static final int INVENTORY_ROWS = 6;
@@ -86,12 +113,13 @@ public class InventoryUtil {
     private static final String ERROR_SKULL = "Error getting skull meta for %s.";
     private final Random random = new Random();
 
-    public InventoryUtil(HighScoreManager highScoreManager) {
+    public InventoryUtil(MC2048 javaPlugin, HighScoreManager highScoreManager) {
+        this.javaPlugin = javaPlugin;
         this.highScoreManager = highScoreManager;
     }
 
     public static ItemStack getPlayerSkullItem(Player player) {
-        ItemStack playerHead = setCustomModelDataTo((new ItemBuilder(MATERIAL_GUI_PLAYER.getMaterialValue())).create(), MATERIAL_GUI_PLAYER_CMD);
+        ItemStack playerHead = setCustomModelDataTo((new ItemBuilder(PLAYER_ITEM_MATERIAL.getMaterialValue())).create(), PLAYER_ITEM_MATERIAL_CMD);
         SkullMeta skullMeta = (SkullMeta) playerHead.getItemMeta();
         if (Objects.isNull(skullMeta)) {
             logger.warning(ERROR_SKULL.formatted(player.getName()));
@@ -99,13 +127,70 @@ public class InventoryUtil {
         }
         skullMeta.setOwningPlayer(player);
         skullMeta.setDisplayName(LegacyComponentSerializer.legacySection()
-                                                          .serialize(PLAYER_STATS_TITLE.getFormattedValue(player.getName())));
+                                                          .serialize(PLAYER_ITEM_NAME.getFormattedValue(player.getName())));
         playerHead.setItemMeta(skullMeta);
         return playerHead;
     }
 
+    public void showEndAnimation(Inventory inventory, long delay) {
+        if (inventory.getSize() != REQUIRED_SIZE) {
+            logger.warning(WRONG_SIZE);
+            return;
+        }
+
+        for (int i = 0; i < REQUIRED_SIZE; i++) {
+            if (isInvalidGameSlot(i) && i!=PLAYER_ITEM_SLOT.getIntValue()) {
+                inventory.setItem(i, getGameEndItem());
+            }
+        }
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                for (int i = 0; i < REQUIRED_SIZE; i++) {
+                    if (isInvalidGameSlot(i) && i!=PLAYER_ITEM_SLOT.getIntValue()) {
+                        inventory.setItem(i, getGameFillerItem());
+                    }
+                }
+            }
+        }.runTaskLater(javaPlugin, delay);
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                for (int i = 0; i < REQUIRED_SIZE; i++) {
+                    if (isInvalidGameSlot(i) && i!=PLAYER_ITEM_SLOT.getIntValue()) {
+                        inventory.setItem(i, getGameEndItem());
+                    }
+                }
+            }
+        }.runTaskLater(javaPlugin, delay*2);
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                for (int i = 0; i < REQUIRED_SIZE; i++) {
+                    if (isInvalidGameSlot(i) && i!=PLAYER_ITEM_SLOT.getIntValue()) {
+                        inventory.setItem(i, getGameFillerItem());
+                    }
+                }
+            }
+        }.runTaskLater(javaPlugin, delay*3);
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                for (int i = 0; i < REQUIRED_SIZE; i++) {
+                    if (isInvalidGameSlot(i) && i!=PLAYER_ITEM_SLOT.getIntValue()) {
+                        inventory.setItem(i, getGameEndItem());
+                    }
+                }
+            }
+        }.runTaskLater(javaPlugin, delay*4);
+    }
+
     public Inventory createGameInventory(ActiveGame activeGame) {
-        Inventory inventory = createGUIWindow(activeGame.getPlayer(), GAME_TITLE);
+        Inventory inventory = createGameGUIWindow(activeGame.getPlayer(), GAME_GUI_TITLE, activeGame.getScore());
         fillSides(inventory);
         activeGame.setGameWindow(inventory);
         setButtonsAndStats(activeGame);
@@ -113,7 +198,7 @@ public class InventoryUtil {
     }
 
     public Inventory createHelpInventory(Player player) {
-        Inventory helpGUI = createGUIWindow(player, HELP_GUI_TITLE);
+        Inventory helpGUI = createHelperGUIWindow(player, HELP_GUI_TITLE);
 
         final int playerStatsSlot = 28;
         final int highScoreSlot = 34;
@@ -123,18 +208,19 @@ public class InventoryUtil {
         fillWithLegend(helpGUI);
         setItemInSlot(helpGUI, playerStatsSlot, getHelpGUIPlayerStatsHead(player));
         setItemInSlot(helpGUI, highScoreSlot, highScoreManager.getHighScoresItem());
-        setItemInSlot(helpGUI, infoSlot, setCustomModelDataTo(new ItemBuilder(MATERIAL_HELP_GUI_INFO.getMaterialValue()).setDisplayName(HELP_GUI_INFO_NAME.getFormattedValue())
-                                                                                                                        .addLore(HELP_GUI_GAME_SUMMARY_LORE_1.getFormattedValue())
-                                                                                                                        .addLore(HELP_GUI_GAME_SUMMARY_LORE_2.getFormattedValue())
-                                                                                                                        .addLore(HELP_GUI_GAME_SUMMARY_LORE_3.getFormattedValue())
-                                                                                                                        .addLore(HELP_GUI_GAME_SUMMARY_LORE_4.getFormattedValue())
-                                                                                                                        .addLore(HELP_GUI_GAME_SUMMARY_LORE_5.getFormattedValue())
-                                                                                                                        .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
-                                                                                                                        .create(), MATERIAL_HELP_GUI_INFO_CMD));
-        setItemInSlot(helpGUI, playButtonSlot, setCustomModelDataTo(new ItemBuilder(MATERIAL_HELP_GUI_PLAY_BUTTON.getMaterialValue()).setDisplayName(HELP_GUI_PLAY_BUTTON_NAME.getFormattedValue())
-                                                                                                                                     .addLore(HELP_GUI_PLAY_BUTTON_LORE)
-                                                                                                                                     .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
-                                                                                                                                     .create(), MATERIAL_HELP_GUI_PLAY_BUTTON_CMD));
+        setItemInSlot(helpGUI, infoSlot, setCustomModelDataTo(new ItemBuilder(INFO_ITEM_MATERIAL.getMaterialValue()).setDisplayName(INFO_ITEM_NAME.getFormattedValue())
+                                                                                                                    .addLore(INFO_ITEM_LORE_1.getFormattedValue())
+                                                                                                                    .addLore(INFO_ITEM_LORE_2.getFormattedValue())
+                                                                                                                    .addLore(INFO_ITEM_LORE_3.getFormattedValue())
+                                                                                                                    .addLore(INFO_ITEM_LORE_4.getFormattedValue())
+                                                                                                                    .addLore(INFO_ITEM_LORE_5.getFormattedValue())
+                                                                                                                    .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
+                                                                                                                    .create(), INFO_ITEM_MATERIAL_CMD));
+        setItemInSlot(helpGUI, playButtonSlot, setCustomModelDataTo(new ItemBuilder(START_BUTTON_MATERIAL.getMaterialValue()).setDisplayName(START_BUTTON_NAME.getFormattedValue())
+                                                                                                                            .addLore(START_BUTTON_LORE_1.getFormattedValue())
+                                                                                                                            .addLore(START_BUTTON_LORE_2.getFormattedValue())
+                                                                                                                            .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
+                                                                                                                            .create(), START_BUTTON_MATERIAL_CMD));
         fillEmptySlots(helpGUI);
 
         return helpGUI;
@@ -171,7 +257,7 @@ public class InventoryUtil {
         }
     }
 
-    public boolean isInvalidGameSlot(int slot) {
+    private boolean isInvalidGameSlot(int slot) {
         for (int[] row : mergeSlots) {
             for (int validSlot : row) {
                 if (validSlot == slot) {
@@ -183,67 +269,142 @@ public class InventoryUtil {
     }
 
     private ItemStack getGameFillerItem() {
-        return new ItemBuilder(setCustomModelDataTo(new ItemStack(MATERIAL_GUI_FILLER.getMaterialValue(), 1), MATERIAL_GUI_FILLER_CMD)).setDisplayName(" ")
-                                                                                                                                       .create();
+        return new ItemBuilder(setCustomModelDataTo(new ItemStack(GAME_GUI_FILLER_MATERIAL.getMaterialValue(), 1), GAME_GUI_FILLER_MATERIAL_CMD)).setDisplayName(" ")
+                                                                                                                                                 .create();
     }
 
     private ItemStack getHelpGuiFillerItem() {
-        return new ItemBuilder(setCustomModelDataTo(new ItemStack(MATERIAL_HELP_GUI_FILLER.getMaterialValue(), 1), MATERIAL_HELP_GUI_FILLER_CMD)).setDisplayName(" ")
+        return new ItemBuilder(setCustomModelDataTo(new ItemStack(HELP_GUI_FILLER_MATERIAL.getMaterialValue(), 1), HELP_GUI_FILLER_MATERIAL_CMD)).setDisplayName(" ")
+                                                                                                                                                 .create();
+    }
+
+    private ItemStack getGameEndItem() {
+        return new ItemBuilder(setCustomModelDataTo(new ItemStack(GAME_GUI_FILLER_ANIMATION_MATERIAL.getMaterialValue(), 1), GAME_GUI_FILLER_ANIMATION_MATERIAL_CMD)).setDisplayName(" ")
                                                                                                                                                  .create();
     }
 
     private void setButtonsAndStats(ActiveGame activeGame) {
-        final int SLOT_UP = 16;
-        final int SLOT_LEFT = 24;
-        final int SLOT_RIGHT = 26;
-        final int SLOT_DOWN = 34;
-        final int SLOT_UNDO = 52;
-        setItemInSlot(activeGame.getGameWindow(), SLOT_UP, createButton(UP_BUTTON_NAME, MATERIAL_BUTTON_UP, MATERIAL_BUTTON_UP_CMD));
-        setItemInSlot(activeGame.getGameWindow(), SLOT_LEFT, createButton(LEFT_BUTTON_NAME, MATERIAL_BUTTON_LEFT, MATERIAL_BUTTON_LEFT_CMD));
-        setItemInSlot(activeGame.getGameWindow(), SLOT_RIGHT, createButton(RIGHT_BUTTON_NAME, MATERIAL_BUTTON_RIGHT, MATERIAL_BUTTON_RIGHT_CMD));
-        setItemInSlot(activeGame.getGameWindow(), SLOT_DOWN, createButton(DOWN_BUTTON_NAME, MATERIAL_BUTTON_DOWN, MATERIAL_BUTTON_DOWN_CMD));
-        setItemInSlot(activeGame.getGameWindow(), SLOT_UNDO, createUndoButton(NUMBER_OF_UNDO.getIntValue()));
+        final int SLOT_UP = MOVE_BUTTON_UP_SLOT.getIntValue();
+        final int SLOT_DOWN = MOVE_BUTTON_DOWN_SLOT.getIntValue();
+        final int SLOT_LEFT = MOVE_BUTTON_LEFT_SLOT.getIntValue();
+        final int SLOT_RIGHT = MOVE_BUTTON_RIGHT_SLOT.getIntValue();
+        final int SLOT_UNDO = UNDO_BUTTON_SLOT.getIntValue();
+        final int SLOT_SPEED = SPEED_BUTTON_SLOT.getIntValue();
+        setItemInSlot(activeGame.getGameWindow(), SLOT_UP, createButton(MOVE_BUTTON_UP_NAME, MOVE_BUTTON_UP_MATERIAL, MOVE_BUTTON_UP_MATERIAL_CMD));
+        setItemInSlot(activeGame.getGameWindow(), SLOT_DOWN, createButton(MOVE_BUTTON_DOWN_NAME, MOVE_BUTTON_DOWN_MATERIAL, MOVE_BUTTON_DOWN_MATERIAL_CMD));
+        setItemInSlot(activeGame.getGameWindow(), SLOT_LEFT, createButton(MOVE_BUTTON_LEFT_NAME, MOVE_BUTTON_LEFT_MATERIAL, MOVE_BUTTON_LEFT_MATERIAL_CMD));
+        setItemInSlot(activeGame.getGameWindow(), SLOT_RIGHT, createButton(MOVE_BUTTON_RIGHT_NAME, MOVE_BUTTON_RIGHT_MATERIAL, MOVE_BUTTON_RIGHT_MATERIAL_CMD));
+
+        if (SLOT_UNDO >= 0) {
+            if (activeGame.hasNoUndoLastMoveLeft()) {
+                setItemInSlot(activeGame.getGameWindow(), SLOT_UNDO, getEmptyUndoButton());
+            } else {
+                if (!activeGame.isLastMoveUndo()) {
+                    setItemInSlot(activeGame.getGameWindow(), SLOT_UNDO, getUnblockedUndoButton(UNDO_BUTTON_USAGES.getIntValue()));
+                } else {
+                    setItemInSlot(activeGame.getGameWindow(), SLOT_UNDO, getBlockedUndoButton(UNDO_BUTTON_USAGES.getIntValue()));
+                }
+            }
+        }
+
+        if (SLOT_SPEED >= 0) {
+            setItemInSlot(activeGame.getGameWindow(), SLOT_SPEED, getSpeedButton(FILE_MANAGER.getAnimationSpeed(activeGame.getPlayer())));
+        }
     }
 
     private ItemStack createButton(ConfigKey buttonName, ConfigKey materialName, ConfigKey customMetaData) {
         return setCustomModelDataTo(new ItemBuilder(materialName.getMaterialValue()).setDisplayName(buttonName.getFormattedValue())
-                                                                                    .addLore(MOVE_BUTTON_LORE)
+                                                                                    .addLore(MOVE_BUTTON_LORE.getFormattedValue())
                                                                                     .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
                                                                                     .create(), customMetaData);
     }
 
-    private ItemStack createUndoButton(int numberOfUndoLeft) {
-        return setCustomModelDataTo(new ItemBuilder(MATERIAL_BUTTON_UNDO.getMaterialValue()).setDisplayName(UNDO_BUTTON_NAME)
-                                                                                            .addLore(UNDO_BUTTON_UNUSED_LORE)
-                                                                                            .addLore(UNDO_BUTTON_UNUSED_USES.getFormattedValue()
-                                                                                                                            .append(Component.text(numberOfUndoLeft)))
-                                                                                            .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
-                                                                                            .create(), MATERIAL_BUTTON_UNDO_CMD);
+    private ItemStack getUnblockedUndoButton(int numberOfUndoLeft) {
+        return setCustomModelDataTo(new ItemBuilder(UNDO_BUTTON_UNUSED_MATERIAL.getMaterialValue()).setDisplayName(UNDO_BUTTON_UNUSED_NAME.getFormattedValue())
+                                                                                                   .addLore(UNDO_BUTTON_UNUSED_LORE.getFormattedValue())
+                                                                                                   .addLore(UNDO_BUTTON_UNUSED_USES.getFormattedValue()
+                                                                                                                                   .append(Component.text(
+                                                                                                                                            numberOfUndoLeft >= 0 ? StringUtil.formatInt(numberOfUndoLeft) : "∞"
+                                                                                                                                    )))
+                                                                                                   .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
+                                                                                                   .create(), UNDO_BUTTON_UNUSED_MATERIAL_CMD);
     }
 
-    private ItemStack createUsedUndoButton() {
-        return setCustomModelDataTo(new ItemBuilder(MATERIAL_BUTTON_UNDO_USED.getMaterialValue()).setDisplayName(UNDO_BUTTON_NAME)
-                                                                                                 .addLore(UNDO_BUTTON_UNUSED_LORE)
-                                                                                                 .addLore(UNDO_BUTTON_USED_USES)
+    private ItemStack getBlockedUndoButton(int numberOfUndoLeft) {
+        return setCustomModelDataTo(new ItemBuilder(UNDO_BUTTON_UNUSED_MATERIAL.getMaterialValue()).setDisplayName(UNDO_BUTTON_UNUSED_NAME.getFormattedValue())
+                                                                                                   .addLore(UNDO_BUTTON_USED_LORE.getFormattedValue())
+                                                                                                   .addLore(UNDO_BUTTON_UNUSED_USES.getFormattedValue()
+                                                                                                                                    .append(Component.text(
+                                                                                                                                        numberOfUndoLeft >= 0 ? StringUtil.formatInt(numberOfUndoLeft) : "∞"
+                                                                                                                                    )))
+                                                                                                   .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
+                                                                                                   .create(), UNDO_BUTTON_UNUSED_MATERIAL_CMD);
+    }
+
+    private ItemStack getEmptyUndoButton() {
+        return setCustomModelDataTo(new ItemBuilder(UNDO_BUTTON_USED_MATERIAL.getMaterialValue()).setDisplayName(UNDO_BUTTON_USED_NAME.getFormattedValue())
+                                                                                                 .addLore(UNDO_BUTTON_USED_LORE.getFormattedValue())
+                                                                                                 .addLore(UNDO_BUTTON_USED_USES.getFormattedValue())
                                                                                                  .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
-                                                                                                 .create(), MATERIAL_BUTTON_UNDO_USED_CMD);
+                                                                                                 .create(), UNDO_BUTTON_USED_MATERIAL_CMD);
+    }
+
+    private ItemStack getSpeedButton(int currentSpeed) {
+        return setCustomModelDataTo(new ItemBuilder(SPEED_BUTTON_MATERIAL.getMaterialValue()).setDisplayName(SPEED_BUTTON_NAME.getFormattedValue())
+                                                                                             .addLore(SPEED_BUTTON_LORE.getFormattedValue())
+                                                                                             .addLore(SPEED_BUTTON_SPEED.getFormattedValue()
+                                                                                                                        .append(Component.text(currentSpeed)))
+                                                                                             .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
+                                                                                             .create(), SPEED_BUTTON_MATERIAL_CMD);
+    }
+
+    public void updateUndoButton(ActiveGame activeGame) {
+        final int SLOT_UNDO = UNDO_BUTTON_SLOT.getIntValue();
+        if (SLOT_UNDO >= 0) {
+            if (activeGame.hasNoUndoLastMoveLeft()) {
+                activeGame.getGameWindow().setItem(SLOT_UNDO, null);
+                setItemInSlot(activeGame.getGameWindow(), SLOT_UNDO, getEmptyUndoButton());
+            } else {
+                if (!activeGame.isLastMoveUndo()) {
+                    activeGame.getGameWindow().setItem(SLOT_UNDO, null);
+                    setItemInSlot(activeGame.getGameWindow(), SLOT_UNDO, getUnblockedUndoButton(activeGame.getUndoLastMoveCounter()));
+                } else {
+                    activeGame.getGameWindow().setItem(SLOT_UNDO, null);
+                    setItemInSlot(activeGame.getGameWindow(), SLOT_UNDO, getBlockedUndoButton(activeGame.getUndoLastMoveCounter()));
+                }
+            }
+        }
+    }
+
+    // Doesn't need a disabled check as the caller method implies its enabled
+    public void updateSpeedButton(ActiveGame activeGame, int newSpeed) {
+        setItemInSlot(activeGame.getGameWindow(), SPEED_BUTTON_SLOT.getIntValue(), getSpeedButton(newSpeed));
     }
 
     private void setItemInSlot(Inventory inventory, int slot, ItemStack itemStack) {
         inventory.setItem(slot, itemStack);
     }
 
-    private Inventory createGUIWindow(Player player, ConfigKey title) {
-        return createInventory(player, InventoryUtil.REQUIRED_SIZE, LegacyComponentSerializer.legacySection()
-                                                                                             .serialize(title.getFormattedValue()));
+    private Inventory createHelperGUIWindow(Player player, ConfigKey title) {
+        return createInventory(new HelperHolder(player), InventoryUtil.REQUIRED_SIZE, LegacyComponentSerializer.legacySection()
+                                                                                                             .serialize(title.getFormattedValue()));
+    }
+
+    private Inventory createGameGUIWindow(Player player, ConfigKey title, int score) {
+        return createInventory(new GameHolder(player), InventoryUtil.REQUIRED_SIZE, LegacyComponentSerializer.legacySection()
+                                                                                                             .serialize(title.getFormattedValue(StringUtil.formatInt(score))));
     }
 
     public boolean isGameWindow(InventoryView inventoryView) {
-        return isKnownWindow(inventoryView, GAME_TITLE);
+        InventoryHolder holder = inventoryView.getTopInventory()
+                                              .getHolder();
+        return holder instanceof GameHolder;
     }
 
     public boolean isHelpWindow(InventoryView inventoryView) {
-        return isKnownWindow(inventoryView, HELP_GUI_TITLE);
+        InventoryHolder holder = inventoryView.getTopInventory()
+                                              .getHolder();
+        return holder instanceof HelperHolder;
     }
 
     /**
@@ -253,40 +414,240 @@ public class InventoryUtil {
         return isGameWindow(inventoryView) || isHelpWindow(inventoryView);
     }
 
-    public boolean moveItemsInDirection(ActiveGame activeGame, Direction direction) {
+    /**
+     * @return tick delay for caller method continuation
+     */
+    public int processGameAction(ActiveGame activeGame, ButtonAction action) {
         Inventory gameWindow = activeGame.getGameWindow();
         ItemStack[][] itemsInGame = new ItemStack[ROW_AND_COLUMN_SIZE][ROW_AND_COLUMN_SIZE];
 
         copyGameWindowContentsToArray(gameWindow, itemsInGame);
 
-        if (!direction.equals(Direction.UNDO)) {
-            // Create a deep copy of the current state before making moves
-            ItemStack[][] lastPosition = new ItemStack[ROW_AND_COLUMN_SIZE][ROW_AND_COLUMN_SIZE];
-            for (int i = 0; i < itemsInGame.length; i++) {
-                lastPosition[i] = Arrays.copyOf(itemsInGame[i], itemsInGame[i].length);
+        int tickDelay;
+        if (action.equals(ButtonAction.UNDO)) {
+            // [debug] javaPlugin.getLogger().info("processGameAction: undoing last move");
+            tickDelay = undoLastMove(itemsInGame, activeGame);
+        } else {
+            // [debug] javaPlugin.getLogger().info("processGameAction: moving items");
+            tickDelay = moveItems(activeGame.getPlayer(), itemsInGame, activeGame, action);
+        }
+
+        // [debug] javaPlugin.getLogger().info("processGameAction.tickDelay == " + tickDelay);
+
+        if (tickDelay < 0 || ButtonAction.UNDO.equals(action)) {
+            copyItemArrayToGameWindow(gameWindow, itemsInGame);
+            activeGame.updateInventoryTitle(activeGame.getScore());
+        } else if (tickDelay > 0) {
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    activeGame.setLastMoveUndo(false);
+
+                    copyItemArrayToGameWindow(gameWindow, itemsInGame);
+                    activeGame.updateInventoryTitle(activeGame.getScore());
+                }
+            }.runTaskLater(javaPlugin, tickDelay);
+        }
+
+        return tickDelay;
+    }
+
+    /**
+     * Moves items (calculates, merges, and scores) with animation.
+     *
+     * @return tick delay for caller method continuation
+     */
+    private int moveItems(Player player, ItemStack[][] inventoryArray, ActiveGame activeGame, ButtonAction action) {
+
+        // Create a deep copy of the current state before making moves
+        ItemStack[][] lastPosition = new ItemStack[ROW_AND_COLUMN_SIZE][ROW_AND_COLUMN_SIZE];
+        for (int i = 0; i < inventoryArray.length; i++) {
+            lastPosition[i] = Arrays.copyOf(inventoryArray[i], inventoryArray[i].length);
+        }
+
+        // Calculate moves (updates board simulation and scores)
+        List<MovementInstruction> instructions = calculateMoves(inventoryArray, activeGame, action);
+        if ((Objects.isNull(instructions)) || instructions.isEmpty()) {
+            // [debug] javaPlugin.getLogger().info("moveItems.instructions.isEmpty() == true");
+            return 0;
+        }
+        
+        // [debug] javaPlugin.getLogger().info("moveItems.instructions.isEmpty() == false");
+
+        // Since there will be movement, we can update the acitveGame's saved lastPosition
+        activeGame.setLastPosition(lastPosition);
+        activeGame.resetGainedAfterLastMove();
+        // [debug] javaPlugin.getLogger().info("moveItems.lastPosition saved");
+
+        // Animate the moves and get the maximum number of steps (ticks) needed
+        int maxSteps = animateMovementsSimultaneous(player, activeGame.getGameWindow(), instructions);
+
+        // Compute tick delay for final board update (ensure at least 1 tick delay)
+        return Math.max((maxSteps - 1) * FILE_MANAGER.getAnimationSpeed(player), 1);
+    }
+
+
+    /**
+     * Calculates the moves and merges for the board. Updates the game's score.
+     *
+     * @return list of movements to preform, or null if none
+     */
+    private List<MovementInstruction> calculateMoves(ItemStack[][] board, ActiveGame activeGame, ButtonAction action) {
+        List<MovementInstruction> instructions = new ArrayList<>();
+
+        switch (action) {
+            case UP:
+                for (int row = 1; row < ROW_AND_COLUMN_SIZE; row++) {
+                    for (int col = 0; col < ROW_AND_COLUMN_SIZE; col++) {
+                        if (Objects.nonNull(board[row][col])) {
+                            // [debug] javaPlugin.getLogger().info("calculateMoves.processCell(UP row: " + row + " col: " + col + ")");
+                            processCell(row, col, -1, 0, board, activeGame, instructions);
+                        }
+                    }
+                }
+                break;
+            case DOWN:
+                for (int row = ROW_AND_COLUMN_SIZE - 2; row >= 0; row--) {
+                    for (int col = 0; col < ROW_AND_COLUMN_SIZE; col++) {
+                        if (Objects.nonNull(board[row][col])) {
+                            // [debug] javaPlugin.getLogger().info("calculateMoves.processCell(DOWN row: " + row + " col: " + col + ")");
+                            processCell(row, col, 1, 0, board, activeGame, instructions);
+                        }
+                    }
+                }
+                break;
+            case LEFT:
+                for (int col = 1; col < ROW_AND_COLUMN_SIZE; col++) {
+                    for (int row = 0; row < ROW_AND_COLUMN_SIZE; row++) {
+                        if (Objects.nonNull(board[row][col])) {
+                            // [debug] javaPlugin.getLogger().info("calculateMoves.processCell(LEFT row: " + row + " col: " + col + ")");
+                            processCell(row, col, 0, -1, board, activeGame, instructions);
+                        }
+                    }
+                }
+                break;
+            case RIGHT:
+                for (int col = ROW_AND_COLUMN_SIZE - 2; col >= 0; col--) {
+                    for (int row = 0; row < ROW_AND_COLUMN_SIZE; row++) {
+                        if (Objects.nonNull(board[row][col])) {
+                            // [debug] javaPlugin.getLogger().info("calculateMoves.processCell(RIGHT row: " + row + " col: " + col + ")");
+                            processCell(row, col, 0, 1, board, activeGame, instructions);
+                        }
+                    }
+                }
+                break;
+            case UNDO:
+            case SPEED:
+            case START:
+                return null;
+        }
+        return instructions;
+    }
+
+    /**
+     * Processes a single cell by sliding it as far as possible and then merging if possible.
+     *
+     * @param row          the starting row of the cell
+     * @param col          the starting column of the cell
+     * @param rowDelta     the row increment (e.g., -1 for up, 1 for down, 0 for neither)
+     * @param colDelta     the column increment (e.g., -1 for left, 1 for right, 0 for neither)
+     * @param board        the game board
+     * @param activeGame   the active game instance for updating scores
+     * @param instructions the list to add movement instructions to
+     */
+    private void processCell(int row, int col, int rowDelta, int colDelta, ItemStack[][] board, ActiveGame activeGame, List<MovementInstruction> instructions) {
+        int currentRow = row;
+        int currentCol = col;
+        int stepCount = 0;
+
+        // Temporary list to hold all instructions for this tile’s movement
+        List<MovementInstruction> tileInstructions = new ArrayList<>();
+
+        // Slide one spot at a time while the next cell is empty
+        while (isInBounds(currentRow + rowDelta, currentCol + colDelta) && Objects.isNull(board[currentRow + rowDelta][currentCol + colDelta])) {
+            int fromRow = currentRow;
+            int fromCol = currentCol;
+            currentRow += rowDelta;
+            currentCol += colDelta;
+            stepCount++;
+            // Record this one-step movement; temporarily totalSteps is 0 (will be updated later)
+            tileInstructions.add(new MovementInstruction(fromRow, fromCol, currentRow, currentCol, board[fromRow][fromCol], false, null, stepCount, 0));
+            // Update the simulation: move the tile one step
+            board[currentRow][currentCol] = board[fromRow][fromCol];
+            board[fromRow][fromCol] = null;
+        }
+
+        // If a merge is possible from the current position, do it as an extra step.
+        if (isInBounds(currentRow + rowDelta, currentCol + colDelta) && Objects.nonNull(board[currentRow + rowDelta][currentCol + colDelta])) {
+            if (board[currentRow + rowDelta][currentCol + colDelta].isSimilar(board[currentRow][currentCol])) {
+                stepCount++; // merging counts as an extra step
+                ItemStack currentItem = board[currentRow][currentCol];
+                ItemStack merged = getNextRepresentation(currentItem);
+                tileInstructions.add(new MovementInstruction(currentRow, currentCol, currentRow + rowDelta, currentCol + colDelta, currentItem, true, merged, stepCount, 0));
+                board[currentRow + rowDelta][currentCol + colDelta] = merged;
+                board[currentRow][currentCol] = null;
+                activeGame.addToScore(NumberRepresentation.getScoreFromItem(merged));
+                activeGame.addToGainedAfterLastMove(NumberRepresentation.getScoreFromItem(merged));
             }
-            activeGame.setLastPosition(lastPosition);
-            activeGame.resetGainedAfterLastMove();
         }
 
-        boolean anythingMoved = switch (direction) {
-            case UP -> moveItemsUp(itemsInGame, activeGame);
-            case DOWN -> moveItemsDown(itemsInGame, activeGame);
-            case LEFT -> moveItemsLeft(itemsInGame, activeGame);
-            case RIGHT -> moveItemsRight(itemsInGame, activeGame);
-            case UNDO -> undoLastMove(itemsInGame, activeGame);
-        };
-
-        if (!anythingMoved) {
-            return false;
+        // Update all instructions with the final total step count, then add them to the overall list
+        for (MovementInstruction instruction : tileInstructions) {
+            instruction.totalSteps = stepCount;
+            instructions.add(instruction);
         }
+    }
 
-        if (!direction.equals(Direction.UNDO)) {
-            activeGame.setLastMoveUndo(false);
+    /**
+     * Checks if the given row and column indices are within the board boundaries.
+     *
+     * @return true if the indices are valid; false otherwise
+     */
+    private boolean isInBounds(int row, int col) {
+        return row >= 0 && row < ROW_AND_COLUMN_SIZE && col >= 0 && col < ROW_AND_COLUMN_SIZE;
+    }
+
+    /**
+     * Animate all movement instructions in synchronized steps.
+     * <p>
+     * Each step is scheduled as one global task so that all first-step updates occur on the same tick, all second-step updates occur on the next tick, and so on.
+     *
+     * @return max steps for this movement
+     */
+    public int animateMovementsSimultaneous(Player player, Inventory menu, List<MovementInstruction> instructions) {
+        // Compute the overall maximum steps from the instructions
+        int maxSteps = instructions.stream()
+                                   .mapToInt(instruction -> instruction.totalSteps)
+                                   .max()
+                                   .orElse(0);
+        // [debug] javaPlugin.getLogger().info("animateMovementsSimultaneous.maxSteps == " + maxSteps);
+
+        // For each step, schedule a task to update the GUI accordingly
+        for (int step = 1; step <= maxSteps; step++) {
+            final int currentStep = step;
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    // [debug] javaPlugin.getLogger().info("animateMovementsSimultaneous.currentStep == __" + currentStep + "__");
+                    // Process all instructions whose step matches this tick.
+                    for (MovementInstruction instruction : instructions) {
+                        if (instruction.step == currentStep) {
+                            // Clear the previous slot (i.e. the from slot for this step)
+                            int clearSlot = mergeSlots[instruction.fromRow][instruction.fromColumn];
+                            menu.setItem(clearSlot, null);
+                            // Place the item into the destination slot for this step
+                            int newSlot = mergeSlots[instruction.toRow][instruction.toColumn];
+                            if (instruction.merge && currentStep == instruction.totalSteps) {
+                                menu.setItem(newSlot, instruction.mergedItem);
+                            } else {
+                                menu.setItem(newSlot, instruction.item);
+                            }
+                        }
+                    }
+                }
+            }.runTaskLater(javaPlugin, (currentStep - 1L) * FILE_MANAGER.getAnimationSpeed(player));
         }
-
-        copyItemArrayToGameWindow(gameWindow, itemsInGame);
-        return true;
+        return maxSteps;
     }
 
     public boolean noValidMovesLeft(Inventory gameWindow) {
@@ -339,6 +700,8 @@ public class InventoryUtil {
                 gameWindow.setItem(mergeSlots[row][column], itemsInGame[row][column]);
             }
         }
+
+        // [debug] javaPlugin.getLogger().info("ran copyItemArrayToGameWindow()");
     }
 
     /**
@@ -352,9 +715,9 @@ public class InventoryUtil {
         }
     }
 
-    private boolean undoLastMove(ItemStack[][] inventoryArray, ActiveGame activeGame) {
+    private int undoLastMove(ItemStack[][] inventoryArray, ActiveGame activeGame) {
         if (Objects.isNull(activeGame.getLastPosition()) || activeGame.hasNoUndoLastMoveLeft() || activeGame.isLastMoveUndo()) {
-            return false;
+            return 0;
         }
 
         ItemStack[][] lastPosition = activeGame.getLastPosition();
@@ -363,162 +726,17 @@ public class InventoryUtil {
             System.arraycopy(lastPosition[i], 0, inventoryArray[i], 0, inventoryArray[i].length);
         }
 
-        activeGame.addToScore(-activeGame.getScoreGainedAfterLastMove());
+        activeGame.removeFromScore(activeGame.getScoreGainedAfterLastMove());
         activeGame.decrementUndoLastMoveCounter();
 
-        final int SLOT_UNDO = 52; // FIXME not DRY
-        setItemInSlot(activeGame.getGameWindow(), SLOT_UNDO, activeGame.hasNoUndoLastMoveLeft() ? createUsedUndoButton() : createUndoButton(activeGame.getUndoLastMoveCounter()));
+        if (activeGame.hasNoUndoLastMoveLeft()) {
+            setItemInSlot(activeGame.getGameWindow(), UNDO_BUTTON_SLOT.getIntValue(), getEmptyUndoButton());
+        } else {
+            setItemInSlot(activeGame.getGameWindow(), UNDO_BUTTON_SLOT.getIntValue(), getBlockedUndoButton(activeGame.getUndoLastMoveCounter()));
+        }
+
         activeGame.setLastMoveUndo(true);
-        return true;
-    }
-
-    private boolean moveItemsUp(ItemStack[][] inventoryArray, ActiveGame activeGame) {
-        boolean moved = false;
-
-        for (int row = 1; row < ROW_AND_COLUMN_SIZE; row++) {
-            for (int column = 0; column < ROW_AND_COLUMN_SIZE; column++) {
-                if (Objects.nonNull(inventoryArray[row][column])) {
-                    int currentRowIndex = row;
-                    int aboveRowIndex = currentRowIndex - 1;
-
-                    while (aboveRowIndex >= 0 && Objects.isNull(inventoryArray[aboveRowIndex][column])) {
-                        inventoryArray[aboveRowIndex][column] = inventoryArray[currentRowIndex][column];
-                        inventoryArray[currentRowIndex][column] = null;
-                        currentRowIndex--;
-                        aboveRowIndex = currentRowIndex - 1;
-                        moved = true;
-                    }
-
-                    if (aboveRowIndex >= 0) {
-                        ItemStack itemAbove = inventoryArray[aboveRowIndex][column];
-                        if (Objects.nonNull(itemAbove)) {
-                            ItemStack currentItem = inventoryArray[currentRowIndex][column];
-                            if (itemAbove.isSimilar(currentItem)) {
-                                ItemStack nextItem = getNextRepresentation(currentItem);
-                                inventoryArray[aboveRowIndex][column] = nextItem;
-                                inventoryArray[currentRowIndex][column] = null;
-                                moved = true;
-                                activeGame.addToScore(NumberRepresentation.getScoreFromItem(nextItem));
-                                activeGame.addToGainedAfterLastMove(NumberRepresentation.getScoreFromItem(nextItem));
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return moved;
-    }
-
-    private boolean moveItemsRight(ItemStack[][] inventoryArray, ActiveGame activeGame) {
-        boolean moved = false;
-
-        for (int column = ROW_AND_COLUMN_SIZE - 2; column >= 0; column--) {
-            for (int row = 0; row < ROW_AND_COLUMN_SIZE; row++) {
-                if (Objects.nonNull(inventoryArray[row][column])) {
-                    int currentColumnIndex = column;
-                    int rightColumnIndex = currentColumnIndex + 1;
-
-                    while (rightColumnIndex < ROW_AND_COLUMN_SIZE && Objects.isNull(inventoryArray[row][rightColumnIndex])) {
-                        inventoryArray[row][rightColumnIndex] = inventoryArray[row][currentColumnIndex];
-                        inventoryArray[row][currentColumnIndex] = null;
-                        currentColumnIndex++;
-                        rightColumnIndex = currentColumnIndex + 1;
-                        moved = true;
-                    }
-
-                    if (rightColumnIndex < ROW_AND_COLUMN_SIZE) {
-                        ItemStack rightItem = inventoryArray[row][rightColumnIndex];
-                        if (Objects.nonNull(rightItem)) {
-                            ItemStack currentItem = inventoryArray[row][currentColumnIndex];
-                            if (rightItem.isSimilar(currentItem)) {
-                                ItemStack nextItem = getNextRepresentation(currentItem);
-                                inventoryArray[row][rightColumnIndex] = nextItem;
-                                inventoryArray[row][currentColumnIndex] = null;
-                                moved = true;
-                                activeGame.addToScore(NumberRepresentation.getScoreFromItem(nextItem));
-                                activeGame.addToGainedAfterLastMove(NumberRepresentation.getScoreFromItem(nextItem));
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return moved;
-    }
-
-    private boolean moveItemsLeft(ItemStack[][] inventoryArray, ActiveGame activeGame) {
-        boolean moved = false;
-
-        for (int column = 1; column < ROW_AND_COLUMN_SIZE; column++) {
-            for (int row = 0; row < ROW_AND_COLUMN_SIZE; row++) {
-                if (Objects.nonNull(inventoryArray[row][column])) {
-                    int currentColumnIndex = column;
-                    int leftColumnIndex = currentColumnIndex - 1;
-
-                    while (leftColumnIndex >= 0 && Objects.isNull(inventoryArray[row][leftColumnIndex])) {
-                        inventoryArray[row][leftColumnIndex] = inventoryArray[row][currentColumnIndex];
-                        inventoryArray[row][currentColumnIndex] = null;
-                        currentColumnIndex--;
-                        leftColumnIndex = currentColumnIndex - 1;
-                        moved = true;
-                    }
-
-                    if (leftColumnIndex >= 0) {
-                        ItemStack rightItem = inventoryArray[row][leftColumnIndex];
-                        if (Objects.nonNull(rightItem)) {
-                            ItemStack currentItem = inventoryArray[row][currentColumnIndex];
-                            if (rightItem.isSimilar(currentItem)) {
-                                ItemStack nextItem = getNextRepresentation(currentItem);
-                                inventoryArray[row][leftColumnIndex] = nextItem;
-                                inventoryArray[row][currentColumnIndex] = null;
-                                moved = true;
-                                activeGame.addToScore(NumberRepresentation.getScoreFromItem(nextItem));
-                                activeGame.addToGainedAfterLastMove(NumberRepresentation.getScoreFromItem(nextItem));
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        return moved;
-    }
-
-    private boolean moveItemsDown(ItemStack[][] inventoryArray, ActiveGame activeGame) {
-        boolean moved = false;
-
-        for (int row = ROW_AND_COLUMN_SIZE - 2; row >= 0; row--) {
-            for (int column = 0; column < ROW_AND_COLUMN_SIZE; column++) {
-                if (Objects.nonNull(inventoryArray[row][column])) {
-                    int currentRowIndex = row;
-                    int belowRowIndex = currentRowIndex + 1;
-
-                    while (belowRowIndex < ROW_AND_COLUMN_SIZE && Objects.isNull(inventoryArray[belowRowIndex][column])) {
-                        inventoryArray[belowRowIndex][column] = inventoryArray[currentRowIndex][column];
-                        inventoryArray[currentRowIndex][column] = null;
-                        currentRowIndex++;
-                        belowRowIndex = currentRowIndex + 1;
-                        moved = true;
-                    }
-
-                    if (belowRowIndex < ROW_AND_COLUMN_SIZE) {
-                        ItemStack rightItem = inventoryArray[belowRowIndex][column];
-                        if (Objects.nonNull(rightItem)) {
-                            ItemStack currentItem = inventoryArray[currentRowIndex][column];
-                            if (rightItem.isSimilar(currentItem)) {
-                                ItemStack nextItem = getNextRepresentation(currentItem);
-                                inventoryArray[belowRowIndex][column] = nextItem;
-                                inventoryArray[currentRowIndex][column] = null;
-                                moved = true;
-                                activeGame.addToScore(NumberRepresentation.getScoreFromItem(nextItem));
-                                activeGame.addToGainedAfterLastMove(NumberRepresentation.getScoreFromItem(nextItem));
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return moved;
+        return -1;
     }
 
     private ItemStack getNextRepresentation(ItemStack itemStack) {
@@ -543,25 +761,40 @@ public class InventoryUtil {
         inventory.setItem(emptySlots.get(new Random().nextInt(emptySlots.size())), generateNewBlock());
     }
 
+    // [debug]
+    /*
+        public void spawnNewBlock1(Inventory inventory) {
+            List<Integer> emptySlots = IntStream.range(0, inventory.getSize())
+                                                .filter(i -> Objects.isNull(inventory.getItem(i)))
+                                                .boxed()
+                                                .toList();
+            if (emptySlots.isEmpty()) return;
+            inventory.setItem(37, generateNewBlock());
+        }
+        
+        public void spawnNewBlock2(Inventory inventory) {
+            List<Integer> emptySlots = IntStream.range(0, inventory.getSize())
+                                                .filter(i -> Objects.isNull(inventory.getItem(i)))
+                                                .boxed()
+                                                .toList();
+            if (emptySlots.isEmpty()) return;
+            inventory.setItem(40, generateNewBlock());
+        }
+    */
+
     private ItemStack generateNewBlock() {
-        NumberRepresentation chosenNumber = random.nextInt(2) == 0 ? NumberRepresentation.TWO : NumberRepresentation.FOUR;
+        int fourPercentage = GENERATE_NEW_BLOCK_FOUR_PERCENT.getIntValue();
+        NumberRepresentation chosenNumber = random.nextInt(100) < fourPercentage ? NumberRepresentation.FOUR : NumberRepresentation.TWO;
+        
         return new ItemBuilder(chosenNumber.getDisplayableBlock()).create();
     }
 
-    private boolean isKnownWindow(InventoryView inventoryView, ConfigKey titleKey) {
-        return inventoryView.getTitle()
-                            .contains(LegacyComponentSerializer.legacySection()
-                                                               .serialize(titleKey.getFormattedValue()));
-    }
-
     private ItemStack getHelpGUIPlayerStatsHead(Player player) {
-        return (new ItemBuilder(getPlayerSkullItem(player))).addLore(TOTAL_PLAYTIME.getFormattedValue(makeSecondsATimestamp(FILE_MANAGER.getLongByKey(player, PlayerConfigField.TOTAL_PLAYTIME.getKey()))))
-                                                            .addLore(HIGH_SCORE.getFormattedValue(String.valueOf(FILE_MANAGER.getLongByKey(player, PlayerConfigField.HIGH_SCORE.getKey()))))
-                                                            .addLore(GAMES_PLAYED.getFormattedValue(String.valueOf(FILE_MANAGER.getLongByKey(player, PlayerConfigField.ATTEMPTS.getKey()))))
-                                                            .addLore(AVERAGE_SCORE.getFormattedValue(String.valueOf(Math.round(FILE_MANAGER.getLongByKey(player, PlayerConfigField.AVERAGE_SCORE.getKey())))))
+        return (new ItemBuilder(getPlayerSkullItem(player))).addLore(PLAYER_ITEM_LORE_GAMES_PLAYED.getFormattedValue(StringUtil.formatLong(FILE_MANAGER.getLongByKey(player, PlayerConfigField.ATTEMPTS.getKey()))))
+                                                            .addLore(PLAYER_ITEM_LORE_TOTAL_PLAYTIME.getFormattedValue(makeSecondsATimestamp(FILE_MANAGER.getLongByKey(player, PlayerConfigField.PLAYTIME.getKey()))))
+                                                            .addLore(PLAYER_ITEM_LORE_HIGH_SCORE.getFormattedValue(StringUtil.formatLong(FILE_MANAGER.getLongByKey(player, PlayerConfigField.HIGH_SCORE.getKey()))))
+                                                            .addLore(PLAYER_ITEM_LORE_AVERAGE_SCORE.getFormattedValue(StringUtil.formatLong(Math.round(FILE_MANAGER.getLongByKey(player, PlayerConfigField.AVERAGE_SCORE.getKey())))))
                                                             .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
                                                             .create();
     }
-
-
 }

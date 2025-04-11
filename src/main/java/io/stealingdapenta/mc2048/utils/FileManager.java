@@ -3,6 +3,7 @@ package io.stealingdapenta.mc2048.utils;
 import static io.stealingdapenta.mc2048.MC2048.logger;
 
 import io.stealingdapenta.mc2048.MC2048;
+import io.stealingdapenta.mc2048.config.ConfigKey;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -34,6 +35,15 @@ public enum FileManager {
 
     public int getIntByKey(Player player, String key) {
         return getConfig(player).getInt(key);
+    }
+
+    public int getAnimationSpeed(Player player) {
+        int savedValue = getConfig(player).getInt("speed", -1);
+        if (savedValue < 0) {
+            return ConfigKey.SPEED_BUTTON_SPEED_DEFAULT.getIntValue();
+        }
+
+        return savedValue;
     }
 
     public int getIntByKey(String uuid, String key) {

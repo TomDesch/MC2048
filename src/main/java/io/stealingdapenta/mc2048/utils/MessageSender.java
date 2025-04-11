@@ -9,16 +9,18 @@ import java.util.Objects;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.title.Title;
 import net.kyori.adventure.title.Title.Times;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-
+import org.jetbrains.annotations.NotNull;
 
 public enum MessageSender {
     MESSAGE_SENDER;
-
-    public static final String PLAYER_OR_MESSAGE_IS_NULL = "Error sending message, player or message is null.";
+    
+    public static final String ERROR_IS_NULL = "Error sending message, %s is null.";
+    private final LegacyComponentSerializer serializer = LegacyComponentSerializer.legacySection();
     private BukkitAudiences audiences;
 
     private BukkitAudiences getAudiences() {
@@ -33,13 +35,17 @@ public enum MessageSender {
     }
 
     public void sendMessage(CommandSender sender, ConfigKey messageConfig) {
-        if (Objects.isNull(sender) || Objects.isNull(messageConfig)) {
-            logger.severe(PLAYER_OR_MESSAGE_IS_NULL);
+        if (Objects.isNull(sender)) {
+            logger.severe(ERROR_IS_NULL.formatted("Sender"));
             return;
         }
 
-        Audience audience = getAudiences().sender(sender);
-        audience.sendMessage(messageConfig.getFormattedValue());
+        if (Objects.isNull(messageConfig)) {
+            return;
+        }
+
+        getAudiences().sender(sender)
+                      .sendMessage(messageConfig.getFormattedValue());
     }
 
     public void sendMessage(Player player, ConfigKey messageConfig) {
@@ -47,29 +53,40 @@ public enum MessageSender {
     }
 
     public void sendMessage(Player player, Component message) {
-        if (Objects.isNull(player) || Objects.isNull(message)) {
-            logger.severe(PLAYER_OR_MESSAGE_IS_NULL);
+        if (Objects.isNull(player)) {
+            logger.severe(ERROR_IS_NULL.formatted("Player"));
             return;
         }
 
-        Audience audience = getAudiences().player(player);
-        audience.sendMessage(message);
-
-    }
-
-    public void sendTitle(Player player, ConfigKey title, String subtitle) {
-        sendTitle(player, title.getFormattedValue(), Component.text(subtitle));
-    }
-
-    public void sendTitle(Player player, Component titleComponent, Component subtitleComponent) {
-        if (Objects.isNull(player) || Objects.isNull(titleComponent)) {
-            logger.severe(PLAYER_OR_MESSAGE_IS_NULL);
+        if (Objects.isNull(message)) {
             return;
         }
 
+        String processedStr = serializer.serialize(message).trim();
+        if (processedStr.isEmpty()) {
+            return; // Don't send a blank message, this is a feature for admins to disable config messages
+        }
+
+        getAudiences().player(player)
+                      .sendMessage(message);
+    }
+
+    /**
+     * Sends a {@link Title} and subtitle to the specified {@link Player} with default fade-in, stay, and fade-out durations.
+     *
+     * @param player            the {@link Player} to whom the title should be sent
+     * @param titleComponent    the main title {@link Component} to display
+     * @param subtitleComponent the subtitle {@link Component} to display beneath the main title
+     */
+    public void sendTitle(Player player, @NotNull Component titleComponent, @NotNull Component subtitleComponent) {
+        if (Objects.isNull(player)) {
+            logger.severe(ERROR_IS_NULL.formatted("Player"));
+            return;
+        }
+        
         Times times = Title.Times.times(Duration.ofSeconds(1), Duration.ofSeconds(3), Duration.ofSeconds(1));
         Title title = Title.title(titleComponent, subtitleComponent, times);
-
+        
         Audience audience = getAudiences().player(player);
         audience.showTitle(title);
     }

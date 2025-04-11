@@ -1,9 +1,9 @@
 package io.stealingdapenta.mc2048.utils;
 
 import static io.stealingdapenta.mc2048.MC2048.logger;
-import static io.stealingdapenta.mc2048.config.ConfigKey.HELP_GUI_HIGH_SCORE_LORE_FORMAT;
-import static io.stealingdapenta.mc2048.config.ConfigKey.HELP_GUI_HIGH_SCORE_NAME;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_HELP_GUI_HIGH_SCORE;
+import static io.stealingdapenta.mc2048.config.ConfigKey.HIGH_SCORE_ITEM_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.HIGH_SCORE_ITEM_MATERIAL;
+import static io.stealingdapenta.mc2048.config.ConfigKey.HIGH_SCORE_ITEM_LORE_FORMAT;
 import static io.stealingdapenta.mc2048.utils.FileManager.FILE_MANAGER;
 
 import java.io.File;
@@ -25,6 +25,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 
+import io.stealingdapenta.mc2048.config.PlayerConfigField;
+
 
 public class HighScoreManager {
 
@@ -32,14 +34,14 @@ public class HighScoreManager {
     private static final String DOT_YML = ".yml";
 
     public ItemStack getHighScoresItem() {
-        return (new ItemBuilder(MATERIAL_HELP_GUI_HIGH_SCORE.getMaterialValue())).setDisplayName(HELP_GUI_HIGH_SCORE_NAME.getFormattedValue())
+        return (new ItemBuilder(HIGH_SCORE_ITEM_MATERIAL.getMaterialValue())).setDisplayName(HIGH_SCORE_ITEM_NAME.getFormattedValue())
                                                                                  .addLoreList(getTopTenLore())
                                                                                  .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
                                                                                  .create();
     }
 
     private List<Component> getTopTenLore() {
-        final String PLAYER_SCORE = "%d. %s: %d"; // e.g. 3. StealingDaPenta: 45987
+        final String PLAYER_SCORE = "%d. %s: " + StringUtil.translate("&f"); // e.g. 3. StealingDaPenta:
 
         // Get top 10 scores and convert to list for indexed access
         List<Entry<String, Integer>> highScoresList = new ArrayList<>(getTop10HiScores().entrySet());
@@ -47,12 +49,12 @@ public class HighScoreManager {
         List<Component> lore = new ArrayList<>();
         for (int i = 0; i < highScoresList.size(); i++) {
             Entry<String, Integer> entry = highScoresList.get(i);
-            String scoreText = String.format(PLAYER_SCORE, i + 1,                  // Position (1-based)
-                                             entry.getKey(),         // Player name
-                                             entry.getValue()        // Score
+            String scoreText = String.format(PLAYER_SCORE, i + 1,                   // Position (1-based)
+                                             entry.getKey()                         // Player name
                                             );
+            scoreText = scoreText + StringUtil.formatInt(entry.getValue());         // Score
 
-            lore.add(HELP_GUI_HIGH_SCORE_LORE_FORMAT.getFormattedValue(scoreText));
+            lore.add(HIGH_SCORE_ITEM_LORE_FORMAT.getFormattedValue(scoreText));
         }
         return lore;
     }

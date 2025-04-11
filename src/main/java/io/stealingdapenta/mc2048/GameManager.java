@@ -1,18 +1,19 @@
 package io.stealingdapenta.mc2048;
 
 import static io.stealingdapenta.mc2048.MC2048.logger;
-import static io.stealingdapenta.mc2048.config.ConfigKey.ATTEMPT_PROTECTION;
-import static io.stealingdapenta.mc2048.config.ConfigKey.GOOD_LUCK;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MSG_ATTEMPT_PROTECTION;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MSG_GAME_STARTED;
+import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_SLOT;
+import static io.stealingdapenta.mc2048.config.PlayerConfigField.ATTEMPTS;
+import static io.stealingdapenta.mc2048.config.PlayerConfigField.AVERAGE_SCORE;
+import static io.stealingdapenta.mc2048.config.PlayerConfigField.HIGH_SCORE;
+import static io.stealingdapenta.mc2048.config.PlayerConfigField.PLAYTIME;
 import static io.stealingdapenta.mc2048.utils.FileManager.FILE_MANAGER;
 import static io.stealingdapenta.mc2048.utils.MessageSender.MESSAGE_SENDER;
-import static io.stealingdapenta.mc2048.utils.PlayerConfigField.ATTEMPTS;
-import static io.stealingdapenta.mc2048.utils.PlayerConfigField.AVERAGE_SCORE;
-import static io.stealingdapenta.mc2048.utils.PlayerConfigField.HIGH_SCORE;
-import static io.stealingdapenta.mc2048.utils.PlayerConfigField.TOTAL_PLAYTIME;
 
-import io.stealingdapenta.mc2048.utils.ActiveGame;
 import io.stealingdapenta.mc2048.utils.InventoryUtil;
-import io.stealingdapenta.mc2048.utils.RepeatingUpdateTask;
+import io.stealingdapenta.mc2048.utils.data.ActiveGame;
+import io.stealingdapenta.mc2048.utils.data.RepeatingUpdateTask;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.UUID;
@@ -31,7 +32,7 @@ public class GameManager {
     }
 
     public void activateGame(Player player) {
-        MESSAGE_SENDER.sendMessage(player, GOOD_LUCK);
+        MESSAGE_SENDER.sendMessage(player, MSG_GAME_STARTED);
 
         ActiveGame activeGame = new ActiveGame(player, createTaskUpdatingPlayerStatItem(player));
         Inventory gameWindow = inventoryUtil.createGameInventory(activeGame);
@@ -50,16 +51,20 @@ public class GameManager {
             logger.warning(ERROR_DEACTIVATING.formatted(player.getName()));
             return;
         }
+
         saveActiveGame(activeGame);
-        activeGame.getRelatedTask()
-                  .cancel();
+        
+        if (PLAYER_ITEM_SLOT.getIntValue()>=0) {
+            activeGame.getRelatedTask()
+                .cancel();
+        }
 
         activeGames.remove(player.getUniqueId());
     }
 
     private void saveActiveGame(ActiveGame activeGame) {
         if (activeGame.getScore() < 1) {
-            MESSAGE_SENDER.sendMessage(activeGame.getPlayer(), ATTEMPT_PROTECTION);
+            MESSAGE_SENDER.sendMessage(activeGame.getPlayer(), MSG_ATTEMPT_PROTECTION);
             return;
         }
         if (activeGame.getScore() >= activeGame.getHighScore()) {
@@ -68,7 +73,7 @@ public class GameManager {
         }
 
         FILE_MANAGER.setValueByKey(activeGame.getPlayer(), ATTEMPTS.getKey(), activeGame.getAttempts() + 1);
-        FILE_MANAGER.setValueByKey(activeGame.getPlayer(), TOTAL_PLAYTIME.getKey(), (activeGame.getTotalPlayTime() + activeGame.getMillisecondsSinceStart()));
+        FILE_MANAGER.setValueByKey(activeGame.getPlayer(), PLAYTIME.getKey(), (activeGame.getTotalPlayTime() + activeGame.getMillisecondsSinceStart()));
         FILE_MANAGER.setValueByKey(activeGame.getPlayer(), AVERAGE_SCORE.getKey(), activeGame.calculateNewAverageScore());
     }
 
@@ -77,9 +82,17 @@ public class GameManager {
     }
 
     public RepeatingUpdateTask createTaskUpdatingPlayerStatItem(Player player) {
+        if (PLAYER_ITEM_SLOT.getIntValue() < 0) {
+            return null;
+        }
+
         return new RepeatingUpdateTask(0, ONE_SECOND_IN_TICKS) {
             public void run() {
-                getActiveGame(player).updateStatisticsItem();
+                try {
+                    getActiveGame(player).updateStatisticsItem();
+                } catch (NullPointerException e) {
+                    cancel();
+                }
             }
         };
     }
