@@ -2,18 +2,11 @@ package io.stealingdapenta.mc2048.listeners;
 
 import static io.stealingdapenta.mc2048.MC2048.logger;
 import static io.stealingdapenta.mc2048.config.ConfigKey.GAME_GUI_FILLER_ANIMATION;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_DOWN_NAME;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_LEFT_NAME;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_RIGHT_NAME;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MOVE_BUTTON_UP_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MSG_GAME_OVER;
-import static io.stealingdapenta.mc2048.config.ConfigKey.TITLE_GAME_OVER;
-import static io.stealingdapenta.mc2048.config.ConfigKey.TITLE_GAME_OVER_SUB;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MSG_INVALID_MOVE;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MSG_UNDID_LAST_MOVE;
-import static io.stealingdapenta.mc2048.config.ConfigKey.START_BUTTON_NAME;
-import static io.stealingdapenta.mc2048.config.ConfigKey.SPEED_BUTTON_NAME;
-import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_UNUSED_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.TITLE_GAME_OVER;
+import static io.stealingdapenta.mc2048.config.ConfigKey.TITLE_GAME_OVER_SUB;
 import static io.stealingdapenta.mc2048.utils.FileManager.FILE_MANAGER;
 import static io.stealingdapenta.mc2048.utils.MessageSender.MESSAGE_SENDER;
 
@@ -24,10 +17,7 @@ import io.stealingdapenta.mc2048.utils.InventoryUtil;
 import io.stealingdapenta.mc2048.utils.StringUtil;
 import io.stealingdapenta.mc2048.utils.data.ActiveGame;
 import io.stealingdapenta.mc2048.utils.data.ButtonAction;
-
-import java.util.Map;
 import java.util.Objects;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -35,13 +25,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.InventoryView;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class GameControlsListener implements Listener {
 
-    private Map<String, ButtonAction> ACTION_MAP;
     private final InventoryUtil inventoryUtil;
     private final GameManager gameManager;
 
@@ -50,22 +37,8 @@ public class GameControlsListener implements Listener {
         this.gameManager = gameManager;
     }
 
-    private void initActionMap() {
-        if (Objects.nonNull(ACTION_MAP) && !ACTION_MAP.isEmpty()) {
-            return;
-        }
-        ACTION_MAP = Map.of(LegacyComponentSerializer.legacySection()
-                                                     .serialize(MOVE_BUTTON_UP_NAME.getFormattedValue()), ButtonAction.UP, LegacyComponentSerializer.legacySection()
-                                                                                                                                                    .serialize(MOVE_BUTTON_LEFT_NAME.getFormattedValue()), ButtonAction.LEFT,
-                            LegacyComponentSerializer.legacySection()
-                                                     .serialize(MOVE_BUTTON_RIGHT_NAME.getFormattedValue()), ButtonAction.RIGHT, LegacyComponentSerializer.legacySection()
-                                                                                                                                                          .serialize(MOVE_BUTTON_DOWN_NAME.getFormattedValue()), ButtonAction.DOWN,
-                            LegacyComponentSerializer.legacySection()
-                                                     .serialize(UNDO_BUTTON_UNUSED_NAME.getFormattedValue()), ButtonAction.UNDO, LegacyComponentSerializer.legacySection()
-                                                                                                                                                          .serialize(SPEED_BUTTON_NAME.getFormattedValue()), ButtonAction.SPEED,
-                            LegacyComponentSerializer.legacySection()
-                                                     .serialize(START_BUTTON_NAME.getFormattedValue()), ButtonAction.START);
-    }
+    // NOTE: We intentionally don't parse actions from display names.
+    // Display names are meant to be translatable and shouldn't affect gameplay logic.
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onButtonClick(InventoryClickEvent event) {
@@ -79,27 +52,15 @@ public class GameControlsListener implements Listener {
         // Cancel all default interaction behavior if it's any game or help window
         event.setCancelled(true);
 
-        // If clicked item doesn't have a name, do nothing
-        String clickedItemDisplayName = getItemDisplayName(event.getCurrentItem());
-        if (Objects.isNull(clickedItemDisplayName)) {
-            return;
-        }
-
-        initActionMap();
-        ButtonAction action = ACTION_MAP.entrySet()
-                                .stream()
-                                .filter(entry -> clickedItemDisplayName.contains(entry.getKey()))
-                                .map(Map.Entry::getValue)
-                                .findFirst()
-                                .orElse(null);
-
-        // If parsed action isn't defined, do nothing
-        if (Objects.isNull(action)) {
+        // Only react to clicks inside the top inventory (our GUI), not the player's inventory
+        if (event.getClickedInventory() == null || !event.getClickedInventory()
+                                                         .equals(clickedInventoryView.getTopInventory())) {
             return;
         }
 
         Player player = (Player) event.getWhoClicked();
 
+        ButtonAction action;
         if (inventoryUtil.isGameWindow(clickedInventoryView)) {
             ActiveGame activeGame = gameManager.getActiveGame(player);
 
@@ -108,12 +69,47 @@ public class GameControlsListener implements Listener {
                 return;
             }
 
+            action = getGameActionBySlot(event.getSlot());
             handleGameWindowActions(player, activeGame, action);
         } else if (inventoryUtil.isHelpWindow(clickedInventoryView)) {
-            handleHelpWindowAction(player, action);
+            action = getHelpActionBySlot(event.getSlot());
+            if (Objects.nonNull(action)) {
+                handleHelpWindowAction(player, action);
+            }
         } else {
             logger.warning("The inventory is an MC2048 window, yet not recognized: %s".formatted(clickedInventoryView.toString()));
         }
+    }
+
+    private ButtonAction getGameActionBySlot(int slot) {
+        if (slot == ConfigKey.MOVE_BUTTON_UP_SLOT.getIntValue()) {
+            return ButtonAction.UP;
+        }
+        if (slot == ConfigKey.MOVE_BUTTON_DOWN_SLOT.getIntValue()) {
+            return ButtonAction.DOWN;
+        }
+        if (slot == ConfigKey.MOVE_BUTTON_LEFT_SLOT.getIntValue()) {
+            return ButtonAction.LEFT;
+        }
+        if (slot == ConfigKey.MOVE_BUTTON_RIGHT_SLOT.getIntValue()) {
+            return ButtonAction.RIGHT;
+        }
+        if (slot == ConfigKey.UNDO_BUTTON_SLOT.getIntValue()) {
+            return ButtonAction.UNDO;
+        }
+        if (slot == ConfigKey.SPEED_BUTTON_SLOT.getIntValue()) {
+            return ButtonAction.SPEED;
+        }
+        return null;
+    }
+
+    private ButtonAction getHelpActionBySlot(int slot) {
+        // Help menu uses hardcoded slots in InventoryUtil#createHelpInventory
+        // (playButtonSlot == 49)
+        if (slot == 49) {
+            return ButtonAction.START;
+        }
+        return null;
     }
 
     private void handleHelpWindowAction(Player player, ButtonAction action) {
@@ -122,22 +118,6 @@ public class GameControlsListener implements Listener {
         }
     }
 
-    /**
-     * @param itemStack the item to get the name from
-     * @return the items display name or null
-     */
-    private String getItemDisplayName(ItemStack itemStack) {
-        if (Objects.isNull(itemStack)) {
-            return null;
-        }
-
-        ItemMeta itemMeta = itemStack.getItemMeta();
-        if (Objects.isNull(itemMeta)) {
-            return null;
-        }
-
-        return itemMeta.getDisplayName();
-    }
 
     private void handleGameWindowActions(Player player, ActiveGame activeGame, ButtonAction action) {
 
