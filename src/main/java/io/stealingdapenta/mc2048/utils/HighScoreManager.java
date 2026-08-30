@@ -134,18 +134,19 @@ public class HighScoreManager {
     }
 
     public int getPlayerPosition(Player targetPlayer) {
-        return getPlayerPosition(targetPlayer, getHighScores());
-    }
+        PlayerScore currentScore = cachedHighScores.get(targetPlayer.getUniqueId());
+        if (currentScore != null && !currentScore.playerName().equals(targetPlayer.getName())) {
+            recordScore(targetPlayer, currentScore.score());
+        }
 
-    public int getPlayerPosition(Player targetPlayer, Map<String, Integer> highScores) {
-        List<String> sortedPlayers = highScores.entrySet()
-                                                    .stream()
-                                                    .sorted(Entry.<String, Integer>comparingByValue()
-                                                                 .reversed())
-                                                    .map(Entry::getKey)
-                                                    .toList();
+        List<UUID> sortedPlayers = cachedHighScores.entrySet()
+                                                   .stream()
+                                                   .sorted(Entry.<UUID, PlayerScore>comparingByValue(
+                                                      Comparator.comparingInt(PlayerScore::score)).reversed())
+                                                   .map(Entry::getKey)
+                                                   .toList();
 
-        return sortedPlayers.indexOf(targetPlayer.getName()) + 1;
+        return sortedPlayers.indexOf(targetPlayer.getUniqueId()) + 1;
     }
 
     public Map<String, Integer> getTop10HiScores() {

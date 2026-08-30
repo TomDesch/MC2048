@@ -35,8 +35,8 @@ public class HighScoreCommand implements CommandExecutor {
             MESSAGE_SENDER.sendMessage(sender, MSG_NOT_PLAYER);
             return true;
         }
+        int playersPosition = highScoreManager.getPlayerPosition(player);
         Map<String, Integer> allHighScores = highScoreManager.getHighScores();
-        int playersPosition = highScoreManager.getPlayerPosition(player, allHighScores);
         Map<String, Integer> highScores = highScoreManager.getTop10HiScores(allHighScores);
 
         MESSAGE_SENDER.sendMessage(player, MSG_TOP_TEN);
