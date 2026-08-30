@@ -494,6 +494,7 @@ public class InventoryUtil {
      */
     private List<MovementInstruction> calculateMoves(ItemStack[][] board, ActiveGame activeGame, ButtonAction action) {
         List<MovementInstruction> instructions = new ArrayList<>();
+        boolean[][] mergedCells = new boolean[ROW_AND_COLUMN_SIZE][ROW_AND_COLUMN_SIZE];
 
         switch (action) {
             case UP:
@@ -501,7 +502,7 @@ public class InventoryUtil {
                     for (int col = 0; col < ROW_AND_COLUMN_SIZE; col++) {
                         if (Objects.nonNull(board[row][col])) {
                             // [debug] javaPlugin.getLogger().info("calculateMoves.processCell(UP row: " + row + " col: " + col + ")");
-                            processCell(row, col, -1, 0, board, activeGame, instructions);
+                            processCell(row, col, -1, 0, board, mergedCells, activeGame, instructions);
                         }
                     }
                 }
@@ -511,7 +512,7 @@ public class InventoryUtil {
                     for (int col = 0; col < ROW_AND_COLUMN_SIZE; col++) {
                         if (Objects.nonNull(board[row][col])) {
                             // [debug] javaPlugin.getLogger().info("calculateMoves.processCell(DOWN row: " + row + " col: " + col + ")");
-                            processCell(row, col, 1, 0, board, activeGame, instructions);
+                            processCell(row, col, 1, 0, board, mergedCells, activeGame, instructions);
                         }
                     }
                 }
@@ -521,7 +522,7 @@ public class InventoryUtil {
                     for (int row = 0; row < ROW_AND_COLUMN_SIZE; row++) {
                         if (Objects.nonNull(board[row][col])) {
                             // [debug] javaPlugin.getLogger().info("calculateMoves.processCell(LEFT row: " + row + " col: " + col + ")");
-                            processCell(row, col, 0, -1, board, activeGame, instructions);
+                            processCell(row, col, 0, -1, board, mergedCells, activeGame, instructions);
                         }
                     }
                 }
@@ -531,7 +532,7 @@ public class InventoryUtil {
                     for (int row = 0; row < ROW_AND_COLUMN_SIZE; row++) {
                         if (Objects.nonNull(board[row][col])) {
                             // [debug] javaPlugin.getLogger().info("calculateMoves.processCell(RIGHT row: " + row + " col: " + col + ")");
-                            processCell(row, col, 0, 1, board, activeGame, instructions);
+                            processCell(row, col, 0, 1, board, mergedCells, activeGame, instructions);
                         }
                     }
                 }
@@ -555,7 +556,8 @@ public class InventoryUtil {
      * @param activeGame   the active game instance for updating scores
      * @param instructions the list to add movement instructions to
      */
-    private void processCell(int row, int col, int rowDelta, int colDelta, ItemStack[][] board, ActiveGame activeGame, List<MovementInstruction> instructions) {
+    private void processCell(int row, int col, int rowDelta, int colDelta, ItemStack[][] board, boolean[][] mergedCells,
+                             ActiveGame activeGame, List<MovementInstruction> instructions) {
         int currentRow = row;
         int currentCol = col;
         int stepCount = 0;
@@ -578,14 +580,18 @@ public class InventoryUtil {
         }
 
         // If a merge is possible from the current position, do it as an extra step.
-        if (isInBounds(currentRow + rowDelta, currentCol + colDelta) && Objects.nonNull(board[currentRow + rowDelta][currentCol + colDelta])) {
-            if (board[currentRow + rowDelta][currentCol + colDelta].isSimilar(board[currentRow][currentCol])) {
+        int destinationRow = currentRow + rowDelta;
+        int destinationCol = currentCol + colDelta;
+        if (isInBounds(destinationRow, destinationCol) && Objects.nonNull(board[destinationRow][destinationCol])) {
+            if (!mergedCells[destinationRow][destinationCol]
+                && board[destinationRow][destinationCol].isSimilar(board[currentRow][currentCol])) {
                 stepCount++; // merging counts as an extra step
                 ItemStack currentItem = board[currentRow][currentCol];
                 ItemStack merged = getNextRepresentation(currentItem);
-                tileInstructions.add(new MovementInstruction(currentRow, currentCol, currentRow + rowDelta, currentCol + colDelta, currentItem, true, merged, stepCount, 0));
-                board[currentRow + rowDelta][currentCol + colDelta] = merged;
+                tileInstructions.add(new MovementInstruction(currentRow, currentCol, destinationRow, destinationCol, currentItem, true, merged, stepCount, 0));
+                board[destinationRow][destinationCol] = merged;
                 board[currentRow][currentCol] = null;
+                mergedCells[destinationRow][destinationCol] = true;
                 activeGame.addToScore(NumberRepresentation.getScoreFromItem(merged));
                 activeGame.addToGainedAfterLastMove(NumberRepresentation.getScoreFromItem(merged));
             }
