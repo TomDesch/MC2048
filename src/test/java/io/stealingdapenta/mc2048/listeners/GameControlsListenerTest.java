@@ -11,6 +11,7 @@ import io.stealingdapenta.mc2048.utils.data.HelperHolder;
 import org.bukkit.entity.Player;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.InventoryView;
@@ -212,6 +213,21 @@ class GameControlsListenerTest {
 
         listener.onButtonClick(event);
         verify(inventoryUtil, never()).processGameAction(any(), any());
+    }
+
+    @Test
+    @DisplayName("Defers closing a locked game until its animation finishes")
+    void defersLockedGameClose() {
+        when(inventoryUtil.isGameWindow(view)).thenReturn(true);
+        when(activeGame.isLocked()).thenReturn(true);
+        InventoryCloseEvent event = mock(InventoryCloseEvent.class);
+        when(event.getView()).thenReturn(view);
+        when(event.getPlayer()).thenReturn(player);
+
+        listener.onGameClose(event);
+
+        verify(activeGame).requestClose();
+        verify(gameManager, never()).deactivateGameFor(player);
     }
 
     @Test

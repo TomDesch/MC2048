@@ -162,7 +162,10 @@ public class GameControlsListener implements Listener {
                     inventoryUtil.spawnNewBlock(activeGame.getGameWindow());
                     inventoryUtil.updateUndoButton(activeGame);
 
-                    if (inventoryUtil.noValidMovesLeft(activeGame.getGameWindow()) && activeGame.hasNoUndoLastMoveLeft()) {
+                    if (activeGame.isCloseRequested()) {
+                        doGameOver(activeGame);
+                        gameManager.deactivateGameFor(player);
+                    } else if (inventoryUtil.noValidMovesLeft(activeGame.getGameWindow()) && activeGame.hasNoUndoLastMoveLeft()) {
                         long endDelay;
                         if (GAME_GUI_FILLER_ANIMATION.getStringValue().contains("enable")) {
                             endDelay = caclualtedDelay*5;
@@ -208,6 +211,7 @@ public class GameControlsListener implements Listener {
         }
 
         if (activeGame.isLocked()) {
+            activeGame.requestClose();
             return;
         }
 

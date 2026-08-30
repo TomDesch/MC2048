@@ -39,6 +39,7 @@ public class ActiveGame {
     private int scoreGainedAfterLastMove = 0;
     private boolean lastMoveUndo = false;
     private boolean locked = false;
+    private boolean closeRequested = false;
 
     public ActiveGame(Player player, RepeatingUpdateTask relatedTask) {
         this.player = player;
@@ -182,6 +183,14 @@ public class ActiveGame {
         this.locked = locked;
     }
 
+    public boolean isCloseRequested() {
+        return closeRequested;
+    }
+
+    public void requestClose() {
+        closeRequested = true;
+    }
+
     public double calculateNewAverageScore() {
         return (getAttempts() * getAverageScore() + getScore()) / (getAttempts() + 1);
     }
@@ -210,6 +219,8 @@ public class ActiveGame {
 
         newInventory.setContents(oldInventory.getContents());
         setGameWindow(newInventory);
-        player.openInventory(newInventory);
+        if (!isCloseRequested()) {
+            player.openInventory(newInventory);
+        }
     }
 }
