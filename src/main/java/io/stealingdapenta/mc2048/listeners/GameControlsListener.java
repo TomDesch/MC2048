@@ -164,7 +164,7 @@ public class GameControlsListener implements Listener {
 
                     if (activeGame.isCloseRequested()) {
                         doGameOver(activeGame);
-                        gameManager.deactivateGameFor(player);
+                        gameManager.deactivateGame(activeGame);
                     } else if (inventoryUtil.noValidMovesLeft(activeGame.getGameWindow()) && activeGame.hasNoUndoLastMoveLeft()) {
                         long endDelay;
                         if (GAME_GUI_FILLER_ANIMATION.getStringValue().contains("enable")) {
@@ -177,7 +177,7 @@ public class GameControlsListener implements Listener {
                         new BukkitRunnable() {
                             @Override
                             public void run() {
-                                gameManager.deactivateGameFor(player);
+                                gameManager.deactivateGame(activeGame);
                                 activeGame.getPlayer()
                                             .getOpenInventory()
                                             .close();
@@ -216,7 +216,7 @@ public class GameControlsListener implements Listener {
         }
 
         doGameOver(activeGame);
-        gameManager.deactivateGameFor(player);
+        gameManager.deactivateGame(activeGame);
     }
 
     private void doGameOver(ActiveGame activeGame) {

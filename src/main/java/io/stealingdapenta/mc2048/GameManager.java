@@ -58,13 +58,17 @@ public class GameManager {
             return;
         }
 
+        deactivateGame(activeGame);
+    }
+
+    public void deactivateGame(ActiveGame activeGame) {
         saveActiveGame(activeGame);
         
         if (Objects.nonNull(activeGame.getRelatedTask())) {
             activeGame.getRelatedTask().cancel();
         }
 
-        activeGames.remove(player.getUniqueId());
+        activeGames.remove(activeGame.getPlayer().getUniqueId(), activeGame);
     }
 
     private void saveActiveGame(ActiveGame activeGame) {
