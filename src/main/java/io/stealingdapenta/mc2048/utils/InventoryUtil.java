@@ -43,6 +43,18 @@ import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_MATERIAL;
 import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_MATERIAL_CMD;
 import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_SLOT;
+import static io.stealingdapenta.mc2048.config.ConfigKey.RESET_BUTTON_LORE;
+import static io.stealingdapenta.mc2048.config.ConfigKey.RESET_BUTTON_MATERIAL;
+import static io.stealingdapenta.mc2048.config.ConfigKey.RESET_BUTTON_MATERIAL_CMD;
+import static io.stealingdapenta.mc2048.config.ConfigKey.RESET_BUTTON_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.RESET_BUTTON_SLOT;
+import static io.stealingdapenta.mc2048.config.ConfigKey.RESET_CONFIRM_NO_MATERIAL;
+import static io.stealingdapenta.mc2048.config.ConfigKey.RESET_CONFIRM_NO_MATERIAL_CMD;
+import static io.stealingdapenta.mc2048.config.ConfigKey.RESET_CONFIRM_NO_NAME;
+import static io.stealingdapenta.mc2048.config.ConfigKey.RESET_CONFIRM_TITLE;
+import static io.stealingdapenta.mc2048.config.ConfigKey.RESET_CONFIRM_YES_MATERIAL;
+import static io.stealingdapenta.mc2048.config.ConfigKey.RESET_CONFIRM_YES_MATERIAL_CMD;
+import static io.stealingdapenta.mc2048.config.ConfigKey.RESET_CONFIRM_YES_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.START_BUTTON_LORE_1;
 import static io.stealingdapenta.mc2048.config.ConfigKey.START_BUTTON_LORE_2;
 import static io.stealingdapenta.mc2048.config.ConfigKey.START_BUTTON_MATERIAL;
@@ -80,6 +92,8 @@ import io.stealingdapenta.mc2048.utils.data.GameHolder;
 import io.stealingdapenta.mc2048.utils.data.HelperHolder;
 import io.stealingdapenta.mc2048.utils.data.MovementInstruction;
 import io.stealingdapenta.mc2048.utils.data.NumberRepresentation;
+import io.stealingdapenta.mc2048.utils.data.ResetConfirmationHolder;
+import io.stealingdapenta.mc2048.utils.data.SavedGame;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -108,6 +122,8 @@ public class InventoryUtil {
     public static final int INVENTORY_COLUMNS = 9;
     public static final int ROW_AND_COLUMN_SIZE = 4;
     public static final int REQUIRED_SIZE = INVENTORY_ROWS * INVENTORY_COLUMNS;
+    public static final int RESET_CONFIRM_SLOT = 11;
+    public static final int RESET_CANCEL_SLOT = 15;
     private static final int[][] mergeSlots = {{10, 11, 12, 13}, {19, 20, 21, 22}, {28, 29, 30, 31}, {37, 38, 39, 40}};
     private static final String WRONG_SIZE = "Error filling sides of inventory: wrong size!";
 
@@ -195,6 +211,20 @@ public class InventoryUtil {
         fillSides(inventory);
         activeGame.setGameWindow(inventory);
         setButtonsAndStats(activeGame);
+        return inventory;
+    }
+
+    public Inventory createResetConfirmationInventory(Player player) {
+        Inventory inventory = createInventory(
+            new ResetConfirmationHolder(player),
+            27,
+            LegacyComponentSerializer.legacySection().serialize(RESET_CONFIRM_TITLE.getFormattedValue())
+        );
+        for (int slot = 0; slot < inventory.getSize(); slot++) {
+            inventory.setItem(slot, getGameFillerItem());
+        }
+        inventory.setItem(RESET_CONFIRM_SLOT, createMenuButton(RESET_CONFIRM_YES_NAME, RESET_CONFIRM_YES_MATERIAL, RESET_CONFIRM_YES_MATERIAL_CMD));
+        inventory.setItem(RESET_CANCEL_SLOT, createMenuButton(RESET_CONFIRM_NO_NAME, RESET_CONFIRM_NO_MATERIAL, RESET_CONFIRM_NO_MATERIAL_CMD));
         return inventory;
     }
 
@@ -291,6 +321,7 @@ public class InventoryUtil {
         final int SLOT_RIGHT = MOVE_BUTTON_RIGHT_SLOT.getIntValue();
         final int SLOT_UNDO = UNDO_BUTTON_SLOT.getIntValue();
         final int SLOT_SPEED = SPEED_BUTTON_SLOT.getIntValue();
+        final int SLOT_RESET = RESET_BUTTON_SLOT.getIntValue();
         setItemInSlot(activeGame.getGameWindow(), SLOT_UP, createButton(MOVE_BUTTON_UP_NAME, MOVE_BUTTON_UP_MATERIAL, MOVE_BUTTON_UP_MATERIAL_CMD));
         setItemInSlot(activeGame.getGameWindow(), SLOT_DOWN, createButton(MOVE_BUTTON_DOWN_NAME, MOVE_BUTTON_DOWN_MATERIAL, MOVE_BUTTON_DOWN_MATERIAL_CMD));
         setItemInSlot(activeGame.getGameWindow(), SLOT_LEFT, createButton(MOVE_BUTTON_LEFT_NAME, MOVE_BUTTON_LEFT_MATERIAL, MOVE_BUTTON_LEFT_MATERIAL_CMD));
@@ -311,6 +342,20 @@ public class InventoryUtil {
         if (SLOT_SPEED >= 0) {
             setItemInSlot(activeGame.getGameWindow(), SLOT_SPEED, getSpeedButton(FILE_MANAGER.getAnimationSpeed(activeGame.getPlayer())));
         }
+        if (SLOT_RESET >= 0) {
+            setItemInSlot(
+                activeGame.getGameWindow(),
+                SLOT_RESET,
+                setCustomModelDataTo(
+                    new ItemBuilder(RESET_BUTTON_MATERIAL.getMaterialValue())
+                        .setDisplayName(RESET_BUTTON_NAME.getFormattedValue())
+                        .addLore(RESET_BUTTON_LORE.getFormattedValue())
+                        .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
+                        .create(),
+                    RESET_BUTTON_MATERIAL_CMD
+                )
+            );
+        }
     }
 
     private ItemStack createButton(ConfigKey buttonName, ConfigKey materialName, ConfigKey customMetaData) {
@@ -318,6 +363,16 @@ public class InventoryUtil {
                                                                                     .addLore(MOVE_BUTTON_LORE.getFormattedValue())
                                                                                     .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
                                                                                     .create(), customMetaData);
+    }
+
+    private ItemStack createMenuButton(ConfigKey buttonName, ConfigKey materialName, ConfigKey customMetaData) {
+        return setCustomModelDataTo(
+            new ItemBuilder(materialName.getMaterialValue())
+                .setDisplayName(buttonName.getFormattedValue())
+                .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
+                .create(),
+            customMetaData
+        );
     }
 
     private ItemStack getUnblockedUndoButton(int numberOfUndoLeft) {
@@ -412,7 +467,11 @@ public class InventoryUtil {
      * @return whether the open inventory resembles ANY possible GUI window from this plugin
      */
     public boolean isAnyGameWindow(InventoryView inventoryView) {
-        return isGameWindow(inventoryView) || isHelpWindow(inventoryView);
+        return isGameWindow(inventoryView) || isHelpWindow(inventoryView) || isResetConfirmationWindow(inventoryView);
+    }
+
+    public boolean isResetConfirmationWindow(InventoryView inventoryView) {
+        return inventoryView.getTopInventory().getHolder() instanceof ResetConfirmationHolder;
     }
 
     /**
@@ -487,7 +546,7 @@ public class InventoryUtil {
         int maxSteps = animateMovementsSimultaneous(player, activeGame.getGameWindow(), instructions);
 
         // Compute tick delay for final board update (ensure at least 1 tick delay)
-        return Math.max((maxSteps - 1) * FILE_MANAGER.getAnimationSpeed(player), 1);
+        return Math.max((maxSteps - 1) * FILE_MANAGER.getAnimationDelay(player), 1);
     }
 
 
@@ -658,9 +717,56 @@ public class InventoryUtil {
                         }
                     }
                 }
-            }.runTaskLater(javaPlugin, (currentStep - 1L) * FILE_MANAGER.getAnimationSpeed(player));
+            }.runTaskLater(javaPlugin, (currentStep - 1L) * FILE_MANAGER.getAnimationDelay(player));
         }
         return maxSteps;
+    }
+
+    public SavedGame createSavedGame(ActiveGame activeGame) {
+        return new SavedGame(
+            activeGame.getScore(),
+            activeGame.getMillisecondsSinceStart(),
+            activeGame.getUndoLastMoveCounter(),
+            activeGame.getScoreGainedAfterLastMove(),
+            activeGame.isLastMoveUndo(),
+            flattenBoard(activeGame.getGameWindow()),
+            flattenBoard(activeGame.getLastPosition())
+        );
+    }
+
+    public void restoreSavedGame(ActiveGame activeGame, SavedGame savedGame) {
+        ItemStack[][] restoredBoard = toItemArray(savedGame.board());
+        copyItemArrayToGameWindow(activeGame.getGameWindow(), restoredBoard);
+        activeGame.setLastPosition(savedGame.previousBoard().isEmpty() ? null : toItemArray(savedGame.previousBoard()));
+        activeGame.updateInventoryTitle(activeGame.getScore());
+        updateUndoButton(activeGame);
+    }
+
+    private List<Integer> flattenBoard(Inventory inventory) {
+        ItemStack[][] board = new ItemStack[ROW_AND_COLUMN_SIZE][ROW_AND_COLUMN_SIZE];
+        copyGameWindowContentsToArray(inventory, board);
+        return flattenBoard(board);
+    }
+
+    private List<Integer> flattenBoard(ItemStack[][] board) {
+        if (board == null) {
+            return List.of();
+        }
+        return Arrays.stream(board)
+                     .flatMap(Arrays::stream)
+                     .map(item -> item == null ? 0 : NumberRepresentation.getScoreFromItem(item))
+                     .toList();
+    }
+
+    private ItemStack[][] toItemArray(List<Integer> values) {
+        ItemStack[][] board = new ItemStack[ROW_AND_COLUMN_SIZE][ROW_AND_COLUMN_SIZE];
+        for (int index = 0; index < values.size(); index++) {
+            int value = values.get(index);
+            board[index / ROW_AND_COLUMN_SIZE][index % ROW_AND_COLUMN_SIZE] = value == 0
+                ? null
+                : NumberRepresentation.fromScore(value).orElseThrow().getDisplayableBlock();
+        }
+        return board;
     }
 
     public boolean noValidMovesLeft(Inventory gameWindow) {

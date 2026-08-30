@@ -7,6 +7,9 @@ public enum ButtonAction {
     RIGHT,
     UNDO,
     SPEED,
+    RESET,
+    RESET_CONFIRM,
+    RESET_CANCEL,
     START;
 
     ButtonAction() {

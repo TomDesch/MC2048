@@ -28,6 +28,7 @@ public class ActiveGame {
     private final RepeatingUpdateTask relatedTask;
     private Inventory gameWindow;
     private final long gameOpenTime;
+    private final long previouslyElapsedPlaytime;
     private int score;
     private final int highScore;
     private final int attempts;
@@ -39,18 +40,26 @@ public class ActiveGame {
     private boolean lastMoveUndo = false;
     private boolean locked = false;
     private boolean closeRequested = false;
+    private boolean resetConfirmationOpen = false;
 
     public ActiveGame(Player player, RepeatingUpdateTask relatedTask) {
+        this(player, relatedTask, null);
+    }
+
+    public ActiveGame(Player player, RepeatingUpdateTask relatedTask, SavedGame savedGame) {
         this.player = player;
         this.relatedTask = relatedTask;
-        this.score = 0;
+        this.score = savedGame == null ? 0 : savedGame.score();
         this.gameOpenTime = System.currentTimeMillis();
+        this.previouslyElapsedPlaytime = savedGame == null ? 0 : savedGame.elapsedPlaytime();
 
         this.highScore = FILE_MANAGER.getIntByKey(player, PlayerConfigField.HIGH_SCORE.getKey());
         this.attempts = FILE_MANAGER.getIntByKey(player, PlayerConfigField.ATTEMPTS.getKey());
         this.totalPlayTime = FILE_MANAGER.getLongByKey(player, PlayerConfigField.PLAYTIME.getKey());
         this.averageScore = FILE_MANAGER.getDoubleByKey(player, PlayerConfigField.AVERAGE_SCORE.getKey());
-        this.undoLastMoveCounter = UNDO_BUTTON_USAGES.getIntValue();
+        this.undoLastMoveCounter = savedGame == null ? UNDO_BUTTON_USAGES.getIntValue() : savedGame.undoRemaining();
+        this.scoreGainedAfterLastMove = savedGame == null ? 0 : savedGame.scoreGainedAfterLastMove();
+        this.lastMoveUndo = savedGame != null && savedGame.lastMoveUndo();
     }
 
     public static String makeSecondsATimestamp(long totalMilliSeconds) {
@@ -95,7 +104,7 @@ public class ActiveGame {
     }
 
     public long getMillisecondsSinceStart() {
-        return System.currentTimeMillis() - gameOpenTime;
+        return previouslyElapsedPlaytime + System.currentTimeMillis() - gameOpenTime;
     }
 
     public String getCurrentPlayTimeFormatted() {
@@ -188,6 +197,14 @@ public class ActiveGame {
 
     public void requestClose() {
         closeRequested = true;
+    }
+
+    public boolean isResetConfirmationOpen() {
+        return resetConfirmationOpen;
+    }
+
+    public void setResetConfirmationOpen(boolean resetConfirmationOpen) {
+        this.resetConfirmationOpen = resetConfirmationOpen;
     }
 
     public double calculateNewAverageScore() {

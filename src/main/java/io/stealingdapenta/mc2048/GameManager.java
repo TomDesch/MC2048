@@ -1,7 +1,7 @@
 package io.stealingdapenta.mc2048;
 
 import static io.stealingdapenta.mc2048.MC2048.logger;
-import static io.stealingdapenta.mc2048.config.ConfigKey.MSG_ATTEMPT_PROTECTION;
+import static io.stealingdapenta.mc2048.config.ConfigKey.MSG_GAME_RESUMED;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MSG_GAME_STARTED;
 import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_SLOT;
 import static io.stealingdapenta.mc2048.config.PlayerConfigField.ATTEMPTS;
@@ -15,9 +15,11 @@ import io.stealingdapenta.mc2048.utils.InventoryUtil;
 import io.stealingdapenta.mc2048.utils.HighScoreManager;
 import io.stealingdapenta.mc2048.utils.data.ActiveGame;
 import io.stealingdapenta.mc2048.utils.data.RepeatingUpdateTask;
+import io.stealingdapenta.mc2048.utils.data.SavedGame;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -36,19 +38,32 @@ public class GameManager {
     }
 
     public void activateGame(Player player) {
-        MESSAGE_SENDER.sendMessage(player, MSG_GAME_STARTED);
+        ActiveGame existingGame = getActiveGame(player);
+        if (existingGame != null) {
+            existingGame.setResetConfirmationOpen(false);
+            player.openInventory(existingGame.getGameWindow());
+            return;
+        }
 
         FILE_MANAGER.updatePlayerName(player);
-        ActiveGame activeGame = new ActiveGame(player, createTaskUpdatingPlayerStatItem(player));
+        Optional<SavedGame> savedGame = FILE_MANAGER.getSavedGame(player);
+        MESSAGE_SENDER.sendMessage(player, savedGame.isPresent() ? MSG_GAME_RESUMED : MSG_GAME_STARTED);
+
+        ActiveGame activeGame = new ActiveGame(player, createTaskUpdatingPlayerStatItem(player), savedGame.orElse(null));
         highScoreManager.recordScore(player, activeGame.getHighScore());
         Inventory gameWindow = inventoryUtil.createGameInventory(activeGame);
-        player.openInventory(gameWindow);
-
         activeGames.put(activeGame.getPlayer()
                                   .getUniqueId(), activeGame);
-        // 2 starting blocks
-        inventoryUtil.spawnNewBlock(gameWindow);
-        inventoryUtil.spawnNewBlock(gameWindow);
+
+        if (savedGame.isPresent()) {
+            inventoryUtil.restoreSavedGame(activeGame, savedGame.get());
+        } else {
+            inventoryUtil.spawnNewBlock(gameWindow);
+            inventoryUtil.spawnNewBlock(gameWindow);
+            persistGame(activeGame);
+        }
+
+        player.openInventory(gameWindow);
     }
 
     public void deactivateGameFor(Player player) {
@@ -58,12 +73,32 @@ public class GameManager {
             return;
         }
 
-        deactivateGame(activeGame);
+        pauseGame(activeGame);
     }
 
-    public void deactivateGame(ActiveGame activeGame) {
-        saveActiveGame(activeGame);
-        
+    public void pauseGame(ActiveGame activeGame) {
+        persistGame(activeGame);
+        removeActiveGame(activeGame);
+    }
+
+    public void completeGame(ActiveGame activeGame) {
+        FILE_MANAGER.clearSavedGame(activeGame.getPlayer());
+        saveCompletedGame(activeGame);
+        removeActiveGame(activeGame);
+    }
+
+    public void resetGame(ActiveGame activeGame) {
+        FILE_MANAGER.clearSavedGame(activeGame.getPlayer());
+        removeActiveGame(activeGame);
+    }
+
+    public void persistGame(ActiveGame activeGame) {
+        if (activeGames.get(activeGame.getPlayer().getUniqueId()) == activeGame) {
+            FILE_MANAGER.saveGame(activeGame.getPlayer(), inventoryUtil.createSavedGame(activeGame));
+        }
+    }
+
+    private void removeActiveGame(ActiveGame activeGame) {
         if (Objects.nonNull(activeGame.getRelatedTask())) {
             activeGame.getRelatedTask().cancel();
         }
@@ -71,11 +106,7 @@ public class GameManager {
         activeGames.remove(activeGame.getPlayer().getUniqueId(), activeGame);
     }
 
-    private void saveActiveGame(ActiveGame activeGame) {
-        if (activeGame.getScore() < 1) {
-            MESSAGE_SENDER.sendMessage(activeGame.getPlayer(), MSG_ATTEMPT_PROTECTION);
-            return;
-        }
+    private void saveCompletedGame(ActiveGame activeGame) {
         if (activeGame.getScore() >= activeGame.getHighScore()) {
             FILE_MANAGER.setValueByKey(activeGame.getPlayer(), HIGH_SCORE.getKey(), activeGame.getScore());
             highScoreManager.recordScore(activeGame.getPlayer(), activeGame.getScore());
@@ -92,7 +123,7 @@ public class GameManager {
     }
 
     public void deactivateAllGames() {
-        new ArrayList<>(activeGames.values()).forEach(activeGame -> deactivateGameFor(activeGame.getPlayer()));
+        new ArrayList<>(activeGames.values()).forEach(this::pauseGame);
     }
 
     public RepeatingUpdateTask createTaskUpdatingPlayerStatItem(Player player) {

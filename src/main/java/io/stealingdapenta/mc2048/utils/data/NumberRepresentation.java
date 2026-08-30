@@ -128,6 +128,12 @@ public enum NumberRepresentation {
         return Optional.empty();
     }
 
+    public static Optional<NumberRepresentation> fromScore(int score) {
+        return Arrays.stream(values())
+                     .filter(representation -> representation.getScore() == score)
+                     .findFirst();
+    }
+
 
     public int getScore() {
         return score;

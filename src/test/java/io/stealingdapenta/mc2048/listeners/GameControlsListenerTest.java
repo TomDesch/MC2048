@@ -56,6 +56,7 @@ class GameControlsListenerTest {
         when(configuration.getString(anyString())).thenAnswer(invocation -> {
             String key = invocation.getArgument(0, String.class);
             return key.equals(ConfigKey.MSG_INVALID_MOVE.name().toLowerCase())
+                || key.equals(ConfigKey.MSG_GAME_PAUSED.name().toLowerCase())
                 ? ""
                 : ConfigKey.valueOf(key.toUpperCase()).getDefaultValue();
         });
@@ -228,6 +229,90 @@ class GameControlsListenerTest {
 
         verify(activeGame).requestClose();
         verify(gameManager, never()).deactivateGameFor(player);
+    }
+
+    @Test
+    @DisplayName("Closing an unlocked game pauses it instead of completing it")
+    void pausesUnlockedGameClose() {
+        InventoryCloseEvent event = mock(InventoryCloseEvent.class);
+        when(event.getView()).thenReturn(view);
+        when(event.getPlayer()).thenReturn(player);
+
+        listener.onGameClose(event);
+
+        verify(gameManager).pauseGame(activeGame);
+        verify(gameManager, never()).completeGame(any());
+    }
+
+    @Test
+    @DisplayName("Opening reset confirmation does not pause the game")
+    void resetTransitionDoesNotPauseGame() {
+        when(activeGame.isResetConfirmationOpen()).thenReturn(true);
+        InventoryCloseEvent event = mock(InventoryCloseEvent.class);
+        when(event.getView()).thenReturn(view);
+        when(event.getPlayer()).thenReturn(player);
+
+        listener.onGameClose(event);
+
+        verify(gameManager, never()).pauseGame(any());
+    }
+
+    @Test
+    @DisplayName("Reset button opens confirmation without abandoning the game")
+    void resetButtonOpensConfirmation() {
+        Inventory confirmation = mock(Inventory.class);
+        when(inventoryUtil.createResetConfirmationInventory(player)).thenReturn(confirmation);
+        InventoryClickEvent event = clickEvent(43, clickedInventory);
+
+        listener.onButtonClick(event);
+
+        verify(activeGame).setResetConfirmationOpen(true);
+        verify(player).openInventory(confirmation);
+        verify(gameManager, never()).resetGame(any());
+    }
+
+    @Test
+    @DisplayName("Confirming reset abandons the old game and starts a new one")
+    void confirmingResetStartsNewGame() {
+        when(inventoryUtil.isGameWindow(view)).thenReturn(false);
+        when(inventoryUtil.isResetConfirmationWindow(view)).thenReturn(true);
+        InventoryClickEvent event = clickEvent(InventoryUtil.RESET_CONFIRM_SLOT, clickedInventory);
+
+        listener.onButtonClick(event);
+
+        verify(activeGame).setResetConfirmationOpen(false);
+        verify(gameManager).resetGame(activeGame);
+        verify(gameManager).activateGame(player);
+    }
+
+    @Test
+    @DisplayName("Cancelling reset returns to the unfinished game")
+    void cancellingResetReturnsToGame() {
+        when(inventoryUtil.isGameWindow(view)).thenReturn(false);
+        when(inventoryUtil.isResetConfirmationWindow(view)).thenReturn(true);
+        Inventory gameInventory = activeGame.getGameWindow();
+        InventoryClickEvent event = clickEvent(InventoryUtil.RESET_CANCEL_SLOT, clickedInventory);
+
+        listener.onButtonClick(event);
+
+        verify(gameManager, never()).resetGame(any());
+        verify(player).openInventory(gameInventory);
+    }
+
+    @Test
+    @DisplayName("Closing reset confirmation pauses the unfinished game")
+    void closingResetConfirmationPausesGame() {
+        when(inventoryUtil.isGameWindow(view)).thenReturn(false);
+        when(inventoryUtil.isResetConfirmationWindow(view)).thenReturn(true);
+        when(activeGame.isResetConfirmationOpen()).thenReturn(true);
+        InventoryCloseEvent event = mock(InventoryCloseEvent.class);
+        when(event.getView()).thenReturn(view);
+        when(event.getPlayer()).thenReturn(player);
+
+        listener.onGameClose(event);
+
+        verify(activeGame).setResetConfirmationOpen(false);
+        verify(gameManager).pauseGame(activeGame);
     }
 
     @Test

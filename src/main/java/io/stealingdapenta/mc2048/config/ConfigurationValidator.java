@@ -26,6 +26,7 @@ public final class ConfigurationValidator {
     private static final List<ConfigKey> OPTIONAL_SLOTS = List.of(
         ConfigKey.UNDO_BUTTON_SLOT,
         ConfigKey.SPEED_BUTTON_SLOT,
+        ConfigKey.RESET_BUTTON_SLOT,
         ConfigKey.PLAYER_ITEM_SLOT
     );
 
@@ -53,7 +54,7 @@ public final class ConfigurationValidator {
         }
 
         validateRange(values, ConfigKey.GENERATE_NEW_BLOCK_FOUR_PERCENT, 0, 100, errors);
-        validateRange(values, ConfigKey.SPEED_BUTTON_SPEED_DEFAULT, 0, 5, errors);
+        validateRange(values, ConfigKey.SPEED_BUTTON_SPEED_DEFAULT, 1, 6, errors);
         validateRange(values, ConfigKey.UNDO_BUTTON_USAGES, -1, Integer.MAX_VALUE, errors);
 
         Set<Integer> occupiedSlots = new HashSet<>();

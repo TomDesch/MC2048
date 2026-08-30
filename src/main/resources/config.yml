@@ -1,4 +1,4 @@
-# Alternative Default Config for MC2048 v1.2.0
+# Alternative Default Config for MC2048 v1.4.0
 
 # What percentage of newly generated game items should be FOUR, instead of TWO?
 generate_new_block_four_percent: 40
@@ -13,7 +13,8 @@ msg_parsing_error: "&cError parsing the %s value in the config file!"
 msg_game_started: "&aGame started, good luck!"
 msg_invalid_move: "" # "&cInvalid move!"
 msg_undid_last_move: "&aUndid last move!"
-msg_attempt_protection: "&7Game wasn't saved because you didn't do anything!"
+msg_game_paused: "&7Game paused. Use &b/2048 &7to continue."
+msg_game_resumed: "&bResuming your unfinished game."
 msg_game_over: "&4Game over!"
 title_game_over: "&4Game over!"
 title_game_over_sub: "Score: %s | Playtime: %s"
@@ -61,6 +62,18 @@ speed_button_lore: "&7Click to change animaton speed"
 speed_button_speed: "&7&oCurrent speed: "
 speed_button_speed_default: 3
 speed_button_slot: 44 # -1 to hide
+reset_button_name: "&cReset Game"
+reset_button_material: BARRIER
+reset_button_material_cmd: 1000
+reset_button_lore: "&cAbandon this game and start over"
+reset_button_slot: 43 # -1 to hide
+reset_confirm_title: "&4Reset this game?"
+reset_confirm_yes_name: "&aYes, reset"
+reset_confirm_yes_material: LIME_CONCRETE
+reset_confirm_yes_material_cmd: 1000
+reset_confirm_no_name: "&cNo, continue"
+reset_confirm_no_material: RED_CONCRETE
+reset_confirm_no_material_cmd: 1000
 player_item_slot: 25 # -1 to hide
 
 # Both GUIs
