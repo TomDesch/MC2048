@@ -165,7 +165,11 @@ public enum ConfigKey {
      * @throws IllegalArgumentException if the Bukkit Material enum has no constant with the specified name
      */
     public Material getMaterialValue() {
-        return Material.valueOf(getStringValue());
+        Material material = Material.matchMaterial(getStringValue());
+        if (material == null) {
+            throw new IllegalArgumentException("Invalid material configured for " + name().toLowerCase());
+        }
+        return material;
     }
 
     /**
