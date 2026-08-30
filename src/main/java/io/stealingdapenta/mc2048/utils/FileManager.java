@@ -5,9 +5,11 @@ import static io.stealingdapenta.mc2048.MC2048.logger;
 import io.stealingdapenta.mc2048.MC2048;
 import io.stealingdapenta.mc2048.config.ConfigKey;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
@@ -80,25 +82,15 @@ public enum FileManager {
 
     public void createFile(Player player) {
         File file = new File(getUserFiles(), getFileName(player));
-        PrintWriter writer = null;
-        try {
-            writer = new PrintWriter(file);
-        } catch (FileNotFoundException e) {
-            logger.warning(EXCEPTION);
-            logger.warning(e.getMessage());
-        }
-        try {
-            file.createNewFile();
-            writer = new PrintWriter(file);
+        try (PrintWriter writer = new PrintWriter(Files.newBufferedWriter(
+            file.toPath(), StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW))) {
             writer.println("Player Name: " + player.getName());
             logger.info(FILE_CREATED.formatted(player.getName()));
-        } catch (IOException e1) {
+        } catch (IOException exception) {
             logger.warning(FILE_NOT_CREATED.formatted(player.getName()));
             logger.warning(EXCEPTION);
-            logger.warning(e1.getMessage());
-        } finally {
-            assert writer != null;
-            writer.close();
+            logger.warning(exception.getMessage());
+            throw new IllegalStateException(FILE_NOT_CREATED.formatted(player.getName()), exception);
         }
     }
 
@@ -122,7 +114,9 @@ public enum FileManager {
     public File getUserFiles() {
         File userFiles = new File(MC2048.getInstance()
                                         .getDataFolder() + File.separator + MC2048_STRING);
-        userFiles.mkdirs();
+        if (!userFiles.isDirectory() && !userFiles.mkdirs()) {
+            throw new IllegalStateException("Unable to create player data directory: " + userFiles);
+        }
         return userFiles;
     }
 
