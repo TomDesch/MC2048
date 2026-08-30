@@ -16,4 +16,12 @@ class NumberRepresentationTest {
     void doesNotWrapTheMaximumRepresentation() {
         assertTrue(NumberRepresentation.getNextRepresentation(262144).isEmpty());
     }
+
+    @Test
+    void identifiesRepresentationsByTheirFormattedDisplayName() {
+        assertEquals(
+            NumberRepresentation.HUNDRED_THIRTY_ONE_THOUSAND_SEVENTY_TWO,
+            NumberRepresentation.getRepresentationByDisplayName("131,072").orElseThrow()
+        );
+    }
 }

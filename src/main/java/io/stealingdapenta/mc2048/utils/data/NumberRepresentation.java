@@ -45,6 +45,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -85,6 +86,14 @@ public enum NumberRepresentation {
     }
 
     public static int getScoreFromItem(ItemStack itemStack) {
+        ItemMeta itemMeta = itemStack.getItemMeta();
+        if (Objects.nonNull(itemMeta) && itemMeta.hasDisplayName()) {
+            Optional<NumberRepresentation> namedRepresentation = getRepresentationByDisplayName(itemMeta.getDisplayName());
+            if (namedRepresentation.isPresent()) {
+                return namedRepresentation.get().getScore();
+            }
+        }
+
         return Arrays.stream(NumberRepresentation.values())
                      .filter(representation -> representation.getRepresentation() == itemStack.getType())
                      .findFirst()
@@ -93,6 +102,18 @@ public enum NumberRepresentation {
                          logger.severe(ERROR_REPRESENTATION.formatted(itemStack.getType()));
                          return 0;
                      });
+    }
+
+    static Optional<NumberRepresentation> getRepresentationByDisplayName(String displayName) {
+        String numericName = Objects.requireNonNullElse(ChatColor.stripColor(displayName), "").replace(",", "");
+        try {
+            int score = Integer.parseInt(numericName);
+            return Arrays.stream(values())
+                        .filter(representation -> representation.getScore() == score)
+                        .findFirst();
+        } catch (NumberFormatException exception) {
+            return Optional.empty();
+        }
     }
 
     public static Optional<NumberRepresentation> getNextRepresentation(int currentRepresentation) {
