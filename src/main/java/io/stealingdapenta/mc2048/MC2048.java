@@ -68,6 +68,7 @@ public class MC2048 extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        gameManager.deactivateAllGames();
         logger.info(ChatColor.GOLD + PLUGIN_DISABLED);
     }
 

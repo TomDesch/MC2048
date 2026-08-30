@@ -14,6 +14,7 @@ import static io.stealingdapenta.mc2048.utils.MessageSender.MESSAGE_SENDER;
 import io.stealingdapenta.mc2048.utils.InventoryUtil;
 import io.stealingdapenta.mc2048.utils.data.ActiveGame;
 import io.stealingdapenta.mc2048.utils.data.RepeatingUpdateTask;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.UUID;
@@ -78,6 +79,10 @@ public class GameManager {
 
     public ActiveGame getActiveGame(Player player) {
         return activeGames.get(player.getUniqueId());
+    }
+
+    public void deactivateAllGames() {
+        new ArrayList<>(activeGames.values()).forEach(activeGame -> deactivateGameFor(activeGame.getPlayer()));
     }
 
     public RepeatingUpdateTask createTaskUpdatingPlayerStatItem(Player player) {
