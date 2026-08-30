@@ -1,7 +1,9 @@
 package io.stealingdapenta.mc2048.config;
 
 import io.stealingdapenta.mc2048.MC2048;
+import java.io.File;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public enum ConfigurationFileManager {
@@ -28,7 +30,8 @@ public enum ConfigurationFileManager {
 
     public void reloadConfig() {
         JavaPlugin plugin = MC2048.getInstance();
+        File configFile = new File(plugin.getDataFolder(), "config.yml");
+        ConfigurationValidator.validate(YamlConfiguration.loadConfiguration(configFile));
         plugin.reloadConfig();
-        ConfigurationValidator.validate(plugin.getConfig());
     }
 }
