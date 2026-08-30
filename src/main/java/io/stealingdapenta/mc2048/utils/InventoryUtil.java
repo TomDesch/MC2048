@@ -465,9 +465,13 @@ public class InventoryUtil {
             lastPosition[i] = Arrays.copyOf(inventoryArray[i], inventoryArray[i].length);
         }
 
+        int previousMoveScore = activeGame.getScoreGainedAfterLastMove();
+        activeGame.resetGainedAfterLastMove();
+
         // Calculate moves (updates board simulation and scores)
         List<MovementInstruction> instructions = calculateMoves(inventoryArray, activeGame, action);
         if ((Objects.isNull(instructions)) || instructions.isEmpty()) {
+            activeGame.setScoreGainedAfterLastMove(previousMoveScore);
             // [debug] javaPlugin.getLogger().info("moveItems.instructions.isEmpty() == true");
             return 0;
         }
@@ -476,7 +480,6 @@ public class InventoryUtil {
 
         // Since there will be movement, we can update the acitveGame's saved lastPosition
         activeGame.setLastPosition(lastPosition);
-        activeGame.resetGainedAfterLastMove();
         // [debug] javaPlugin.getLogger().info("moveItems.lastPosition saved");
 
         // Animate the moves and get the maximum number of steps (ticks) needed
