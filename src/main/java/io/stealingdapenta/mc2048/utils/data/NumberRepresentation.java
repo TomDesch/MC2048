@@ -42,6 +42,7 @@ import static io.stealingdapenta.mc2048.utils.ItemBuilder.setCustomModelDataTo;
 
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Supplier;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Material;
@@ -71,7 +72,6 @@ public enum NumberRepresentation {
     TWO_HUNDRED_SIXTY_TWO_THOUSAND_HUNDRED_FOURTY_FOUR(64, 262144, MATERIAL_TWO_HUNDRED_SIXTY_TWO_THOUSAND_HUNDRED_FOURTY_FOUR::getMaterialValue, MATERIAL_TWO_HUNDRED_SIXTY_TWO_THOUSAND_HUNDRED_FOURTY_FOUR_CMD::getIntValue);
 
     private static final String ERROR_REPRESENTATION = "Error getting representation for %s. Returning 0!";
-    private static final String ERROR_NEXT_REPRESENTATION = "Error getting next representation for %s. Returning TWO!";
     private final int amount;
     private final int score;
     private final Supplier<Integer> customModelData;
@@ -95,17 +95,16 @@ public enum NumberRepresentation {
                      });
     }
 
-    public static NumberRepresentation getNextRepresentation(int currentRepresentation) {
+    public static Optional<NumberRepresentation> getNextRepresentation(int currentRepresentation) {
         NumberRepresentation[] representations = NumberRepresentation.values();
 
         for (int i = 0; i < representations.length - 1; i++) {
             if (representations[i].getScore() == currentRepresentation) {
-                return representations[i + 1];
+                return Optional.of(representations[i + 1]);
             }
         }
 
-        logger.severe(ERROR_NEXT_REPRESENTATION.formatted(currentRepresentation));
-        return TWO;
+        return Optional.empty();
     }
 
 

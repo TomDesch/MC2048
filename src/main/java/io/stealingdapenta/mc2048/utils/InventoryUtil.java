@@ -85,6 +85,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Random;
 import java.util.stream.IntStream;
 import net.kyori.adventure.text.Component;
@@ -588,15 +589,18 @@ public class InventoryUtil {
         if (isInBounds(destinationRow, destinationCol) && Objects.nonNull(board[destinationRow][destinationCol])) {
             if (!mergedCells[destinationRow][destinationCol]
                 && board[destinationRow][destinationCol].isSimilar(board[currentRow][currentCol])) {
-                stepCount++; // merging counts as an extra step
                 ItemStack currentItem = board[currentRow][currentCol];
-                ItemStack merged = getNextRepresentation(currentItem);
-                tileInstructions.add(new MovementInstruction(currentRow, currentCol, destinationRow, destinationCol, currentItem, true, merged, stepCount, 0));
-                board[destinationRow][destinationCol] = merged;
-                board[currentRow][currentCol] = null;
-                mergedCells[destinationRow][destinationCol] = true;
-                activeGame.addToScore(NumberRepresentation.getScoreFromItem(merged));
-                activeGame.addToGainedAfterLastMove(NumberRepresentation.getScoreFromItem(merged));
+                Optional<ItemStack> nextRepresentation = getNextRepresentation(currentItem);
+                if (nextRepresentation.isPresent()) {
+                    stepCount++; // merging counts as an extra step
+                    ItemStack merged = nextRepresentation.get();
+                    tileInstructions.add(new MovementInstruction(currentRow, currentCol, destinationRow, destinationCol, currentItem, true, merged, stepCount, 0));
+                    board[destinationRow][destinationCol] = merged;
+                    board[currentRow][currentCol] = null;
+                    mergedCells[destinationRow][destinationCol] = true;
+                    activeGame.addToScore(NumberRepresentation.getScoreFromItem(merged));
+                    activeGame.addToGainedAfterLastMove(NumberRepresentation.getScoreFromItem(merged));
+                }
             }
         }
 
@@ -748,10 +752,10 @@ public class InventoryUtil {
         return -1;
     }
 
-    private ItemStack getNextRepresentation(ItemStack itemStack) {
+    private Optional<ItemStack> getNextRepresentation(ItemStack itemStack) {
         int currentRepresentation = NumberRepresentation.getScoreFromItem(itemStack);
         return NumberRepresentation.getNextRepresentation(currentRepresentation)
-                                   .getDisplayableBlock();
+                                   .map(NumberRepresentation::getDisplayableBlock);
     }
 
     /**
