@@ -696,12 +696,18 @@ public class InventoryUtil {
                     belowItem = itemsInGame[row + 1][column];
                 }
 
-                if ((column < ROW_AND_COLUMN_SIZE - 1 && currentItem.isSimilar(rightItem)) || (row < ROW_AND_COLUMN_SIZE - 1 && currentItem.isSimilar(belowItem))) {
+                if ((column < ROW_AND_COLUMN_SIZE - 1 && canMerge(currentItem, rightItem))
+                    || (row < ROW_AND_COLUMN_SIZE - 1 && canMerge(currentItem, belowItem))) {
                     return true;
                 }
             }
         }
         return false;
+    }
+
+    private boolean canMerge(ItemStack first, ItemStack second) {
+        return first.isSimilar(second)
+            && NumberRepresentation.getNextRepresentation(NumberRepresentation.getScoreFromItem(first)).isPresent();
     }
 
     /**
