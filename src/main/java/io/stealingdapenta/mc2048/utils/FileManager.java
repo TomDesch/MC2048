@@ -10,6 +10,7 @@ import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
+import java.util.Objects;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
@@ -64,6 +65,14 @@ public enum FileManager {
         YamlConfiguration yamlConfiguration = getConfig(player);
         yamlConfiguration.set(key, value);
         saveConfig(player, yamlConfiguration);
+    }
+
+    public void updatePlayerName(Player player) {
+        YamlConfiguration configuration = getConfig(player);
+        if (!Objects.equals(configuration.getString("Player Name"), player.getName())) {
+            configuration.set("Player Name", player.getName());
+            saveConfig(player, configuration);
+        }
     }
 
     private void saveConfig(Player player, YamlConfiguration config) {

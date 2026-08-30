@@ -38,7 +38,9 @@ public class GameManager {
     public void activateGame(Player player) {
         MESSAGE_SENDER.sendMessage(player, MSG_GAME_STARTED);
 
+        FILE_MANAGER.updatePlayerName(player);
         ActiveGame activeGame = new ActiveGame(player, createTaskUpdatingPlayerStatItem(player));
+        highScoreManager.recordScore(player, activeGame.getHighScore());
         Inventory gameWindow = inventoryUtil.createGameInventory(activeGame);
         player.openInventory(gameWindow);
 
@@ -72,7 +74,7 @@ public class GameManager {
         }
         if (activeGame.getScore() >= activeGame.getHighScore()) {
             FILE_MANAGER.setValueByKey(activeGame.getPlayer(), HIGH_SCORE.getKey(), activeGame.getScore());
-            highScoreManager.recordScore(activeGame.getPlayer().getName(), activeGame.getScore());
+            highScoreManager.recordScore(activeGame.getPlayer(), activeGame.getScore());
             // todo new high score fireworks?
         }
 

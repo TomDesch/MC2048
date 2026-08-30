@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import net.kyori.adventure.text.Component;
@@ -33,7 +34,7 @@ public class HighScoreManager {
     private static final String ERROR_FETCHING_FILES = "Something went wrong fetching the player files. Returning empty list.";
     private static final String DOT_YML = ".yml";
     private static final String PLAYER_NAME_KEY = "Player Name";
-    private volatile Map<String, Integer> cachedHighScores = Map.of();
+    private volatile Map<UUID, PlayerScore> cachedHighScores = Map.of();
 
     public ItemStack getHighScoresItem() {
         return (new ItemBuilder(HIGH_SCORE_ITEM_MATERIAL.getMaterialValue())).setDisplayName(HIGH_SCORE_ITEM_NAME.getFormattedValue())
@@ -71,7 +72,14 @@ public class HighScoreManager {
     }
 
     public Map<String, Integer> getHighScores() {
-        return cachedHighScores;
+        Map<String, Integer> scoresByName = cachedHighScores.values()
+                                                            .stream()
+                                                            .collect(Collectors.toMap(
+                                                                PlayerScore::playerName,
+                                                                PlayerScore::score,
+                                                                Math::max
+                                                            ));
+        return Collections.unmodifiableMap(sortByHiScores(scoresByName));
     }
 
     public void refreshAsync() {
@@ -84,19 +92,31 @@ public class HighScoreManager {
                          });
     }
 
-    public synchronized void recordScore(String playerName, int score) {
-        Map<String, Integer> updatedScores = new HashMap<>(cachedHighScores);
-        updatedScores.merge(playerName, score, Math::max);
-        cachedHighScores = Collections.unmodifiableMap(sortByHiScores(updatedScores));
+    public void recordScore(Player player, int score) {
+        recordScore(player.getUniqueId(), player.getName(), score);
     }
 
-    private synchronized void mergeIntoCache(Map<String, Integer> loadedScores) {
-        Map<String, Integer> mergedScores = new HashMap<>(loadedScores);
-        cachedHighScores.forEach((playerName, score) -> mergedScores.merge(playerName, score, Math::max));
-        cachedHighScores = Collections.unmodifiableMap(sortByHiScores(mergedScores));
+    synchronized void recordScore(UUID playerId, String playerName, int score) {
+        Map<UUID, PlayerScore> updatedScores = new HashMap<>(cachedHighScores);
+        updatedScores.merge(
+            playerId,
+            new PlayerScore(playerName, score),
+            (existing, updated) -> new PlayerScore(updated.playerName(), Math.max(existing.score(), updated.score()))
+        );
+        cachedHighScores = Collections.unmodifiableMap(updatedScores);
     }
 
-    private Map<String, Integer> loadHighScores() {
+    private synchronized void mergeIntoCache(Map<UUID, PlayerScore> loadedScores) {
+        Map<UUID, PlayerScore> mergedScores = new HashMap<>(loadedScores);
+        cachedHighScores.forEach((playerId, current) -> mergedScores.merge(
+            playerId,
+            current,
+            (loaded, cached) -> new PlayerScore(cached.playerName(), Math.max(loaded.score(), cached.score()))
+        ));
+        cachedHighScores = Collections.unmodifiableMap(mergedScores);
+    }
+
+    private Map<UUID, PlayerScore> loadHighScores() {
         File userFilesFolder = FILE_MANAGER.getUserFiles();
         File[] playerFiles = userFilesFolder.listFiles();
 
@@ -104,15 +124,13 @@ public class HighScoreManager {
             return new HashMap<>();
         }
 
-        Map<String, Integer> topHighScores = Arrays.stream(playerFiles)
+        return Arrays.stream(playerFiles)
                                                    .filter(File::isFile)
                                                    .filter(playerFile -> playerFile.getName()
                                                                                    .endsWith(DOT_YML))
                                                    .map(this::getPlayerScorePair)
                                                    .filter(Objects::nonNull)
-                                                   .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, Math::max));
-
-        return sortByHiScores(topHighScores);
+                                                   .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     public int getPlayerPosition(Player targetPlayer) {
@@ -143,12 +161,12 @@ public class HighScoreManager {
                                                         LinkedHashMap::new)); // Use LinkedHashMap to maintain insertion order
     }
 
-    private Map.Entry<String, Integer> getPlayerScorePair(File playerFile) {
+    private Map.Entry<UUID, PlayerScore> getPlayerScorePair(File playerFile) {
         String uuid = getPlayerUUIDFrom(playerFile);
         String playerName = FILE_MANAGER.getStringByKey(uuid, PLAYER_NAME_KEY);
         if (Objects.nonNull(playerName)) {
             int hiScore = FILE_MANAGER.getIntByKey(uuid, PlayerConfigField.HIGH_SCORE.getKey());
-            return new AbstractMap.SimpleEntry<>(playerName, hiScore);
+            return new AbstractMap.SimpleEntry<>(UUID.fromString(uuid), new PlayerScore(playerName, hiScore));
         }
         return null;
     }
@@ -157,5 +175,8 @@ public class HighScoreManager {
         return playerFile.getName()
                          .substring(0, playerFile.getName()
                                                  .length() - 4);
+    }
+
+    private record PlayerScore(String playerName, int score) {
     }
 }
