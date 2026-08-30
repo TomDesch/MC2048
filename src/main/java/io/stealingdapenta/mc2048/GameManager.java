@@ -54,9 +54,8 @@ public class GameManager {
 
         saveActiveGame(activeGame);
         
-        if (PLAYER_ITEM_SLOT.getIntValue()>=0) {
-            activeGame.getRelatedTask()
-                .cancel();
+        if (Objects.nonNull(activeGame.getRelatedTask())) {
+            activeGame.getRelatedTask().cancel();
         }
 
         activeGames.remove(player.getUniqueId());
