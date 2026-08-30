@@ -496,7 +496,6 @@ public class InventoryUtil {
 
         if (tickDelay < 0 || ButtonAction.UNDO.equals(action)) {
             copyItemArrayToGameWindow(gameWindow, itemsInGame);
-            activeGame.updateInventoryTitle(activeGame.getScore());
         } else if (tickDelay > 0) {
             new BukkitRunnable() {
                 @Override
@@ -504,7 +503,6 @@ public class InventoryUtil {
                     activeGame.setLastMoveUndo(false);
 
                     copyItemArrayToGameWindow(gameWindow, itemsInGame);
-                    activeGame.updateInventoryTitle(activeGame.getScore());
                 }
             }.runTaskLater(javaPlugin, tickDelay);
         }
@@ -738,7 +736,6 @@ public class InventoryUtil {
         ItemStack[][] restoredBoard = toItemArray(savedGame.board());
         copyItemArrayToGameWindow(activeGame.getGameWindow(), restoredBoard);
         activeGame.setLastPosition(savedGame.previousBoard().isEmpty() ? null : toItemArray(savedGame.previousBoard()));
-        activeGame.updateInventoryTitle(activeGame.getScore());
         updateUndoButton(activeGame);
     }
 

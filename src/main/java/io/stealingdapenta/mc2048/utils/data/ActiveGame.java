@@ -16,7 +16,6 @@ import io.stealingdapenta.mc2048.config.PlayerConfigField;
 import io.stealingdapenta.mc2048.utils.ItemBuilder;
 import io.stealingdapenta.mc2048.utils.StringUtil;
 
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
@@ -225,13 +224,5 @@ public class ActiveGame {
                                                                  .addLore(PLAYER_ITEM_LORE_AVERAGE_SCORE.getFormattedValue(StringUtil.formatLong(Math.round(getAverageScore()))))
                                                                  .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
                                                                  .create();
-    }
-
-    public void updateInventoryTitle(int score) {
-        if (!isCloseRequested()) {
-            player.getOpenInventory().setTitle(LegacyComponentSerializer.legacySection()
-                                                                          .serialize(ConfigKey.GAME_GUI_TITLE.getFormattedValue(
-                                                                              StringUtil.formatInt(score))));
-        }
     }
 }

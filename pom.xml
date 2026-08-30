@@ -40,8 +40,14 @@
                     <exclude>org/intellij/lang/annotations/**</exclude>
                   </excludes>
                 </filter>
+                <filter>
+                  <artifact>net.kyori:adventure-platform-bukkit</artifact>
+                  <includes>
+                    <include>**</include>
+                  </includes>
+                </filter>
               </filters>
-              <minimizeJar>true</minimizeJar>
+              <minimizeJar>false</minimizeJar>
               <relocations>
                 <relocation>
                   <pattern>net.kyori</pattern>
