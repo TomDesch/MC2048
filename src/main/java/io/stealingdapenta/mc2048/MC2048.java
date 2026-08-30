@@ -3,6 +3,7 @@ package io.stealingdapenta.mc2048;
 import static io.stealingdapenta.mc2048.commands.Command.HELP;
 import static io.stealingdapenta.mc2048.commands.Command.RELOAD;
 import static io.stealingdapenta.mc2048.config.ConfigurationFileManager.CONFIGURATION_FILE_MANAGER;
+import static io.stealingdapenta.mc2048.utils.MessageSender.MESSAGE_SENDER;
 
 import io.stealingdapenta.mc2048.commands.Command;
 import io.stealingdapenta.mc2048.commands.GameCommand;
@@ -69,6 +70,7 @@ public class MC2048 extends JavaPlugin {
     @Override
     public void onDisable() {
         gameManager.deactivateAllGames();
+        MESSAGE_SENDER.close();
         logger.info(ChatColor.GOLD + PLUGIN_DISABLED);
     }
 
