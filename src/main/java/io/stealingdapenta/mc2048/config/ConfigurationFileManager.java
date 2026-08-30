@@ -22,11 +22,13 @@ public enum ConfigurationFileManager {
 
         configuration.options()
                      .copyDefaults(true);
+        ConfigurationValidator.validate(configuration);
         plugin.saveConfig();
     }
 
     public void reloadConfig() {
         JavaPlugin plugin = MC2048.getInstance();
         plugin.reloadConfig();
+        ConfigurationValidator.validate(plugin.getConfig());
     }
 }
