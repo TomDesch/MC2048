@@ -17,7 +17,6 @@ import io.stealingdapenta.mc2048.utils.ItemBuilder;
 import io.stealingdapenta.mc2048.utils.StringUtil;
 
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
@@ -212,15 +211,10 @@ public class ActiveGame {
     }
 
     public void updateInventoryTitle(int score) {
-        Inventory oldInventory = this.gameWindow;
-
-        Inventory newInventory = Bukkit.createInventory(new GameHolder(player), oldInventory.getSize(), LegacyComponentSerializer.legacySection()
-                                                                                                                                 .serialize(ConfigKey.GAME_GUI_TITLE.getFormattedValue(StringUtil.formatInt(score))));
-
-        newInventory.setContents(oldInventory.getContents());
-        setGameWindow(newInventory);
         if (!isCloseRequested()) {
-            player.openInventory(newInventory);
+            player.getOpenInventory().setTitle(LegacyComponentSerializer.legacySection()
+                                                                          .serialize(ConfigKey.GAME_GUI_TITLE.getFormattedValue(
+                                                                              StringUtil.formatInt(score))));
         }
     }
 }
