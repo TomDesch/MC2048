@@ -11,16 +11,16 @@ import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
-import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -32,6 +32,8 @@ public class HighScoreManager {
 
     private static final String ERROR_FETCHING_FILES = "Something went wrong fetching the player files. Returning empty list.";
     private static final String DOT_YML = ".yml";
+    private static final String PLAYER_NAME_KEY = "Player Name";
+    private volatile Map<String, Integer> cachedHighScores = Map.of();
 
     public ItemStack getHighScoresItem() {
         return (new ItemBuilder(HIGH_SCORE_ITEM_MATERIAL.getMaterialValue())).setDisplayName(HIGH_SCORE_ITEM_NAME.getFormattedValue())
@@ -69,11 +71,36 @@ public class HighScoreManager {
     }
 
     public Map<String, Integer> getHighScores() {
+        return cachedHighScores;
+    }
+
+    public void refreshAsync() {
+        CompletableFuture.supplyAsync(this::loadHighScores)
+                         .thenAccept(this::mergeIntoCache)
+                         .exceptionally(exception -> {
+                             logger.warning(ERROR_FETCHING_FILES);
+                             logger.warning(exception.getMessage());
+                             return null;
+                         });
+    }
+
+    public synchronized void recordScore(String playerName, int score) {
+        Map<String, Integer> updatedScores = new HashMap<>(cachedHighScores);
+        updatedScores.merge(playerName, score, Math::max);
+        cachedHighScores = Collections.unmodifiableMap(sortByHiScores(updatedScores));
+    }
+
+    private synchronized void mergeIntoCache(Map<String, Integer> loadedScores) {
+        Map<String, Integer> mergedScores = new HashMap<>(loadedScores);
+        cachedHighScores.forEach((playerName, score) -> mergedScores.merge(playerName, score, Math::max));
+        cachedHighScores = Collections.unmodifiableMap(sortByHiScores(mergedScores));
+    }
+
+    private Map<String, Integer> loadHighScores() {
         File userFilesFolder = FILE_MANAGER.getUserFiles();
         File[] playerFiles = userFilesFolder.listFiles();
 
         if (Objects.isNull(playerFiles) || playerFiles.length == 0) {
-            logger.warning(ERROR_FETCHING_FILES);
             return new HashMap<>();
         }
 
@@ -83,13 +110,17 @@ public class HighScoreManager {
                                                                                    .endsWith(DOT_YML))
                                                    .map(this::getPlayerScorePair)
                                                    .filter(Objects::nonNull)
-                                                   .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                                                   .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, Math::max));
 
         return sortByHiScores(topHighScores);
     }
 
     public int getPlayerPosition(Player targetPlayer) {
-        List<String> sortedPlayers = getHighScores().entrySet()
+        return getPlayerPosition(targetPlayer, getHighScores());
+    }
+
+    public int getPlayerPosition(Player targetPlayer, Map<String, Integer> highScores) {
+        List<String> sortedPlayers = highScores.entrySet()
                                                     .stream()
                                                     .sorted(Entry.<String, Integer>comparingByValue()
                                                                  .reversed())
@@ -100,7 +131,11 @@ public class HighScoreManager {
     }
 
     public Map<String, Integer> getTop10HiScores() {
-        return getHighScores().entrySet()
+        return getTop10HiScores(getHighScores());
+    }
+
+    public Map<String, Integer> getTop10HiScores(Map<String, Integer> highScores) {
+        return highScores.entrySet()
                               .stream()
                               .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())) // Sort by value in descending order
                               .limit(10) // Take the top 10
@@ -110,17 +145,12 @@ public class HighScoreManager {
 
     private Map.Entry<String, Integer> getPlayerScorePair(File playerFile) {
         String uuid = getPlayerUUIDFrom(playerFile);
-        String playerName = getPlayerName(uuid);
+        String playerName = FILE_MANAGER.getStringByKey(uuid, PLAYER_NAME_KEY);
         if (Objects.nonNull(playerName)) {
             int hiScore = FILE_MANAGER.getIntByKey(uuid, PlayerConfigField.HIGH_SCORE.getKey());
             return new AbstractMap.SimpleEntry<>(playerName, hiScore);
         }
         return null;
-    }
-
-    private String getPlayerName(String uuid) {
-        return Bukkit.getOfflinePlayer(UUID.fromString(uuid))
-                     .getName();
     }
 
     private String getPlayerUUIDFrom(File playerFile) {

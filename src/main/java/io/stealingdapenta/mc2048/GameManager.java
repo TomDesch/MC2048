@@ -12,6 +12,7 @@ import static io.stealingdapenta.mc2048.utils.FileManager.FILE_MANAGER;
 import static io.stealingdapenta.mc2048.utils.MessageSender.MESSAGE_SENDER;
 
 import io.stealingdapenta.mc2048.utils.InventoryUtil;
+import io.stealingdapenta.mc2048.utils.HighScoreManager;
 import io.stealingdapenta.mc2048.utils.data.ActiveGame;
 import io.stealingdapenta.mc2048.utils.data.RepeatingUpdateTask;
 import java.util.ArrayList;
@@ -25,11 +26,13 @@ public class GameManager {
 
     private static final HashMap<UUID, ActiveGame> activeGames = new HashMap<>();
     private final InventoryUtil inventoryUtil;
+    private final HighScoreManager highScoreManager;
     private static final String ERROR_DEACTIVATING = "Error deactivating game for %s; no active game found.";
     private static final long ONE_SECOND_IN_TICKS = 20L;
 
-    public GameManager(InventoryUtil inventoryUtil) {
+    public GameManager(InventoryUtil inventoryUtil, HighScoreManager highScoreManager) {
         this.inventoryUtil = inventoryUtil;
+        this.highScoreManager = highScoreManager;
     }
 
     public void activateGame(Player player) {
@@ -69,6 +72,7 @@ public class GameManager {
         }
         if (activeGame.getScore() >= activeGame.getHighScore()) {
             FILE_MANAGER.setValueByKey(activeGame.getPlayer(), HIGH_SCORE.getKey(), activeGame.getScore());
+            highScoreManager.recordScore(activeGame.getPlayer().getName(), activeGame.getScore());
             // todo new high score fireworks?
         }
 

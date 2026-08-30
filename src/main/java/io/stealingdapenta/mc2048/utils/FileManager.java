@@ -52,6 +52,10 @@ public enum FileManager {
         return getConfig(uuid).getInt(key);
     }
 
+    public String getStringByKey(String uuid, String key) {
+        return getConfig(uuid).getString(key);
+    }
+
     public long getLongByKey(Player player, String key) {
         return getConfig(player).getLong(key);
     }
