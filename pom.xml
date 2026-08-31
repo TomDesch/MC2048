@@ -6,7 +6,7 @@
 
   <groupId>org.example</groupId>
   <artifactId>MC2048</artifactId>
-  <version>1.2.1</version>
+  <version>1.4.0</version>
 
   <build>
     <plugins>
@@ -40,8 +40,14 @@
                     <exclude>org/intellij/lang/annotations/**</exclude>
                   </excludes>
                 </filter>
+                <filter>
+                  <artifact>net.kyori:adventure-platform-bukkit</artifact>
+                  <includes>
+                    <include>**</include>
+                  </includes>
+                </filter>
               </filters>
-              <minimizeJar>true</minimizeJar>
+              <minimizeJar>false</minimizeJar>
               <relocations>
                 <relocation>
                   <pattern>net.kyori</pattern>
@@ -77,6 +83,11 @@
         </executions>
         <version>3.5.2</version>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.5.2</version>
+      </plugin>
     </plugins>
   </build>
 
@@ -107,6 +118,30 @@
       <groupId>net.kyori</groupId>
       <artifactId>adventure-api</artifactId>
       <version>4.17.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <version>5.11.4</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <version>5.15.2</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>33.4.0-jre</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.yaml</groupId>
+      <artifactId>snakeyaml</artifactId>
+      <version>2.2</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 

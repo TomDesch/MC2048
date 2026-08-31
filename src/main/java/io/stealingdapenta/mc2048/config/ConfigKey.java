@@ -22,7 +22,8 @@ public enum ConfigKey {
     MSG_GAME_STARTED("<aqua>Good luck and <bold>have fun</bold>!</aqua>"),
     MSG_INVALID_MOVE("<red>Sorry! <bold>That's not a valid move</bold>.</red>"),
     MSG_UNDID_LAST_MOVE("<green>Successfully undid the <bold>last move</bold>!</green>"),
-    MSG_ATTEMPT_PROTECTION("<gray>The game wasn't saved because you didn't do anything. Your <bold>average score</bold> and <italic>attempts</italic> were protected.</gray>"),
+    MSG_GAME_PAUSED("<gray>Game paused. Use <aqua>/2048</aqua> to continue.</gray>"),
+    MSG_GAME_RESUMED("<aqua>Resuming your unfinished game.</aqua>"),
     MSG_GAME_OVER("<dark_red><bold>Game over!</bold></dark_red>"),
     TITLE_GAME_OVER("<dark_red><bold>Game over!</bold></dark_red>"),
     TITLE_GAME_OVER_SUB("Score: %s | Playtime: %s"),
@@ -71,6 +72,19 @@ public enum ConfigKey {
     SPEED_BUTTON_SPEED("<blue>Current speed: "),
     SPEED_BUTTON_SPEED_DEFAULT("3"),
     SPEED_BUTTON_SLOT("44"),
+
+    RESET_BUTTON_NAME("<red><bold>         RESET</bold></red>"),
+    RESET_BUTTON_MATERIAL("BARRIER"),
+    RESET_BUTTON_MATERIAL_CMD("1000"),
+    RESET_BUTTON_LORE("<red>Abandon this game and start over.</red>"),
+    RESET_BUTTON_SLOT("43"),
+    RESET_CONFIRM_TITLE("<dark_red><bold>Reset this game?</bold></dark_red>"),
+    RESET_CONFIRM_YES_NAME("<green><bold>Yes, reset</bold></green>"),
+    RESET_CONFIRM_YES_MATERIAL("LIME_CONCRETE"),
+    RESET_CONFIRM_YES_MATERIAL_CMD("1000"),
+    RESET_CONFIRM_NO_NAME("<red><bold>No, continue</bold></red>"),
+    RESET_CONFIRM_NO_MATERIAL("RED_CONCRETE"),
+    RESET_CONFIRM_NO_MATERIAL_CMD("1000"),
 
     PLAYER_ITEM_SLOT("25"),
     PLAYER_ITEM_NAME("<gold><bold>%s's Statistics</bold></gold>"),
@@ -165,7 +179,11 @@ public enum ConfigKey {
      * @throws IllegalArgumentException if the Bukkit Material enum has no constant with the specified name
      */
     public Material getMaterialValue() {
-        return Material.valueOf(getStringValue());
+        Material material = Material.matchMaterial(getStringValue());
+        if (material == null) {
+            throw new IllegalArgumentException("Invalid material configured for " + name().toLowerCase());
+        }
+        return material;
     }
 
     /**

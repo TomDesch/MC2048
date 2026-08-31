@@ -7,7 +7,7 @@ public enum PlayerConfigField {
     ATTEMPTS("Attempts"),
     PLAYTIME("playtime"),
     AVERAGE_SCORE("average"),
-    ANIMATION_SPEED("speed");
+    ANIMATION_SPEED("speed-level");
 
     private final String key;
 

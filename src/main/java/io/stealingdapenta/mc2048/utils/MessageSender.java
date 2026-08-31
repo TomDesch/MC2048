@@ -34,6 +34,13 @@ public enum MessageSender {
         }
     }
 
+    public void close() {
+        if (Objects.nonNull(audiences)) {
+            audiences.close();
+            audiences = null;
+        }
+    }
+
     public void sendMessage(CommandSender sender, ConfigKey messageConfig) {
         if (Objects.isNull(sender)) {
             logger.severe(ERROR_IS_NULL.formatted("Sender"));

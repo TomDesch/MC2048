@@ -3,6 +3,7 @@ package io.stealingdapenta.mc2048;
 import static io.stealingdapenta.mc2048.commands.Command.HELP;
 import static io.stealingdapenta.mc2048.commands.Command.RELOAD;
 import static io.stealingdapenta.mc2048.config.ConfigurationFileManager.CONFIGURATION_FILE_MANAGER;
+import static io.stealingdapenta.mc2048.utils.MessageSender.MESSAGE_SENDER;
 
 import io.stealingdapenta.mc2048.commands.Command;
 import io.stealingdapenta.mc2048.commands.GameCommand;
@@ -28,7 +29,7 @@ public class MC2048 extends JavaPlugin {
 
     private final HighScoreManager highScoreManager = new HighScoreManager();
     private final InventoryUtil inventoryUtil = new InventoryUtil(this, highScoreManager);
-    private final GameManager gameManager = new GameManager(inventoryUtil);
+    private final GameManager gameManager = new GameManager(inventoryUtil, highScoreManager);
     private final GameControlsListener gameControlsListener = new GameControlsListener(inventoryUtil, gameManager);
     private final GameCommand gameCommand = new GameCommand(gameManager);
     private final HighScoreCommand highScoreCommand = new HighScoreCommand(highScoreManager);
@@ -48,6 +49,7 @@ public class MC2048 extends JavaPlugin {
         logger = getLogger();
 
         CONFIGURATION_FILE_MANAGER.loadConfig();
+        highScoreManager.refreshAsync();
 
         // Register Commands
         Objects.requireNonNull(getCommand(Command._2048.getCommandName()))
@@ -68,6 +70,8 @@ public class MC2048 extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        gameManager.deactivateAllGames();
+        MESSAGE_SENDER.close();
         logger.info(ChatColor.GOLD + PLUGIN_DISABLED);
     }
 

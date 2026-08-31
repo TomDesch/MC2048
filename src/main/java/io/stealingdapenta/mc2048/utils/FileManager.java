@@ -4,10 +4,17 @@ import static io.stealingdapenta.mc2048.MC2048.logger;
 
 import io.stealingdapenta.mc2048.MC2048;
 import io.stealingdapenta.mc2048.config.ConfigKey;
+import io.stealingdapenta.mc2048.config.PlayerConfigField;
+import io.stealingdapenta.mc2048.utils.data.SavedGame;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
+import java.util.Objects;
+import java.util.Optional;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
@@ -20,6 +27,7 @@ public enum FileManager {
     private static final String FILE_CREATED = "MC 2048: YML file created for %s.";
     private static final String FILE_NOT_CREATED = "MC 2048: YML file failed to create for %s.";
     private static final String FILE_SHOULD_EXIST_ERROR = "Error fetching player file by UUID that should exist!";
+    private static final String ACTIVE_GAME_PATH = "active-game";
 
     public YamlConfiguration getConfig(Player player) {
         return YamlConfiguration.loadConfiguration(getPlayerFile(player));
@@ -38,16 +46,64 @@ public enum FileManager {
     }
 
     public int getAnimationSpeed(Player player) {
-        int savedValue = getConfig(player).getInt("speed", -1);
-        if (savedValue < 0) {
-            return ConfigKey.SPEED_BUTTON_SPEED_DEFAULT.getIntValue();
+        YamlConfiguration configuration = getConfig(player);
+        int savedValue = configuration.getInt(PlayerConfigField.ANIMATION_SPEED.getKey(), -1);
+        if (savedValue >= 1 && savedValue <= 6) {
+            return savedValue;
         }
 
-        return savedValue;
+        int legacyDelay = configuration.getInt("speed", -1);
+        if (legacyDelay >= 0 && legacyDelay <= 5) {
+            int migratedSpeed = 6 - legacyDelay;
+            configuration.set(PlayerConfigField.ANIMATION_SPEED.getKey(), migratedSpeed);
+            configuration.set("speed", null);
+            saveConfig(player, configuration);
+            return migratedSpeed;
+        }
+
+        return ConfigKey.SPEED_BUTTON_SPEED_DEFAULT.getIntValue();
+    }
+
+    public int getAnimationDelay(Player player) {
+        return 6 - getAnimationSpeed(player);
+    }
+
+    public Optional<SavedGame> getSavedGame(Player player) {
+        YamlConfiguration configuration = getConfig(player);
+        ConfigurationSection section = configuration.getConfigurationSection(ACTIVE_GAME_PATH);
+        if (section == null) {
+            return Optional.empty();
+        }
+
+        try {
+            return Optional.of(SavedGame.from(section));
+        } catch (IllegalArgumentException exception) {
+            logger.warning("Discarding invalid saved game for %s: %s".formatted(player.getName(), exception.getMessage()));
+            configuration.set(ACTIVE_GAME_PATH, null);
+            saveConfig(player, configuration);
+            return Optional.empty();
+        }
+    }
+
+    public void saveGame(Player player, SavedGame savedGame) {
+        YamlConfiguration configuration = getConfig(player);
+        configuration.set(ACTIVE_GAME_PATH, null);
+        savedGame.writeTo(configuration.createSection(ACTIVE_GAME_PATH));
+        saveConfig(player, configuration);
+    }
+
+    public void clearSavedGame(Player player) {
+        YamlConfiguration configuration = getConfig(player);
+        configuration.set(ACTIVE_GAME_PATH, null);
+        saveConfig(player, configuration);
     }
 
     public int getIntByKey(String uuid, String key) {
         return getConfig(uuid).getInt(key);
+    }
+
+    public String getStringByKey(String uuid, String key) {
+        return getConfig(uuid).getString(key);
     }
 
     public long getLongByKey(Player player, String key) {
@@ -58,6 +114,14 @@ public enum FileManager {
         YamlConfiguration yamlConfiguration = getConfig(player);
         yamlConfiguration.set(key, value);
         saveConfig(player, yamlConfiguration);
+    }
+
+    public void updatePlayerName(Player player) {
+        YamlConfiguration configuration = getConfig(player);
+        if (!Objects.equals(configuration.getString("Player Name"), player.getName())) {
+            configuration.set("Player Name", player.getName());
+            saveConfig(player, configuration);
+        }
     }
 
     private void saveConfig(Player player, YamlConfiguration config) {
@@ -80,25 +144,15 @@ public enum FileManager {
 
     public void createFile(Player player) {
         File file = new File(getUserFiles(), getFileName(player));
-        PrintWriter writer = null;
-        try {
-            writer = new PrintWriter(file);
-        } catch (FileNotFoundException e) {
-            logger.warning(EXCEPTION);
-            logger.warning(e.getMessage());
-        }
-        try {
-            file.createNewFile();
-            writer = new PrintWriter(file);
+        try (PrintWriter writer = new PrintWriter(Files.newBufferedWriter(
+            file.toPath(), StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW))) {
             writer.println("Player Name: " + player.getName());
             logger.info(FILE_CREATED.formatted(player.getName()));
-        } catch (IOException e1) {
+        } catch (IOException exception) {
             logger.warning(FILE_NOT_CREATED.formatted(player.getName()));
             logger.warning(EXCEPTION);
-            logger.warning(e1.getMessage());
-        } finally {
-            assert writer != null;
-            writer.close();
+            logger.warning(exception.getMessage());
+            throw new IllegalStateException(FILE_NOT_CREATED.formatted(player.getName()), exception);
         }
     }
 
@@ -122,7 +176,9 @@ public enum FileManager {
     public File getUserFiles() {
         File userFiles = new File(MC2048.getInstance()
                                         .getDataFolder() + File.separator + MC2048_STRING);
-        userFiles.mkdirs();
+        if (!userFiles.isDirectory() && !userFiles.mkdirs()) {
+            throw new IllegalStateException("Unable to create player data directory: " + userFiles);
+        }
         return userFiles;
     }
 
