@@ -11,8 +11,11 @@ import io.stealingdapenta.mc2048.commands.HelpCommand;
 import io.stealingdapenta.mc2048.commands.HighScoreCommand;
 import io.stealingdapenta.mc2048.commands.ReloadConfigCommand;
 import io.stealingdapenta.mc2048.listeners.GameControlsListener;
+import io.stealingdapenta.mc2048.persistence.PlayerDataService;
+import io.stealingdapenta.mc2048.persistence.PlayerDataStore;
 import io.stealingdapenta.mc2048.utils.HighScoreManager;
 import io.stealingdapenta.mc2048.utils.InventoryUtil;
+import java.time.Duration;
 import java.util.Objects;
 import java.util.logging.Logger;
 import org.bukkit.Bukkit;
@@ -27,14 +30,9 @@ public class MC2048 extends JavaPlugin {
     private static MC2048 instance = null;
 
 
-    private final HighScoreManager highScoreManager = new HighScoreManager();
-    private final InventoryUtil inventoryUtil = new InventoryUtil(this, highScoreManager);
-    private final GameManager gameManager = new GameManager(inventoryUtil, highScoreManager);
-    private final GameControlsListener gameControlsListener = new GameControlsListener(inventoryUtil, gameManager);
-    private final GameCommand gameCommand = new GameCommand(gameManager);
-    private final HighScoreCommand highScoreCommand = new HighScoreCommand(highScoreManager);
-    private final ReloadConfigCommand reloadConfigCommand = new ReloadConfigCommand(gameManager);
-    private final HelpCommand helpCommand = new HelpCommand(inventoryUtil);
+    private HighScoreManager highScoreManager;
+    private GameManager gameManager;
+    private PlayerDataService playerDataService;
 
     @Override
     public void onEnable() {
@@ -49,7 +47,19 @@ public class MC2048 extends JavaPlugin {
         logger = getLogger();
 
         CONFIGURATION_FILE_MANAGER.loadConfig();
-        highScoreManager.refreshAsync();
+        playerDataService = new PlayerDataService(new PlayerDataStore(
+            getDataFolder().toPath().resolve("mc2048"),
+            io.stealingdapenta.mc2048.config.ConfigKey.SPEED_BUTTON_SPEED_DEFAULT.getIntValue()
+        ));
+        highScoreManager = new HighScoreManager();
+        InventoryUtil inventoryUtil = new InventoryUtil(this, highScoreManager);
+        gameManager = new GameManager(this, inventoryUtil, highScoreManager, playerDataService);
+        GameControlsListener gameControlsListener = new GameControlsListener(inventoryUtil, gameManager);
+        GameCommand gameCommand = new GameCommand(gameManager);
+        HighScoreCommand highScoreCommand = new HighScoreCommand(highScoreManager);
+        ReloadConfigCommand reloadConfigCommand = new ReloadConfigCommand(gameManager);
+        HelpCommand helpCommand = new HelpCommand(gameManager);
+        highScoreManager.refreshAsync(playerDataService);
 
         // Register Commands
         Objects.requireNonNull(getCommand(Command._2048.getCommandName()))
@@ -70,7 +80,17 @@ public class MC2048 extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        gameManager.deactivateAllGames();
+        if (gameManager != null) {
+            gameManager.saveAllForShutdown();
+        }
+        if (playerDataService != null) {
+            PlayerDataService.ShutdownResult result = playerDataService.shutdown(Duration.ofSeconds(10));
+            result.failures().forEach(failure ->
+                getLogger().severe("Player data shutdown failure: " + failure.getMessage()));
+            if (!result.completed()) {
+                getLogger().severe("Player data shutdown timed out with " + result.pendingTasks() + " queued tasks.");
+            }
+        }
         MESSAGE_SENDER.close();
         logger.info(ChatColor.GOLD + PLUGIN_DISABLED);
     }

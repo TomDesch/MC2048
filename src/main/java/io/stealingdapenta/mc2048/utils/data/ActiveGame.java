@@ -8,11 +8,10 @@ import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_LORE_HIGH_S
 import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_LORE_TOTAL_PLAYTIME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_SLOT;
 import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_USAGES;
-import static io.stealingdapenta.mc2048.utils.FileManager.FILE_MANAGER;
 import static io.stealingdapenta.mc2048.utils.InventoryUtil.getPlayerSkullItem;
 
 import io.stealingdapenta.mc2048.config.ConfigKey;
-import io.stealingdapenta.mc2048.config.PlayerConfigField;
+import io.stealingdapenta.mc2048.persistence.PlayerData;
 import io.stealingdapenta.mc2048.utils.ItemBuilder;
 import io.stealingdapenta.mc2048.utils.StringUtil;
 
@@ -33,6 +32,7 @@ public class ActiveGame {
     private final int attempts;
     private final long totalPlayTime;
     private final double averageScore;
+    private int animationSpeed;
     private int undoLastMoveCounter;
     private ItemStack[][] lastPosition;
     private int scoreGainedAfterLastMove = 0;
@@ -41,21 +41,19 @@ public class ActiveGame {
     private boolean closeRequested = false;
     private boolean resetConfirmationOpen = false;
 
-    public ActiveGame(Player player, RepeatingUpdateTask relatedTask) {
-        this(player, relatedTask, null);
-    }
-
-    public ActiveGame(Player player, RepeatingUpdateTask relatedTask, SavedGame savedGame) {
+    public ActiveGame(Player player, RepeatingUpdateTask relatedTask, PlayerData playerData) {
+        SavedGame savedGame = playerData.savedGame().orElse(null);
         this.player = player;
         this.relatedTask = relatedTask;
         this.score = savedGame == null ? 0 : savedGame.score();
         this.gameOpenTime = System.currentTimeMillis();
         this.previouslyElapsedPlaytime = savedGame == null ? 0 : savedGame.elapsedPlaytime();
 
-        this.highScore = FILE_MANAGER.getIntByKey(player, PlayerConfigField.HIGH_SCORE.getKey());
-        this.attempts = FILE_MANAGER.getIntByKey(player, PlayerConfigField.ATTEMPTS.getKey());
-        this.totalPlayTime = FILE_MANAGER.getLongByKey(player, PlayerConfigField.PLAYTIME.getKey());
-        this.averageScore = FILE_MANAGER.getDoubleByKey(player, PlayerConfigField.AVERAGE_SCORE.getKey());
+        this.highScore = playerData.highScore();
+        this.attempts = playerData.attempts();
+        this.totalPlayTime = playerData.playtime();
+        this.averageScore = playerData.averageScore();
+        this.animationSpeed = playerData.animationSpeed();
         this.undoLastMoveCounter = savedGame == null ? UNDO_BUTTON_USAGES.getIntValue() : savedGame.undoRemaining();
         this.scoreGainedAfterLastMove = savedGame == null ? 0 : savedGame.scoreGainedAfterLastMove();
         this.lastMoveUndo = savedGame != null && savedGame.lastMoveUndo();
@@ -128,6 +126,18 @@ public class ActiveGame {
 
     public double getAverageScore() {
         return averageScore;
+    }
+
+    public int getAnimationSpeed() {
+        return animationSpeed;
+    }
+
+    public int getAnimationDelay() {
+        return 6 - animationSpeed;
+    }
+
+    public void setAnimationSpeed(int animationSpeed) {
+        this.animationSpeed = animationSpeed;
     }
 
     public void decrementUndoLastMoveCounter() {

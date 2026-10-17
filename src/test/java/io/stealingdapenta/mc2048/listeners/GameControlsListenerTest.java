@@ -20,6 +20,8 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.player.PlayerKickEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.InventoryView;
@@ -254,7 +256,7 @@ class GameControlsListenerTest {
         listener.onGameClose(event);
 
         verify(gameManager).pauseGame(activeGame);
-        verify(gameManager, never()).completeGame(any());
+        verify(gameManager, never()).completeGame(any(), any());
     }
 
     @Test
@@ -281,7 +283,7 @@ class GameControlsListenerTest {
 
         verify(activeGame).setResetConfirmationOpen(true);
         verify(player).openInventory(confirmation);
-        verify(gameManager, never()).resetGame(any());
+        verify(gameManager, never()).resetGame(any(), any());
     }
 
     @Test
@@ -289,12 +291,16 @@ class GameControlsListenerTest {
     void confirmingResetStartsNewGame() {
         when(inventoryUtil.isGameWindow(view)).thenReturn(false);
         when(inventoryUtil.isResetConfirmationWindow(view)).thenReturn(true);
+        doAnswer(invocation -> {
+            invocation.getArgument(1, Runnable.class).run();
+            return null;
+        }).when(gameManager).resetGame(eq(activeGame), any());
         InventoryClickEvent event = clickEvent(InventoryUtil.RESET_CONFIRM_SLOT, clickedInventory);
 
         listener.onButtonClick(event);
 
         verify(activeGame).setResetConfirmationOpen(false);
-        verify(gameManager).resetGame(activeGame);
+        verify(gameManager).resetGame(eq(activeGame), any());
         verify(gameManager).activateGame(player);
     }
 
@@ -308,7 +314,7 @@ class GameControlsListenerTest {
 
         listener.onButtonClick(event);
 
-        verify(gameManager, never()).resetGame(any());
+        verify(gameManager, never()).resetGame(any(), any());
         verify(player).openInventory(gameInventory);
     }
 
@@ -326,6 +332,26 @@ class GameControlsListenerTest {
 
         verify(activeGame).setResetConfirmationOpen(false);
         verify(gameManager).pauseGame(activeGame);
+    }
+
+    @Test
+    void onPlayerQuitSavesActiveSession() {
+        PlayerQuitEvent event = mock(PlayerQuitEvent.class);
+        when(event.getPlayer()).thenReturn(player);
+
+        listener.onPlayerQuit(event);
+
+        verify(gameManager).saveOnDeparture(player);
+    }
+
+    @Test
+    void onPlayerKickSavesActiveSession() {
+        PlayerKickEvent event = mock(PlayerKickEvent.class);
+        when(event.getPlayer()).thenReturn(player);
+
+        listener.onPlayerKick(event);
+
+        verify(gameManager).saveOnDeparture(player);
     }
 
     @Test

@@ -3,7 +3,6 @@ package io.stealingdapenta.mc2048.utils;
 import static io.stealingdapenta.mc2048.config.ConfigKey.HIGH_SCORE_ITEM_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.HIGH_SCORE_ITEM_MATERIAL;
 import static io.stealingdapenta.mc2048.config.ConfigKey.HIGH_SCORE_ITEM_LORE_FORMAT;
-import static io.stealingdapenta.mc2048.utils.FileManager.FILE_MANAGER;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,7 +18,6 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.OptionalInt;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
@@ -30,6 +28,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import io.stealingdapenta.mc2048.config.PlayerConfigField;
 import io.stealingdapenta.mc2048.MC2048;
+import io.stealingdapenta.mc2048.persistence.PlayerDataService;
 
 
 public class HighScoreManager {
@@ -85,9 +84,22 @@ public class HighScoreManager {
         return Collections.unmodifiableMap(sortByHiScores(scoresByName));
     }
 
-    public void refreshAsync() {
-        CompletableFuture.supplyAsync(this::loadHighScores)
-                         .thenAccept(this::mergeIntoCache)
+    public void refreshAsync(PlayerDataService playerDataService) {
+        playerDataService.loadAll()
+                         .thenAccept(batch -> {
+                             Map<UUID, PlayerScore> loaded = batch.players().entrySet().stream().collect(
+                                 Collectors.toMap(
+                                     Map.Entry::getKey,
+                                     entry -> new PlayerScore(
+                                         entry.getValue().playerName(),
+                                         entry.getValue().highScore()
+                                     )
+                                 )
+                             );
+                             mergeIntoCache(loaded);
+                             batch.failures().forEach(failure ->
+                                 logWarning("Skipping malformed player data file " + failure));
+                         })
                          .exceptionally(exception -> {
                              logWarning(ERROR_FETCHING_FILES);
                              logWarning(exception.getMessage());
@@ -99,7 +111,7 @@ public class HighScoreManager {
         recordScore(player.getUniqueId(), player.getName(), score);
     }
 
-    synchronized void recordScore(UUID playerId, String playerName, int score) {
+    public synchronized void recordScore(UUID playerId, String playerName, int score) {
         Map<UUID, PlayerScore> updatedScores = new HashMap<>(cachedHighScores);
         updatedScores.merge(
             playerId,
@@ -117,11 +129,6 @@ public class HighScoreManager {
             (loaded, cached) -> new PlayerScore(cached.playerName(), Math.max(loaded.score(), cached.score()))
         ));
         cachedHighScores = Collections.unmodifiableMap(mergedScores);
-    }
-
-    private Map<UUID, PlayerScore> loadHighScores() {
-        File userFilesFolder = FILE_MANAGER.getUserFiles();
-        return loadHighScores(userFilesFolder);
     }
 
     private Map<UUID, PlayerScore> loadHighScores(File userFilesFolder) {

@@ -8,12 +8,10 @@ import static io.stealingdapenta.mc2048.config.ConfigKey.MSG_INVALID_MOVE;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MSG_UNDID_LAST_MOVE;
 import static io.stealingdapenta.mc2048.config.ConfigKey.TITLE_GAME_OVER;
 import static io.stealingdapenta.mc2048.config.ConfigKey.TITLE_GAME_OVER_SUB;
-import static io.stealingdapenta.mc2048.utils.FileManager.FILE_MANAGER;
 import static io.stealingdapenta.mc2048.utils.MessageSender.MESSAGE_SENDER;
 
 import io.stealingdapenta.mc2048.GameManager;
 import io.stealingdapenta.mc2048.config.ConfigKey;
-import io.stealingdapenta.mc2048.config.PlayerConfigField;
 import io.stealingdapenta.mc2048.utils.InventoryUtil;
 import io.stealingdapenta.mc2048.utils.StringUtil;
 import io.stealingdapenta.mc2048.utils.data.ActiveGame;
@@ -25,6 +23,8 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.player.PlayerKickEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -143,8 +143,8 @@ public class GameControlsListener implements Listener {
 
         activeGame.setResetConfirmationOpen(false);
         if (ButtonAction.RESET_CONFIRM.equals(action)) {
-            gameManager.resetGame(activeGame);
-            gameManager.activateGame(player);
+            activeGame.setLock(true);
+            gameManager.resetGame(activeGame, () -> gameManager.activateGame(player));
         } else if (ButtonAction.RESET_CANCEL.equals(action)) {
             player.openInventory(activeGame.getGameWindow());
         }
@@ -159,7 +159,7 @@ public class GameControlsListener implements Listener {
         }
 
         if (ButtonAction.SPEED.equals(action)) {
-            int curr = FILE_MANAGER.getAnimationSpeed(player);
+            int curr = activeGame.getAnimationSpeed();
             if (1 <= curr && curr <= 5) {
                 curr++;
             } else if (curr == 6) {
@@ -168,7 +168,7 @@ public class GameControlsListener implements Listener {
                 curr = ConfigKey.SPEED_BUTTON_SPEED_DEFAULT.getIntValue();
             }
 
-            FILE_MANAGER.setValueByKey(player, PlayerConfigField.ANIMATION_SPEED.getKey(), curr);
+            gameManager.setAnimationSpeed(activeGame, curr);
             inventoryUtil.updateSpeedButton(activeGame, curr);
             return;
         }
@@ -194,7 +194,7 @@ public class GameControlsListener implements Listener {
             gameManager.persistGame(activeGame);
             activeGame.setLock(false);
         } else if (tickDelay > 0) {
-            final long caclualtedDelay = tickDelay + (2L * FILE_MANAGER.getAnimationDelay(player) + 2);
+            final long caclualtedDelay = tickDelay + (2L * activeGame.getAnimationDelay() + 2);
             new BukkitRunnable() {
                 @Override
                 public void run() {
@@ -204,8 +204,7 @@ public class GameControlsListener implements Listener {
 
                     if (inventoryUtil.noValidMovesLeft(activeGame.getGameWindow()) && activeGame.hasNoUndoLastMoveLeft()) {
                         if (activeGame.isCloseRequested()) {
-                            gameManager.completeGame(activeGame);
-                            doGameOver(activeGame);
+                            gameManager.completeGame(activeGame, () -> doGameOver(activeGame));
                             return;
                         }
 
@@ -220,11 +219,10 @@ public class GameControlsListener implements Listener {
                         new BukkitRunnable() {
                             @Override
                             public void run() {
-                                gameManager.completeGame(activeGame);
-                                activeGame.getPlayer()
-                                            .getOpenInventory()
-                                            .close();
-                                doGameOver(activeGame);
+                                gameManager.completeGame(activeGame, () -> {
+                                    activeGame.getPlayer().getOpenInventory().close();
+                                    doGameOver(activeGame);
+                                });
                             }
                         }.runTaskLater(inventoryUtil.javaPlugin, endDelay);
                     } else if (activeGame.isCloseRequested()) {
@@ -286,5 +284,15 @@ public class GameControlsListener implements Listener {
     private void doGameOver(ActiveGame activeGame) {
         MESSAGE_SENDER.sendMessage(activeGame.getPlayer(), MSG_GAME_OVER);
         MESSAGE_SENDER.sendTitle(activeGame.getPlayer(), TITLE_GAME_OVER.getFormattedValue(), TITLE_GAME_OVER_SUB.getFormattedValue(StringUtil.formatInt(activeGame.getScore()), activeGame.getCurrentPlayTimeFormatted()));
+    }
+
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        gameManager.saveOnDeparture(event.getPlayer());
+    }
+
+    @EventHandler
+    public void onPlayerKick(PlayerKickEvent event) {
+        gameManager.saveOnDeparture(event.getPlayer());
     }
 }

@@ -78,14 +78,13 @@ import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_USED_MATERI
 import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_USED_MATERIAL_CMD;
 import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_USED_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_USED_USES;
-import static io.stealingdapenta.mc2048.utils.FileManager.FILE_MANAGER;
 import static io.stealingdapenta.mc2048.utils.ItemBuilder.setCustomModelDataTo;
 import static io.stealingdapenta.mc2048.utils.data.ActiveGame.makeSecondsATimestamp;
 import static org.bukkit.Bukkit.createInventory;
 
 import io.stealingdapenta.mc2048.MC2048;
 import io.stealingdapenta.mc2048.config.ConfigKey;
-import io.stealingdapenta.mc2048.config.PlayerConfigField;
+import io.stealingdapenta.mc2048.persistence.PlayerData;
 import io.stealingdapenta.mc2048.utils.data.ActiveGame;
 import io.stealingdapenta.mc2048.utils.data.ButtonAction;
 import io.stealingdapenta.mc2048.utils.data.GameHolder;
@@ -228,7 +227,7 @@ public class InventoryUtil {
         return inventory;
     }
 
-    public Inventory createHelpInventory(Player player) {
+    public Inventory createHelpInventory(Player player, PlayerData playerData) {
         Inventory helpGUI = createHelperGUIWindow(player, HELP_GUI_TITLE);
 
         final int playerStatsSlot = 28;
@@ -237,7 +236,7 @@ public class InventoryUtil {
         final int playButtonSlot = 49;
 
         fillWithLegend(helpGUI);
-        setItemInSlot(helpGUI, playerStatsSlot, getHelpGUIPlayerStatsHead(player));
+        setItemInSlot(helpGUI, playerStatsSlot, getHelpGUIPlayerStatsHead(player, playerData));
         setItemInSlot(helpGUI, highScoreSlot, highScoreManager.getHighScoresItem());
         setItemInSlot(helpGUI, infoSlot, setCustomModelDataTo(new ItemBuilder(INFO_ITEM_MATERIAL.getMaterialValue()).setDisplayName(INFO_ITEM_NAME.getFormattedValue())
                                                                                                                     .addLore(INFO_ITEM_LORE_1.getFormattedValue())
@@ -340,7 +339,7 @@ public class InventoryUtil {
         }
 
         if (SLOT_SPEED >= 0) {
-            setItemInSlot(activeGame.getGameWindow(), SLOT_SPEED, getSpeedButton(FILE_MANAGER.getAnimationSpeed(activeGame.getPlayer())));
+            setItemInSlot(activeGame.getGameWindow(), SLOT_SPEED, getSpeedButton(activeGame.getAnimationSpeed()));
         }
         if (SLOT_RESET >= 0) {
             setItemInSlot(
@@ -541,10 +540,10 @@ public class InventoryUtil {
         // [debug] javaPlugin.getLogger().info("moveItems.lastPosition saved");
 
         // Animate the moves and get the maximum number of steps (ticks) needed
-        int maxSteps = animateMovementsSimultaneous(player, activeGame.getGameWindow(), instructions);
+        int maxSteps = animateMovementsSimultaneous(activeGame, activeGame.getGameWindow(), instructions);
 
         // Compute tick delay for final board update (ensure at least 1 tick delay)
-        return Math.max((maxSteps - 1) * FILE_MANAGER.getAnimationDelay(player), 1);
+        return Math.max((maxSteps - 1) * activeGame.getAnimationDelay(), 1);
     }
 
 
@@ -684,7 +683,8 @@ public class InventoryUtil {
      *
      * @return max steps for this movement
      */
-    public int animateMovementsSimultaneous(Player player, Inventory menu, List<MovementInstruction> instructions) {
+    public int animateMovementsSimultaneous(ActiveGame activeGame, Inventory menu,
+                                            List<MovementInstruction> instructions) {
         // Compute the overall maximum steps from the instructions
         int maxSteps = instructions.stream()
                                    .mapToInt(instruction -> instruction.totalSteps)
@@ -715,7 +715,7 @@ public class InventoryUtil {
                         }
                     }
                 }
-            }.runTaskLater(javaPlugin, (currentStep - 1L) * FILE_MANAGER.getAnimationDelay(player));
+            }.runTaskLater(javaPlugin, (currentStep - 1L) * activeGame.getAnimationDelay());
         }
         return maxSteps;
     }
@@ -911,11 +911,11 @@ public class InventoryUtil {
         return new ItemBuilder(chosenNumber.getDisplayableBlock()).create();
     }
 
-    private ItemStack getHelpGUIPlayerStatsHead(Player player) {
-        return (new ItemBuilder(getPlayerSkullItem(player))).addLore(PLAYER_ITEM_LORE_GAMES_PLAYED.getFormattedValue(StringUtil.formatLong(FILE_MANAGER.getLongByKey(player, PlayerConfigField.ATTEMPTS.getKey()))))
-                                                            .addLore(PLAYER_ITEM_LORE_TOTAL_PLAYTIME.getFormattedValue(makeSecondsATimestamp(FILE_MANAGER.getLongByKey(player, PlayerConfigField.PLAYTIME.getKey()))))
-                                                            .addLore(PLAYER_ITEM_LORE_HIGH_SCORE.getFormattedValue(StringUtil.formatLong(FILE_MANAGER.getLongByKey(player, PlayerConfigField.HIGH_SCORE.getKey()))))
-                                                            .addLore(PLAYER_ITEM_LORE_AVERAGE_SCORE.getFormattedValue(StringUtil.formatLong(Math.round(FILE_MANAGER.getLongByKey(player, PlayerConfigField.AVERAGE_SCORE.getKey())))))
+    private ItemStack getHelpGUIPlayerStatsHead(Player player, PlayerData playerData) {
+        return (new ItemBuilder(getPlayerSkullItem(player))).addLore(PLAYER_ITEM_LORE_GAMES_PLAYED.getFormattedValue(StringUtil.formatLong(playerData.attempts())))
+                                                            .addLore(PLAYER_ITEM_LORE_TOTAL_PLAYTIME.getFormattedValue(makeSecondsATimestamp(playerData.playtime())))
+                                                            .addLore(PLAYER_ITEM_LORE_HIGH_SCORE.getFormattedValue(StringUtil.formatLong(playerData.highScore())))
+                                                            .addLore(PLAYER_ITEM_LORE_AVERAGE_SCORE.getFormattedValue(StringUtil.formatLong(Math.round(playerData.averageScore()))))
                                                             .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
                                                             .create();
     }
