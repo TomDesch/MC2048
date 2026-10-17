@@ -11,6 +11,7 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.components.CustomModelDataComponent;
 
 /**
  * Code based on original code from XTens Prison Core
@@ -129,8 +130,15 @@ public class ItemBuilder {
     }
 
     public static ItemStack setCustomModelDataTo(ItemStack itemStack, Integer amount) {
-        Objects.requireNonNull(itemStack.getItemMeta(), ERROR_SETTING_CMD.formatted(itemStack))
-               .setCustomModelData(amount);
+        ItemMeta itemMeta = Objects.requireNonNull(itemStack.getItemMeta(), ERROR_SETTING_CMD.formatted(itemStack));
+        if (Objects.isNull(amount)) {
+            itemMeta.setCustomModelDataComponent(null);
+        } else {
+            CustomModelDataComponent customModelData = itemMeta.getCustomModelDataComponent();
+            customModelData.setFloats(List.of(amount.floatValue()));
+            itemMeta.setCustomModelDataComponent(customModelData);
+        }
+        itemStack.setItemMeta(itemMeta);
         return itemStack;
     }
 }
