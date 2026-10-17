@@ -17,6 +17,12 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.UnaryOperator;
 
+/**
+ * Runs player file operations off the server thread while preserving per-player submission order.
+ *
+ * <p>Different players may be processed concurrently. Shutdown rejects new work, drains every
+ * accepted player chain, and reports failures or timeout rather than silently discarding saves.
+ */
 public final class PlayerDataService {
 
     private static final int THREAD_COUNT = 2;

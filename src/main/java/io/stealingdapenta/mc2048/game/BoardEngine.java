@@ -5,6 +5,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.random.RandomGenerator;
 
+/**
+ * Applies 2048 board rules without depending on Bukkit inventory state.
+ *
+ * <p>The engine returns new board values and movement metadata; callers remain responsible for
+ * rendering animations and persisting the resulting game state.
+ */
 public final class BoardEngine {
 
     public static final int SIZE = 4;

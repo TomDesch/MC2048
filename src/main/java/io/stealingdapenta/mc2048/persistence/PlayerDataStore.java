@@ -16,6 +16,12 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 
+/**
+ * Maps immutable player data to UUID-named YAML files using whole-file atomic replacement.
+ *
+ * <p>This class performs blocking disk access and must be called through {@link PlayerDataService}
+ * during normal plugin operation.
+ */
 public final class PlayerDataStore {
 
     private static final String PLAYER_NAME_KEY = "Player Name";

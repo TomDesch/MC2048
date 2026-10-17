@@ -9,6 +9,12 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.UUID;
 
+/**
+ * Replaces a data file only after its complete new contents have been written successfully.
+ *
+ * <p>The system implementation writes a sibling temporary file and moves it over the target,
+ * preventing an interrupted save from leaving a partially written player file.
+ */
 @FunctionalInterface
 interface AtomicFileWriter {
 

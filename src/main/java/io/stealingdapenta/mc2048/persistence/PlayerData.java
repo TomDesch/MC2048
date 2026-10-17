@@ -4,6 +4,9 @@ import io.stealingdapenta.mc2048.utils.data.SavedGame;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * Immutable persisted state for one player, including statistics and an optional resumable game.
+ */
 public record PlayerData(
     UUID playerId,
     String playerName,

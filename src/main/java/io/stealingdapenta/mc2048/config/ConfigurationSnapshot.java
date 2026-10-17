@@ -4,6 +4,12 @@ import java.util.EnumMap;
 import java.util.Map;
 import org.bukkit.configuration.file.FileConfiguration;
 
+/**
+ * Immutable validated configuration used by running games.
+ *
+ * <p>Reloads build a new snapshot before replacing the live one, so an invalid or partially
+ * loaded file cannot change behavior midway through a session.
+ */
 public final class ConfigurationSnapshot {
 
     private final Map<ConfigKey, String> values;
