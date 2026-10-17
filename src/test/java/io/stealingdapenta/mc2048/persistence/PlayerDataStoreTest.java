@@ -12,6 +12,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -23,7 +24,7 @@ class PlayerDataStoreTest {
     @Test
     void updateWithCompletedGameWritesAllStatisticsAndClearsSavedGameAtomically() throws IOException {
         UUID playerId = UUID.randomUUID();
-        PlayerDataStore store = new PlayerDataStore(temporaryDirectory, 3);
+        PlayerDataStore store = new PlayerDataStore(temporaryDirectory, () -> 3);
         SavedGame savedGame = savedGame();
         store.update(playerId, "Alex", data -> new PlayerData(
             playerId, "Alex", 128, 2, 10_000, 64, 4, java.util.Optional.of(savedGame)));
@@ -46,7 +47,7 @@ class PlayerDataStoreTest {
         UUID playerId = UUID.randomUUID();
         PlayerDataStore store = new PlayerDataStore(
             temporaryDirectory,
-            3,
+            () -> 3,
             (target, content) -> {
                 throw new IOException("disk full");
             }
@@ -59,6 +60,16 @@ class PlayerDataStoreTest {
 
         assertEquals("disk full", exception.getMessage());
         assertFalse(Files.exists(temporaryDirectory.resolve(playerId + ".yml")));
+    }
+
+    @Test
+    void readWithMissingSpeedUsesCurrentConfiguredDefault() throws IOException {
+        AtomicInteger configuredDefault = new AtomicInteger(3);
+        PlayerDataStore store = new PlayerDataStore(temporaryDirectory, configuredDefault::get);
+
+        assertEquals(3, store.read(UUID.randomUUID(), "Alex").animationSpeed());
+        configuredDefault.set(5);
+        assertEquals(5, store.read(UUID.randomUUID(), "Steve").animationSpeed());
     }
 
     private SavedGame savedGame() {

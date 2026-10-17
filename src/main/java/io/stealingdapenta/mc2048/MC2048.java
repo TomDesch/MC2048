@@ -49,7 +49,7 @@ public class MC2048 extends JavaPlugin {
         CONFIGURATION_FILE_MANAGER.loadConfig();
         playerDataService = new PlayerDataService(new PlayerDataStore(
             getDataFolder().toPath().resolve("mc2048"),
-            io.stealingdapenta.mc2048.config.ConfigKey.SPEED_BUTTON_SPEED_DEFAULT.getIntValue()
+            () -> io.stealingdapenta.mc2048.config.ConfigKey.SPEED_BUTTON_SPEED_DEFAULT.getIntValue()
         ));
         highScoreManager = new HighScoreManager();
         InventoryUtil inventoryUtil = new InventoryUtil(this, highScoreManager);

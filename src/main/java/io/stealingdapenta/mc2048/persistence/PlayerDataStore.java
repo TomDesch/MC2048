@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.UnaryOperator;
+import java.util.function.IntSupplier;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -21,14 +22,14 @@ public final class PlayerDataStore {
     private static final String ACTIVE_GAME_PATH = "active-game";
 
     private final Path dataDirectory;
-    private final int defaultAnimationSpeed;
+    private final IntSupplier defaultAnimationSpeed;
     private final AtomicFileWriter writer;
 
-    public PlayerDataStore(Path dataDirectory, int defaultAnimationSpeed) {
+    public PlayerDataStore(Path dataDirectory, IntSupplier defaultAnimationSpeed) {
         this(dataDirectory, defaultAnimationSpeed, AtomicFileWriter.system());
     }
 
-    PlayerDataStore(Path dataDirectory, int defaultAnimationSpeed, AtomicFileWriter writer) {
+    PlayerDataStore(Path dataDirectory, IntSupplier defaultAnimationSpeed, AtomicFileWriter writer) {
         this.dataDirectory = dataDirectory;
         this.defaultAnimationSpeed = defaultAnimationSpeed;
         this.writer = writer;
@@ -136,11 +137,12 @@ public final class PlayerDataStore {
             return savedSpeed;
         }
         int legacyDelay = configuration.getInt("speed", -1);
-        return legacyDelay >= 0 && legacyDelay <= 5 ? 6 - legacyDelay : defaultAnimationSpeed;
+        return legacyDelay >= 0 && legacyDelay <= 5 ? 6 - legacyDelay : defaultAnimationSpeed.getAsInt();
     }
 
     private PlayerData defaults(UUID playerId, String playerName) {
-        return new PlayerData(playerId, playerName, 0, 0, 0, 0, defaultAnimationSpeed, Optional.empty());
+        return new PlayerData(
+            playerId, playerName, 0, 0, 0, 0, defaultAnimationSpeed.getAsInt(), Optional.empty());
     }
 
     private Path playerFile(UUID playerId) {

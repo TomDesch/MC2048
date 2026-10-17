@@ -504,6 +504,7 @@ public class InventoryUtil {
                     activeGame.setLastMoveUndo(false);
 
                     copyItemArrayToGameWindow(gameWindow, itemsInGame);
+                    activeGame.clearPendingBoard();
                 }
             }.runTaskLater(javaPlugin, tickDelay);
         }
@@ -535,6 +536,7 @@ public class InventoryUtil {
         }
 
         copyValueBoardToItems(result.board(), inventoryArray);
+        activeGame.setPendingBoard(copyBoard(inventoryArray));
         activeGame.addToScore(result.scoreGain());
         activeGame.setScoreGainedAfterLastMove(result.scoreGain());
         List<MovementInstruction> instructions = result.movements().stream()
@@ -626,15 +628,49 @@ public class InventoryUtil {
     }
 
     public SavedGame createSavedGame(ActiveGame activeGame) {
+        ItemStack[][] logicalBoard = currentLogicalBoard(activeGame);
         return new SavedGame(
             activeGame.getScore(),
             activeGame.getMillisecondsSinceStart(),
             activeGame.getUndoLastMoveCounter(),
             activeGame.getScoreGainedAfterLastMove(),
             activeGame.isLastMoveUndo(),
-            flattenBoard(activeGame.getGameWindow()),
+            flattenBoard(logicalBoard),
             flattenBoard(activeGame.getLastPosition())
         );
+    }
+
+    public SavedGame createShutdownSavedGame(ActiveGame activeGame) {
+        ItemStack[][] logicalBoard = currentLogicalBoard(activeGame);
+        if (activeGame.getPendingBoard() != null) {
+            BoardEngine.SpawnResult spawn = boardEngine.spawn(
+                toValueBoard(logicalBoard),
+                GENERATE_NEW_BLOCK_FOUR_PERCENT.getIntValue(),
+                random
+            );
+            copyValueBoardToItems(spawn.board(), logicalBoard);
+        }
+        return new SavedGame(
+            activeGame.getScore(),
+            activeGame.getMillisecondsSinceStart(),
+            activeGame.getUndoLastMoveCounter(),
+            activeGame.getScoreGainedAfterLastMove(),
+            activeGame.isLastMoveUndo(),
+            flattenBoard(logicalBoard),
+            flattenBoard(activeGame.getLastPosition())
+        );
+    }
+
+    public boolean noValidMovesLeft(ActiveGame activeGame) {
+        return !boardEngine.hasLegalMove(toValueBoard(currentLogicalBoard(activeGame)));
+    }
+
+    public boolean noValidMovesLeft(SavedGame savedGame) {
+        int[][] board = new int[ROW_AND_COLUMN_SIZE][ROW_AND_COLUMN_SIZE];
+        for (int index = 0; index < savedGame.board().size(); index++) {
+            board[index / ROW_AND_COLUMN_SIZE][index % ROW_AND_COLUMN_SIZE] = savedGame.board().get(index);
+        }
+        return !boardEngine.hasLegalMove(board);
     }
 
     public void restoreSavedGame(ActiveGame activeGame, SavedGame savedGame) {
@@ -648,6 +684,23 @@ public class InventoryUtil {
         ItemStack[][] board = new ItemStack[ROW_AND_COLUMN_SIZE][ROW_AND_COLUMN_SIZE];
         copyGameWindowContentsToArray(inventory, board);
         return flattenBoard(board);
+    }
+
+    private ItemStack[][] currentLogicalBoard(ActiveGame activeGame) {
+        if (activeGame.getPendingBoard() != null) {
+            return copyBoard(activeGame.getPendingBoard());
+        }
+        ItemStack[][] board = new ItemStack[ROW_AND_COLUMN_SIZE][ROW_AND_COLUMN_SIZE];
+        copyGameWindowContentsToArray(activeGame.getGameWindow(), board);
+        return board;
+    }
+
+    private ItemStack[][] copyBoard(ItemStack[][] source) {
+        ItemStack[][] copy = new ItemStack[ROW_AND_COLUMN_SIZE][ROW_AND_COLUMN_SIZE];
+        for (int row = 0; row < ROW_AND_COLUMN_SIZE; row++) {
+            copy[row] = Arrays.copyOf(source[row], source[row].length);
+        }
+        return copy;
     }
 
     private List<Integer> flattenBoard(ItemStack[][] board) {

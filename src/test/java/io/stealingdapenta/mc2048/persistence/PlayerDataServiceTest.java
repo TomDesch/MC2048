@@ -25,7 +25,7 @@ class PlayerDataServiceTest {
         CountDownLatch releaseFirstWrite = new CountDownLatch(1);
         AtomicFileWriter systemWriter = AtomicFileWriter.system();
         java.util.concurrent.atomic.AtomicInteger writes = new java.util.concurrent.atomic.AtomicInteger();
-        PlayerDataStore store = new PlayerDataStore(temporaryDirectory, 3, (target, content) -> {
+        PlayerDataStore store = new PlayerDataStore(temporaryDirectory, () -> 3, (target, content) -> {
             if (writes.incrementAndGet() == 1) {
                 firstWriteStarted.countDown();
                 await(releaseFirstWrite);
@@ -54,7 +54,7 @@ class PlayerDataServiceTest {
         CountDownLatch writeStarted = new CountDownLatch(1);
         CountDownLatch releaseWrite = new CountDownLatch(1);
         AtomicFileWriter systemWriter = AtomicFileWriter.system();
-        PlayerDataStore store = new PlayerDataStore(temporaryDirectory, 3, (target, content) -> {
+        PlayerDataStore store = new PlayerDataStore(temporaryDirectory, () -> 3, (target, content) -> {
             writeStarted.countDown();
             await(releaseWrite);
             systemWriter.write(target, content);

@@ -35,11 +35,13 @@ public class ActiveGame {
     private int animationSpeed;
     private int undoLastMoveCounter;
     private ItemStack[][] lastPosition;
+    private ItemStack[][] pendingBoard;
     private int scoreGainedAfterLastMove = 0;
     private boolean lastMoveUndo = false;
     private boolean locked = false;
     private boolean closeRequested = false;
     private boolean resetConfirmationOpen = false;
+    private boolean terminalSavePending = false;
 
     public ActiveGame(Player player, RepeatingUpdateTask relatedTask, PlayerData playerData) {
         SavedGame savedGame = playerData.savedGame().orElse(null);
@@ -168,6 +170,18 @@ public class ActiveGame {
         this.lastPosition = lastPosition;
     }
 
+    public ItemStack[][] getPendingBoard() {
+        return pendingBoard;
+    }
+
+    public void setPendingBoard(ItemStack[][] pendingBoard) {
+        this.pendingBoard = pendingBoard;
+    }
+
+    public void clearPendingBoard() {
+        pendingBoard = null;
+    }
+
     public int getScoreGainedAfterLastMove() {
         return scoreGainedAfterLastMove;
     }
@@ -214,6 +228,14 @@ public class ActiveGame {
 
     public void setResetConfirmationOpen(boolean resetConfirmationOpen) {
         this.resetConfirmationOpen = resetConfirmationOpen;
+    }
+
+    public boolean isTerminalSavePending() {
+        return terminalSavePending;
+    }
+
+    public void setTerminalSavePending(boolean terminalSavePending) {
+        this.terminalSavePending = terminalSavePending;
     }
 
     public double calculateNewAverageScore() {

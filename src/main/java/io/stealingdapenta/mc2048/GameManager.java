@@ -129,6 +129,13 @@ public class GameManager {
     public void saveOnDeparture(Player player) {
         ActiveGame activeGame = activeGames.get(player.getUniqueId());
         if (activeGame != null) {
+            if (activeGame.isTerminalSavePending()) {
+                return;
+            }
+            if (activeGame.isLocked()) {
+                activeGame.requestClose();
+                return;
+            }
             pauseGame(activeGame);
         }
         activationRequests.remove(player.getUniqueId());
@@ -141,6 +148,7 @@ public class GameManager {
     }
 
     public void completeGame(ActiveGame activeGame, Runnable onSuccess) {
+        activeGame.setTerminalSavePending(true);
         UUID playerId = activeGame.getPlayer().getUniqueId();
         String playerName = activeGame.getPlayer().getName();
         int score = activeGame.getScore();
@@ -152,6 +160,7 @@ public class GameManager {
             data -> data.completed(score, elapsedPlaytime, averageScore)
         ).whenComplete((updated, failure) -> runOnPrimary(() -> {
             if (failure != null) {
+                activeGame.setTerminalSavePending(false);
                 reportFailure("saving completed game for " + playerName, failure);
                 activeGame.setLock(false);
                 activeGame.getPlayer().sendMessage("MC2048 could not save the completed game. Please try again.");
@@ -167,11 +176,13 @@ public class GameManager {
     }
 
     public void resetGame(ActiveGame activeGame, Runnable onSuccess) {
+        activeGame.setTerminalSavePending(true);
         UUID playerId = activeGame.getPlayer().getUniqueId();
         String playerName = activeGame.getPlayer().getName();
         playerDataService.update(playerId, playerName, PlayerData::withoutSavedGame)
                          .whenComplete((ignored, failure) -> runOnPrimary(() -> {
                              if (failure != null) {
+                                 activeGame.setTerminalSavePending(false);
                                  reportFailure("resetting game for " + playerName, failure);
                                  activeGame.setLock(false);
                                  activeGame.getPlayer().sendMessage("MC2048 could not reset the game. Please try again.");
@@ -250,11 +261,34 @@ public class GameManager {
     public void saveAllForShutdown() {
         shuttingDown = true;
         new ArrayList<>(activeGames.values()).forEach(activeGame -> {
-            SavedGame savedGame = inventoryUtil.createSavedGame(activeGame);
+            if (activeGame.isTerminalSavePending()) {
+                return;
+            }
+            SavedGame savedGame = inventoryUtil.createShutdownSavedGame(activeGame);
             removeActiveGame(activeGame);
-            saveGame(activeGame, savedGame);
+            if (inventoryUtil.noValidMovesLeft(savedGame) && activeGame.hasNoUndoLastMoveLeft()) {
+                queueCompletedGame(activeGame);
+            } else {
+                saveGame(activeGame, savedGame);
+            }
         });
         activationRequests.clear();
+    }
+
+    private void queueCompletedGame(ActiveGame activeGame) {
+        UUID playerId = activeGame.getPlayer().getUniqueId();
+        String playerName = activeGame.getPlayer().getName();
+        int score = activeGame.getScore();
+        long elapsedPlaytime = activeGame.getMillisecondsSinceStart();
+        double averageScore = activeGame.calculateNewAverageScore();
+        playerDataService.update(
+            playerId,
+            playerName,
+            data -> data.completed(score, elapsedPlaytime, averageScore)
+        ).exceptionally(failure -> {
+            reportFailure("saving completed game during shutdown for " + playerName, failure);
+            return null;
+        });
     }
 
     public RepeatingUpdateTask createTaskUpdatingPlayerStatItem(Player player) {
