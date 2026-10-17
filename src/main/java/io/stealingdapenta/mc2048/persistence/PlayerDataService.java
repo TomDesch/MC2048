@@ -7,10 +7,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -26,7 +27,6 @@ import java.util.function.UnaryOperator;
 public final class PlayerDataService {
 
     private static final int THREAD_COUNT = 2;
-    private static final int QUEUE_CAPACITY = 128;
     private static final long EXECUTOR_TERMINATION_TIMEOUT_SECONDS = 1;
 
     private final PlayerDataStore store;
@@ -45,7 +45,7 @@ public final class PlayerDataService {
             THREAD_COUNT,
             0,
             TimeUnit.MILLISECONDS,
-            new ArrayBlockingQueue<>(QUEUE_CAPACITY),
+            new LinkedBlockingQueue<>(),
             runnable -> {
                 Thread thread = new Thread(
                     runnable,
@@ -87,8 +87,8 @@ public final class PlayerDataService {
     }
 
     private ShutdownResult shutdownOnce(Duration timeout) {
-        long timeoutNanos = Math.max(0, timeout.toNanos());
-        long deadline = System.nanoTime() + timeoutNanos;
+        long timeoutNanos = toSaturatedNanos(timeout);
+        long startedAt = System.nanoTime();
         List<CompletableFuture<Void>> acceptedChains;
         synchronized (this) {
             if (lifecycle == Lifecycle.ACCEPTING) {
@@ -97,7 +97,7 @@ public final class PlayerDataService {
             acceptedChains = List.copyOf(playerTails.values());
         }
 
-        WaitOutcome chainOutcome = awaitAcceptedChains(acceptedChains, deadline);
+        WaitOutcome chainOutcome = awaitAcceptedChains(acceptedChains, startedAt, timeoutNanos);
         WaitOutcome executorOutcome = WaitOutcome.TIMED_OUT;
         if (chainOutcome == WaitOutcome.COMPLETED) {
             executor.shutdown();
@@ -144,15 +144,21 @@ public final class PlayerDataService {
         }
         CompletableFuture<Void> predecessor = playerTails.getOrDefault(
             playerId, CompletableFuture.completedFuture(null));
-        CompletableFuture<T> result = predecessor
-            .handle((ignored, failure) -> null)
-            .thenApplyAsync(ignored -> {
-                try {
-                    return operation.get();
-                } catch (IOException exception) {
-                    throw new java.util.concurrent.CompletionException(exception);
-                }
-            }, executor);
+        CompletableFuture<T> result;
+        try {
+            result = predecessor
+                .handle((ignored, failure) -> null)
+                .thenApplyAsync(ignored -> {
+                    try {
+                        return operation.get();
+                    } catch (IOException exception) {
+                        throw new java.util.concurrent.CompletionException(exception);
+                    }
+                }, executor);
+        } catch (RejectedExecutionException exception) {
+            failures.add(exception);
+            return CompletableFuture.failedFuture(exception);
+        }
         CompletableFuture<Void> tail = result.handle((ignored, failure) -> {
             Throwable cause = failure == null ? null : unwrap(failure);
             if (cause != null && !(cause instanceof ShutdownAbortedException)) {
@@ -167,11 +173,15 @@ public final class PlayerDataService {
         return result;
     }
 
-    private WaitOutcome awaitAcceptedChains(List<CompletableFuture<Void>> acceptedChains, long deadline) {
+    private WaitOutcome awaitAcceptedChains(
+        List<CompletableFuture<Void>> acceptedChains,
+        long startedAt,
+        long timeoutNanos
+    ) {
         CompletableFuture<Void> settlement = CompletableFuture.allOf(
             acceptedChains.toArray(CompletableFuture[]::new));
         try {
-            settlement.get(remainingNanos(deadline), TimeUnit.NANOSECONDS);
+            settlement.get(remainingNanos(startedAt, timeoutNanos), TimeUnit.NANOSECONDS);
             return WaitOutcome.COMPLETED;
         } catch (ExecutionException exception) {
             throw new IllegalStateException("Player data chain settlement failed unexpectedly.", exception);
@@ -196,8 +206,23 @@ public final class PlayerDataService {
         }
     }
 
-    private long remainingNanos(long deadline) {
-        return Math.max(0, deadline - System.nanoTime());
+    private long toSaturatedNanos(Duration timeout) {
+        if (timeout.isNegative()) {
+            return 0;
+        }
+        try {
+            return timeout.toNanos();
+        } catch (ArithmeticException exception) {
+            return Long.MAX_VALUE;
+        }
+    }
+
+    private long remainingNanos(long startedAt, long timeoutNanos) {
+        long elapsed = System.nanoTime() - startedAt;
+        if (elapsed <= 0) {
+            return timeoutNanos;
+        }
+        return Math.max(0, timeoutNanos - elapsed);
     }
 
     private Throwable unwrap(Throwable failure) {

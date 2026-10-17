@@ -7,8 +7,8 @@ import org.bukkit.configuration.file.FileConfiguration;
 /**
  * Immutable validated configuration used by running games.
  *
- * <p>Reloads build a new snapshot before replacing the live one, so an invalid or partially
- * loaded file cannot change behavior midway through a session.
+ * <p>Missing keys receive validated packaged defaults. Reloads replace the live snapshot only
+ * after the candidate passes validation, so invalid or otherwise failed candidates leave it unchanged.
  */
 public final class ConfigurationSnapshot {
 

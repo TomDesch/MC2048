@@ -119,6 +119,72 @@ class PlayerDataServiceTest {
     }
 
     @Test
+    void shutdownWithMoreDistinctPlayerChainsThanFormerQueueCapacityDrainsAllAcceptedOperations() throws Exception {
+        int playerCount = 160;
+        CountDownLatch workersBlocked = new CountDownLatch(2);
+        CountDownLatch releaseWrites = new CountDownLatch(1);
+        AtomicFileWriter systemWriter = AtomicFileWriter.system();
+        PlayerDataStore store = new PlayerDataStore(temporaryDirectory, () -> 3, (target, content) -> {
+            workersBlocked.countDown();
+            await(releaseWrites);
+            systemWriter.write(target, content);
+        });
+        PlayerDataService service = new PlayerDataService(store);
+        List<CompletableFuture<PlayerData>> saves = new ArrayList<>();
+
+        for (int playerIndex = 0; playerIndex < playerCount; playerIndex++) {
+            UUID playerId = UUID.randomUUID();
+            saves.add(service.update(
+                playerId,
+                "Player" + playerIndex,
+                data -> data.withAnimationSpeed(6)
+            ));
+        }
+        assertEquals(playerCount, saves.size());
+        assertTrue(workersBlocked.await(5, TimeUnit.SECONDS));
+
+        CompletableFuture<PlayerDataService.ShutdownResult> shutdown = CompletableFuture.supplyAsync(
+            () -> service.shutdown(Duration.ofSeconds(20)));
+        assertNewWorkRejected(service);
+        releaseWrites.countDown();
+
+        CompletableFuture.allOf(saves.toArray(CompletableFuture[]::new)).get(20, TimeUnit.SECONDS);
+        PlayerDataService.ShutdownResult result = shutdown.get(20, TimeUnit.SECONDS);
+        assertTrue(result.completed());
+        assertEquals(0, result.pendingTasks());
+        assertTrue(result.failures().isEmpty());
+        assertTrue(saves.stream().allMatch(future -> !future.isCompletedExceptionally()));
+    }
+
+    @Test
+    void shutdownWithExtremeTimeoutDoesNotOverflowIntoImmediateTimeout() throws Exception {
+        CountDownLatch writeStarted = new CountDownLatch(1);
+        CountDownLatch releaseWrite = new CountDownLatch(1);
+        AtomicFileWriter systemWriter = AtomicFileWriter.system();
+        PlayerDataStore store = new PlayerDataStore(temporaryDirectory, () -> 3, (target, content) -> {
+            writeStarted.countDown();
+            await(releaseWrite);
+            systemWriter.write(target, content);
+        });
+        PlayerDataService service = new PlayerDataService(store);
+        CompletableFuture<PlayerData> save = service.update(
+            UUID.randomUUID(), "Alex", data -> data.withAnimationSpeed(6));
+        assertTrue(writeStarted.await(5, TimeUnit.SECONDS));
+
+        CompletableFuture<PlayerDataService.ShutdownResult> shutdown = CompletableFuture.supplyAsync(
+            () -> service.shutdown(Duration.ofNanos(Long.MAX_VALUE)));
+        assertNewWorkRejected(service);
+        assertFalse(shutdown.isDone());
+        releaseWrite.countDown();
+
+        PlayerDataService.ShutdownResult result = shutdown.get(5, TimeUnit.SECONDS);
+        assertTrue(result.completed());
+        assertEquals(0, result.pendingTasks());
+        assertTrue(result.failures().isEmpty());
+        assertEquals(6, save.get(5, TimeUnit.SECONDS).animationSpeed());
+    }
+
+    @Test
     void shutdownWhenAcceptedWriteExceedsTimeoutReportsPendingFailure() throws Exception {
         CountDownLatch writeStarted = new CountDownLatch(1);
         CountDownLatch releaseWrite = new CountDownLatch(1);
