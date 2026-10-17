@@ -6,7 +6,7 @@
 
   <groupId>io.stealingdapenta</groupId>
   <artifactId>MC2048</artifactId>
-  <version>1.4.0</version>
+  <version>2.0.0</version>
   <name>MC2048</name>
   <description>Play 2048 on a Minecraft server.</description>
   <url>https://github.com/TomDesch/MC2048</url>
