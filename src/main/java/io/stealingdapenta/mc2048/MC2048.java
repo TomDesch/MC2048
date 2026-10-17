@@ -88,7 +88,10 @@ public class MC2048 extends JavaPlugin {
             result.failures().forEach(failure ->
                 getLogger().severe("Player data shutdown failure: " + failure.getMessage()));
             if (!result.completed()) {
-                getLogger().severe("Player data shutdown timed out with " + result.pendingTasks() + " queued tasks.");
+                getLogger().severe(
+                    "Player data shutdown did not complete with "
+                        + result.pendingTasks()
+                        + " pending tasks.");
             }
         }
         MESSAGE_SENDER.close();
