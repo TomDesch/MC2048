@@ -1,13 +1,12 @@
 package io.stealingdapenta.mc2048.utils;
 
-import static io.stealingdapenta.mc2048.MC2048.logger;
 import static io.stealingdapenta.mc2048.config.ConfigKey.HIGH_SCORE_ITEM_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.HIGH_SCORE_ITEM_MATERIAL;
 import static io.stealingdapenta.mc2048.config.ConfigKey.HIGH_SCORE_ITEM_LORE_FORMAT;
 import static io.stealingdapenta.mc2048.utils.FileManager.FILE_MANAGER;
 
 import java.io.File;
-import java.util.AbstractMap;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -18,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.OptionalInt;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -25,8 +25,11 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.YamlConfiguration;
 
 import io.stealingdapenta.mc2048.config.PlayerConfigField;
+import io.stealingdapenta.mc2048.MC2048;
 
 
 public class HighScoreManager {
@@ -86,8 +89,8 @@ public class HighScoreManager {
         CompletableFuture.supplyAsync(this::loadHighScores)
                          .thenAccept(this::mergeIntoCache)
                          .exceptionally(exception -> {
-                             logger.warning(ERROR_FETCHING_FILES);
-                             logger.warning(exception.getMessage());
+                             logWarning(ERROR_FETCHING_FILES);
+                             logWarning(exception.getMessage());
                              return null;
                          });
     }
@@ -118,25 +121,33 @@ public class HighScoreManager {
 
     private Map<UUID, PlayerScore> loadHighScores() {
         File userFilesFolder = FILE_MANAGER.getUserFiles();
+        return loadHighScores(userFilesFolder);
+    }
+
+    private Map<UUID, PlayerScore> loadHighScores(File userFilesFolder) {
         File[] playerFiles = userFilesFolder.listFiles();
 
         if (Objects.isNull(playerFiles) || playerFiles.length == 0) {
             return new HashMap<>();
         }
 
-        return Arrays.stream(playerFiles)
-                                                   .filter(File::isFile)
-                                                   .filter(playerFile -> playerFile.getName()
-                                                                                   .endsWith(DOT_YML))
-                                                   .map(this::getPlayerScorePair)
-                                                   .filter(Objects::nonNull)
-                                                   .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        Map<UUID, PlayerScore> loadedScores = new HashMap<>();
+        Arrays.stream(playerFiles)
+              .filter(File::isFile)
+              .filter(playerFile -> playerFile.getName().endsWith(DOT_YML))
+              .forEach(playerFile -> loadPlayerScore(playerFile).ifPresent(
+                  entry -> loadedScores.put(entry.getKey(), entry.getValue())));
+        return loadedScores;
     }
 
-    public int getPlayerPosition(Player targetPlayer) {
-        PlayerScore currentScore = cachedHighScores.get(targetPlayer.getUniqueId());
-        if (currentScore != null && !currentScore.playerName().equals(targetPlayer.getName())) {
-            recordScore(targetPlayer, currentScore.score());
+    public OptionalInt getPlayerPosition(Player targetPlayer) {
+        return getPlayerPosition(targetPlayer.getUniqueId(), targetPlayer.getName());
+    }
+
+    OptionalInt getPlayerPosition(UUID playerId, String playerName) {
+        PlayerScore currentScore = cachedHighScores.get(playerId);
+        if (currentScore != null && !currentScore.playerName().equals(playerName)) {
+            recordScore(playerId, playerName, currentScore.score());
         }
 
         List<UUID> sortedPlayers = cachedHighScores.entrySet()
@@ -146,7 +157,8 @@ public class HighScoreManager {
                                                    .map(Entry::getKey)
                                                    .toList();
 
-        return sortedPlayers.indexOf(targetPlayer.getUniqueId()) + 1;
+        int index = sortedPlayers.indexOf(playerId);
+        return index < 0 ? OptionalInt.empty() : OptionalInt.of(index + 1);
     }
 
     public Map<String, Integer> getTop10HiScores() {
@@ -162,20 +174,41 @@ public class HighScoreManager {
                                                         LinkedHashMap::new)); // Use LinkedHashMap to maintain insertion order
     }
 
-    private Map.Entry<UUID, PlayerScore> getPlayerScorePair(File playerFile) {
-        String uuid = getPlayerUUIDFrom(playerFile);
-        String playerName = FILE_MANAGER.getStringByKey(uuid, PLAYER_NAME_KEY);
-        if (Objects.nonNull(playerName)) {
-            int hiScore = FILE_MANAGER.getIntByKey(uuid, PlayerConfigField.HIGH_SCORE.getKey());
-            return new AbstractMap.SimpleEntry<>(UUID.fromString(uuid), new PlayerScore(playerName, hiScore));
+    void refresh(File userFilesFolder) {
+        mergeIntoCache(loadHighScores(userFilesFolder));
+    }
+
+    private java.util.Optional<Map.Entry<UUID, PlayerScore>> loadPlayerScore(File playerFile) {
+        String fileId = getPlayerUUIDFrom(playerFile);
+        try {
+            UUID playerId = UUID.fromString(fileId);
+            YamlConfiguration configuration = new YamlConfiguration();
+            configuration.load(playerFile);
+            String playerName = configuration.getString(PLAYER_NAME_KEY);
+            if (playerName == null || playerName.isBlank()) {
+                logWarning("Skipping player data without a player name: " + playerFile.getName());
+                return java.util.Optional.empty();
+            }
+            int highScore = configuration.getInt(PlayerConfigField.HIGH_SCORE.getKey());
+            return java.util.Optional.of(Map.entry(playerId, new PlayerScore(playerName, highScore)));
+        } catch (IllegalArgumentException | IOException | InvalidConfigurationException exception) {
+            logWarning("Skipping malformed player data file " + playerFile.getName() + ": "
+                + exception.getMessage());
+            return java.util.Optional.empty();
         }
-        return null;
     }
 
     private String getPlayerUUIDFrom(File playerFile) {
         return playerFile.getName()
                          .substring(0, playerFile.getName()
                                                  .length() - 4);
+    }
+
+    private void logWarning(String message) {
+        java.util.logging.Logger activeLogger = MC2048.logger != null
+            ? MC2048.logger
+            : java.util.logging.Logger.getLogger(HighScoreManager.class.getName());
+        activeLogger.warning(message);
     }
 
     private record PlayerScore(String playerName, int score) {

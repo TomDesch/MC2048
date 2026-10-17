@@ -3,13 +3,21 @@ package io.stealingdapenta.mc2048.listeners;
 import io.stealingdapenta.mc2048.GameManager;
 import io.stealingdapenta.mc2048.MC2048;
 import io.stealingdapenta.mc2048.config.ConfigKey;
+import io.stealingdapenta.mc2048.config.ConfigurationFileManager;
+import io.stealingdapenta.mc2048.config.ConfigurationSnapshot;
 import io.stealingdapenta.mc2048.utils.InventoryUtil;
 import io.stealingdapenta.mc2048.utils.data.ActiveGame;
 import io.stealingdapenta.mc2048.utils.data.ButtonAction;
 import io.stealingdapenta.mc2048.utils.data.GameHolder;
 import io.stealingdapenta.mc2048.utils.data.HelperHolder;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.lang.reflect.Field;
+import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 import org.bukkit.entity.Player;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
@@ -47,19 +55,11 @@ class GameControlsListenerTest {
     private MockedStatic<MC2048> mc2048;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws ReflectiveOperationException {
         MC2048 plugin = mock(MC2048.class);
-        FileConfiguration configuration = mock(FileConfiguration.class);
         mc2048 = mockStatic(MC2048.class);
         mc2048.when(MC2048::getInstance).thenReturn(plugin);
-        when(plugin.getConfig()).thenReturn(configuration);
-        when(configuration.getString(anyString())).thenAnswer(invocation -> {
-            String key = invocation.getArgument(0, String.class);
-            return key.equals(ConfigKey.MSG_INVALID_MOVE.name().toLowerCase())
-                || key.equals(ConfigKey.MSG_GAME_PAUSED.name().toLowerCase())
-                ? ""
-                : ConfigKey.valueOf(key.toUpperCase()).getDefaultValue();
-        });
+        installTestConfiguration();
 
         inventoryUtil = mock(InventoryUtil.class);
         gameManager = mock(GameManager.class);
@@ -86,6 +86,19 @@ class GameControlsListenerTest {
     @AfterEach
     void tearDown() {
         mc2048.close();
+    }
+
+    private void installTestConfiguration() throws ReflectiveOperationException {
+        InputStream input = Objects.requireNonNull(
+            getClass().getClassLoader().getResourceAsStream("config.yml"));
+        YamlConfiguration configuration = YamlConfiguration.loadConfiguration(
+            new InputStreamReader(input, StandardCharsets.UTF_8));
+        configuration.set(ConfigKey.MSG_INVALID_MOVE.path(), "");
+        configuration.set(ConfigKey.MSG_GAME_PAUSED.path(), "");
+
+        Field snapshot = ConfigurationFileManager.class.getDeclaredField("snapshot");
+        snapshot.setAccessible(true);
+        snapshot.set(ConfigurationFileManager.CONFIGURATION_FILE_MANAGER, ConfigurationSnapshot.from(configuration));
     }
 
     private InventoryClickEvent clickEvent(int slot, Inventory clickedInventory) {

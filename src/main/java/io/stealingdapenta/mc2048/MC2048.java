@@ -33,7 +33,7 @@ public class MC2048 extends JavaPlugin {
     private final GameControlsListener gameControlsListener = new GameControlsListener(inventoryUtil, gameManager);
     private final GameCommand gameCommand = new GameCommand(gameManager);
     private final HighScoreCommand highScoreCommand = new HighScoreCommand(highScoreManager);
-    private final ReloadConfigCommand reloadConfigCommand = new ReloadConfigCommand();
+    private final ReloadConfigCommand reloadConfigCommand = new ReloadConfigCommand(gameManager);
     private final HelpCommand helpCommand = new HelpCommand(inventoryUtil);
 
     @Override

@@ -1,15 +1,23 @@
 package io.stealingdapenta.mc2048.utils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
+import java.util.OptionalInt;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import org.bukkit.configuration.file.YamlConfiguration;
 
 class HighScoreManagerTest {
 
     @Test
-    void recordsAndSortsScoresInMemory() {
+    void recordScoreWithMultiplePlayersSortsScoresInMemory() {
         HighScoreManager manager = new HighScoreManager();
 
         UUID alex = UUID.randomUUID();
@@ -23,7 +31,7 @@ class HighScoreManagerTest {
     }
 
     @Test
-    void replacesAPlayersStaleName() {
+    void recordScoreWithChangedPlayerNameReplacesStaleName() {
         HighScoreManager manager = new HighScoreManager();
         UUID playerId = UUID.randomUUID();
 
@@ -31,5 +39,34 @@ class HighScoreManagerTest {
         manager.recordScore(playerId, "NewName", 128);
 
         assertEquals(List.of("NewName"), manager.getHighScores().keySet().stream().toList());
+    }
+
+    @Test
+    void getPlayerPositionWithEmptyCacheReturnsUnranked() {
+        HighScoreManager manager = new HighScoreManager();
+
+        OptionalInt position = manager.getPlayerPosition(UUID.randomUUID(), "Alex");
+
+        assertTrue(position.isEmpty());
+    }
+
+    @Test
+    void refreshWithMalformedFilesRetainsValidEntries(@TempDir Path directory) throws IOException {
+        UUID validId = UUID.randomUUID();
+        writePlayerFile(directory.resolve(validId + ".yml"), "Alex", 512);
+        writePlayerFile(directory.resolve("not-a-uuid.yml"), "Invalid", 1024);
+        Files.writeString(directory.resolve(UUID.randomUUID() + ".yml"), "high-score: [unclosed");
+        HighScoreManager manager = new HighScoreManager();
+
+        manager.refresh(directory.toFile());
+
+        assertEquals(Map.of("Alex", 512), manager.getHighScores());
+    }
+
+    private void writePlayerFile(Path file, String playerName, int highScore) throws IOException {
+        YamlConfiguration configuration = new YamlConfiguration();
+        configuration.set("Player Name", playerName);
+        configuration.set("high-score", highScore);
+        configuration.save(file.toFile());
     }
 }

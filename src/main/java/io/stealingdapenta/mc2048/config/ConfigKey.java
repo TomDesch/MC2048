@@ -2,8 +2,8 @@ package io.stealingdapenta.mc2048.config;
 
 
 import static io.stealingdapenta.mc2048.MC2048.logger;
+import static io.stealingdapenta.mc2048.config.ConfigurationFileManager.CONFIGURATION_FILE_MANAGER;
 
-import io.stealingdapenta.mc2048.MC2048;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -159,19 +159,7 @@ public enum ConfigKey {
     MATERIAL_TWO_HUNDRED_SIXTY_TWO_THOUSAND_HUNDRED_FOURTY_FOUR("END_STONE"),
     MATERIAL_TWO_HUNDRED_SIXTY_TWO_THOUSAND_HUNDRED_FOURTY_FOUR_CMD("1000");
 
-    private final String defaultValue;
-
-    ConfigKey(String defaultValue) {
-        this.defaultValue = defaultValue;
-    }
-
-    /**
-     * Used for first time config initialisation
-     *
-     * @return the hardcoded value from this ENUM config
-     */
-    public String getDefaultValue() {
-        return defaultValue;
+    ConfigKey(String ignoredLegacyDefault) {
     }
 
     /**
@@ -190,9 +178,7 @@ public enum ConfigKey {
      * @return the stored value from the config as a String literal
      */
     public String getStringValue() {
-        return MC2048.getInstance()
-                     .getConfig()
-                     .getString(name().toLowerCase());
+        return CONFIGURATION_FILE_MANAGER.getSnapshot().get(this);
     }
 
     /**
@@ -227,12 +213,16 @@ public enum ConfigKey {
      * @return the stored value from the config as an integer NumberFormatException safe
      */
     public int getIntValue() {
-        String value = MC2048.getInstance().getConfig().getString(name().toLowerCase());
+        String value = getStringValue();
         try {
             return Integer.parseInt(value);
         } catch (NumberFormatException e) {
             logger.warning(MSG_PARSING_ERROR.getStringValue() + name().toLowerCase());
             return 0;
         }
+    }
+
+    public String path() {
+        return name().toLowerCase();
     }
 }

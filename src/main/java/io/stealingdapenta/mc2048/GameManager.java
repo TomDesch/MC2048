@@ -122,6 +122,10 @@ public class GameManager {
         return activeGames.get(player.getUniqueId());
     }
 
+    public boolean hasActiveGames() {
+        return !activeGames.isEmpty();
+    }
+
     public void deactivateAllGames() {
         new ArrayList<>(activeGames.values()).forEach(this::pauseGame);
     }

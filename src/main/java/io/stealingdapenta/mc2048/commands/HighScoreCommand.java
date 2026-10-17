@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.OptionalInt;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -35,7 +36,7 @@ public class HighScoreCommand implements CommandExecutor {
             MESSAGE_SENDER.sendMessage(sender, MSG_NOT_PLAYER);
             return true;
         }
-        int playersPosition = highScoreManager.getPlayerPosition(player);
+        OptionalInt playersPosition = highScoreManager.getPlayerPosition(player);
         Map<String, Integer> allHighScores = highScoreManager.getHighScores();
         Map<String, Integer> highScores = highScoreManager.getTop10HiScores(allHighScores);
 
@@ -46,7 +47,8 @@ public class HighScoreCommand implements CommandExecutor {
                       .map(entry -> String.format(PLAYER_SCORE, highScoresList.indexOf(entry) + 1, entry.getKey()) + StringUtil.formatInt(entry.getValue()))
                       .forEach(player::sendMessage);
 
-        MESSAGE_SENDER.sendMessage(player, MSG_TOP_SELF.getFormattedValue(StringUtil.formatInt(playersPosition)));
+        String rank = playersPosition.isPresent() ? StringUtil.formatInt(playersPosition.getAsInt()) : "Unranked";
+        MESSAGE_SENDER.sendMessage(player, MSG_TOP_SELF.getFormattedValue(rank));
 
         return true;
     }
