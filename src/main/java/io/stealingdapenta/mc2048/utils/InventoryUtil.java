@@ -84,6 +84,8 @@ import static org.bukkit.Bukkit.createInventory;
 
 import io.stealingdapenta.mc2048.MC2048;
 import io.stealingdapenta.mc2048.config.ConfigKey;
+import io.stealingdapenta.mc2048.game.BoardEngine;
+import io.stealingdapenta.mc2048.game.BoardEngine.Direction;
 import io.stealingdapenta.mc2048.persistence.PlayerData;
 import io.stealingdapenta.mc2048.utils.data.ActiveGame;
 import io.stealingdapenta.mc2048.utils.data.ButtonAction;
@@ -100,7 +102,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
-import java.util.stream.IntStream;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.entity.Player;
@@ -128,6 +129,7 @@ public class InventoryUtil {
 
     private static final String ERROR_SKULL = "Error getting skull meta for %s.";
     private final Random random = new Random();
+    private final BoardEngine boardEngine = new BoardEngine();
 
     public InventoryUtil(MC2048 javaPlugin, HighScoreManager highScoreManager) {
         this.javaPlugin = javaPlugin;
@@ -488,7 +490,7 @@ public class InventoryUtil {
             tickDelay = undoLastMove(itemsInGame, activeGame);
         } else {
             // [debug] javaPlugin.getLogger().info("processGameAction: moving items");
-            tickDelay = moveItems(activeGame.getPlayer(), itemsInGame, activeGame, action);
+            tickDelay = moveItems(itemsInGame, activeGame, action);
         }
 
         // [debug] javaPlugin.getLogger().info("processGameAction.tickDelay == " + tickDelay);
@@ -514,7 +516,7 @@ public class InventoryUtil {
      *
      * @return tick delay for caller method continuation
      */
-    private int moveItems(Player player, ItemStack[][] inventoryArray, ActiveGame activeGame, ButtonAction action) {
+    private int moveItems(ItemStack[][] inventoryArray, ActiveGame activeGame, ButtonAction action) {
 
         // Create a deep copy of the current state before making moves
         ItemStack[][] lastPosition = new ItemStack[ROW_AND_COLUMN_SIZE][ROW_AND_COLUMN_SIZE];
@@ -526,14 +528,18 @@ public class InventoryUtil {
         activeGame.resetGainedAfterLastMove();
 
         // Calculate moves (updates board simulation and scores)
-        List<MovementInstruction> instructions = calculateMoves(inventoryArray, activeGame, action);
-        if ((Objects.isNull(instructions)) || instructions.isEmpty()) {
+        BoardEngine.MoveResult result = boardEngine.move(toValueBoard(inventoryArray), toDirection(action));
+        if (!result.moved()) {
             activeGame.setScoreGainedAfterLastMove(previousMoveScore);
-            // [debug] javaPlugin.getLogger().info("moveItems.instructions.isEmpty() == true");
             return 0;
         }
-        
-        // [debug] javaPlugin.getLogger().info("moveItems.instructions.isEmpty() == false");
+
+        copyValueBoardToItems(result.board(), inventoryArray);
+        activeGame.addToScore(result.scoreGain());
+        activeGame.setScoreGainedAfterLastMove(result.scoreGain());
+        List<MovementInstruction> instructions = result.movements().stream()
+            .map(this::toMovementInstruction)
+            .toList();
 
         // Since there will be movement, we can update the acitveGame's saved lastPosition
         activeGame.setLastPosition(lastPosition);
@@ -547,133 +553,32 @@ public class InventoryUtil {
     }
 
 
-    /**
-     * Calculates the moves and merges for the board. Updates the game's score.
-     *
-     * @return list of movements to preform, or null if none
-     */
-    private List<MovementInstruction> calculateMoves(ItemStack[][] board, ActiveGame activeGame, ButtonAction action) {
-        List<MovementInstruction> instructions = new ArrayList<>();
-        boolean[][] mergedCells = new boolean[ROW_AND_COLUMN_SIZE][ROW_AND_COLUMN_SIZE];
-
-        switch (action) {
-            case UP:
-                for (int row = 1; row < ROW_AND_COLUMN_SIZE; row++) {
-                    for (int col = 0; col < ROW_AND_COLUMN_SIZE; col++) {
-                        if (Objects.nonNull(board[row][col])) {
-                            // [debug] javaPlugin.getLogger().info("calculateMoves.processCell(UP row: " + row + " col: " + col + ")");
-                            processCell(row, col, -1, 0, board, mergedCells, activeGame, instructions);
-                        }
-                    }
-                }
-                break;
-            case DOWN:
-                for (int row = ROW_AND_COLUMN_SIZE - 2; row >= 0; row--) {
-                    for (int col = 0; col < ROW_AND_COLUMN_SIZE; col++) {
-                        if (Objects.nonNull(board[row][col])) {
-                            // [debug] javaPlugin.getLogger().info("calculateMoves.processCell(DOWN row: " + row + " col: " + col + ")");
-                            processCell(row, col, 1, 0, board, mergedCells, activeGame, instructions);
-                        }
-                    }
-                }
-                break;
-            case LEFT:
-                for (int col = 1; col < ROW_AND_COLUMN_SIZE; col++) {
-                    for (int row = 0; row < ROW_AND_COLUMN_SIZE; row++) {
-                        if (Objects.nonNull(board[row][col])) {
-                            // [debug] javaPlugin.getLogger().info("calculateMoves.processCell(LEFT row: " + row + " col: " + col + ")");
-                            processCell(row, col, 0, -1, board, mergedCells, activeGame, instructions);
-                        }
-                    }
-                }
-                break;
-            case RIGHT:
-                for (int col = ROW_AND_COLUMN_SIZE - 2; col >= 0; col--) {
-                    for (int row = 0; row < ROW_AND_COLUMN_SIZE; row++) {
-                        if (Objects.nonNull(board[row][col])) {
-                            // [debug] javaPlugin.getLogger().info("calculateMoves.processCell(RIGHT row: " + row + " col: " + col + ")");
-                            processCell(row, col, 0, 1, board, mergedCells, activeGame, instructions);
-                        }
-                    }
-                }
-                break;
-            case UNDO:
-            case SPEED:
-            case START:
-                return null;
-        }
-        return instructions;
+    private Direction toDirection(ButtonAction action) {
+        return switch (action) {
+            case UP -> Direction.UP;
+            case DOWN -> Direction.DOWN;
+            case LEFT -> Direction.LEFT;
+            case RIGHT -> Direction.RIGHT;
+            default -> throw new IllegalArgumentException("Not a board movement: " + action);
+        };
     }
 
-    /**
-     * Processes a single cell by sliding it as far as possible and then merging if possible.
-     *
-     * @param row          the starting row of the cell
-     * @param col          the starting column of the cell
-     * @param rowDelta     the row increment (e.g., -1 for up, 1 for down, 0 for neither)
-     * @param colDelta     the column increment (e.g., -1 for left, 1 for right, 0 for neither)
-     * @param board        the game board
-     * @param activeGame   the active game instance for updating scores
-     * @param instructions the list to add movement instructions to
-     */
-    private void processCell(int row, int col, int rowDelta, int colDelta, ItemStack[][] board, boolean[][] mergedCells,
-                             ActiveGame activeGame, List<MovementInstruction> instructions) {
-        int currentRow = row;
-        int currentCol = col;
-        int stepCount = 0;
-
-        // Temporary list to hold all instructions for this tile’s movement
-        List<MovementInstruction> tileInstructions = new ArrayList<>();
-
-        // Slide one spot at a time while the next cell is empty
-        while (isInBounds(currentRow + rowDelta, currentCol + colDelta) && Objects.isNull(board[currentRow + rowDelta][currentCol + colDelta])) {
-            int fromRow = currentRow;
-            int fromCol = currentCol;
-            currentRow += rowDelta;
-            currentCol += colDelta;
-            stepCount++;
-            // Record this one-step movement; temporarily totalSteps is 0 (will be updated later)
-            tileInstructions.add(new MovementInstruction(fromRow, fromCol, currentRow, currentCol, board[fromRow][fromCol], false, null, stepCount, 0));
-            // Update the simulation: move the tile one step
-            board[currentRow][currentCol] = board[fromRow][fromCol];
-            board[fromRow][fromCol] = null;
-        }
-
-        // If a merge is possible from the current position, do it as an extra step.
-        int destinationRow = currentRow + rowDelta;
-        int destinationCol = currentCol + colDelta;
-        if (isInBounds(destinationRow, destinationCol) && Objects.nonNull(board[destinationRow][destinationCol])) {
-            if (!mergedCells[destinationRow][destinationCol]
-                && board[destinationRow][destinationCol].isSimilar(board[currentRow][currentCol])) {
-                ItemStack currentItem = board[currentRow][currentCol];
-                Optional<ItemStack> nextRepresentation = getNextRepresentation(currentItem);
-                if (nextRepresentation.isPresent()) {
-                    stepCount++; // merging counts as an extra step
-                    ItemStack merged = nextRepresentation.get();
-                    tileInstructions.add(new MovementInstruction(currentRow, currentCol, destinationRow, destinationCol, currentItem, true, merged, stepCount, 0));
-                    board[destinationRow][destinationCol] = merged;
-                    board[currentRow][currentCol] = null;
-                    mergedCells[destinationRow][destinationCol] = true;
-                    activeGame.addToScore(NumberRepresentation.getScoreFromItem(merged));
-                    activeGame.addToGainedAfterLastMove(NumberRepresentation.getScoreFromItem(merged));
-                }
-            }
-        }
-
-        // Update all instructions with the final total step count, then add them to the overall list
-        for (MovementInstruction instruction : tileInstructions) {
-            instruction.totalSteps = stepCount;
-            instructions.add(instruction);
-        }
-    }
-
-    /**
-     * Checks if the given row and column indices are within the board boundaries.
-     *
-     * @return true if the indices are valid; false otherwise
-     */
-    private boolean isInBounds(int row, int col) {
-        return row >= 0 && row < ROW_AND_COLUMN_SIZE && col >= 0 && col < ROW_AND_COLUMN_SIZE;
+    private MovementInstruction toMovementInstruction(BoardEngine.Movement movement) {
+        ItemStack item = NumberRepresentation.fromScore(movement.value()).orElseThrow().getDisplayableBlock();
+        ItemStack merged = movement.merge()
+            ? NumberRepresentation.fromScore(movement.mergedValue()).orElseThrow().getDisplayableBlock()
+            : null;
+        return new MovementInstruction(
+            movement.fromRow(),
+            movement.fromColumn(),
+            movement.toRow(),
+            movement.toColumn(),
+            item,
+            movement.merge(),
+            merged,
+            movement.step(),
+            movement.totalSteps()
+        );
     }
 
     /**
@@ -769,48 +674,7 @@ public class InventoryUtil {
     public boolean noValidMovesLeft(Inventory gameWindow) {
         ItemStack[][] itemsInGame = new ItemStack[ROW_AND_COLUMN_SIZE][ROW_AND_COLUMN_SIZE];
         copyGameWindowContentsToArray(gameWindow, itemsInGame);
-        if (Arrays.stream(itemsInGame)
-                  .flatMap(Arrays::stream)
-                  .noneMatch(Objects::isNull)) {
-            return !hasValidMoves(itemsInGame);
-        }
-
-        return false;
-    }
-
-    /**
-     * Checks if there are valid moves left by examining adjacent items in the given 2D matrix.
-     *
-     * @param itemsInGame The 2D matrix representing the game state.
-     * @return {@code true} if there are valid moves left, {@code false} otherwise.
-     */
-    private boolean hasValidMoves(ItemStack[][] itemsInGame) {
-        for (int row = 0; row < ROW_AND_COLUMN_SIZE; row++) {
-            for (int column = 0; column < ROW_AND_COLUMN_SIZE; column++) {
-                // Check right and down for each position
-                ItemStack currentItem = itemsInGame[row][column];
-                ItemStack rightItem = null;
-                if (column + 1 < ROW_AND_COLUMN_SIZE) {
-                    rightItem = itemsInGame[row][column + 1];
-                }
-
-                ItemStack belowItem = null;
-                if (row + 1 < ROW_AND_COLUMN_SIZE) {
-                    belowItem = itemsInGame[row + 1][column];
-                }
-
-                if ((column < ROW_AND_COLUMN_SIZE - 1 && canMerge(currentItem, rightItem))
-                    || (row < ROW_AND_COLUMN_SIZE - 1 && canMerge(currentItem, belowItem))) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    private boolean canMerge(ItemStack first, ItemStack second) {
-        return first.isSimilar(second)
-            && NumberRepresentation.getNextRepresentation(NumberRepresentation.getScoreFromItem(first)).isPresent();
+        return !boardEngine.hasLegalMove(toValueBoard(itemsInGame));
     }
 
     /**
@@ -842,13 +706,13 @@ public class InventoryUtil {
             return 0;
         }
 
-        ItemStack[][] lastPosition = activeGame.getLastPosition();
-
-        for (int i = 0; i < inventoryArray.length; i++) {
-            System.arraycopy(lastPosition[i], 0, inventoryArray[i], 0, inventoryArray[i].length);
-        }
-
-        activeGame.removeFromScore(activeGame.getScoreGainedAfterLastMove());
+        BoardEngine.UndoResult undo = boardEngine.undo(
+            toValueBoard(activeGame.getLastPosition()),
+            activeGame.getScore(),
+            activeGame.getScoreGainedAfterLastMove()
+        );
+        copyValueBoardToItems(undo.board(), inventoryArray);
+        activeGame.setScore(undo.score());
         activeGame.decrementUndoLastMoveCounter();
 
         if (activeGame.hasNoUndoLastMoveLeft()) {
@@ -861,54 +725,42 @@ public class InventoryUtil {
         return -1;
     }
 
-    private Optional<ItemStack> getNextRepresentation(ItemStack itemStack) {
-        int currentRepresentation = NumberRepresentation.getScoreFromItem(itemStack);
-        return NumberRepresentation.getNextRepresentation(currentRepresentation)
-                                   .map(NumberRepresentation::getDisplayableBlock);
-    }
-
-    /**
-     * Sets a freshly generated ItemStack block (2 or 4) at any random open slot within the game window. If there's no empty slots: do nothing (shouldn't be possible because that would mean Game Over)
-     */
     public void spawnNewBlock(Inventory inventory) {
-        List<Integer> emptySlots = IntStream.range(0, inventory.getSize())
-                                            .filter(i -> Objects.isNull(inventory.getItem(i)))
-                                            .boxed()
-                                            .toList();
-
-        if (emptySlots.isEmpty()) {
+        ItemStack[][] itemsInGame = new ItemStack[ROW_AND_COLUMN_SIZE][ROW_AND_COLUMN_SIZE];
+        copyGameWindowContentsToArray(inventory, itemsInGame);
+        BoardEngine.SpawnResult spawn = boardEngine.spawn(
+            toValueBoard(itemsInGame),
+            GENERATE_NEW_BLOCK_FOUR_PERCENT.getIntValue(),
+            random
+        );
+        if (!spawn.spawned()) {
             return;
         }
-
-        inventory.setItem(emptySlots.get(new Random().nextInt(emptySlots.size())), generateNewBlock());
+        BoardEngine.Cell cell = spawn.cell();
+        ItemStack tile = NumberRepresentation.fromScore(spawn.value()).orElseThrow().getDisplayableBlock();
+        inventory.setItem(mergeSlots[cell.row()][cell.column()], new ItemBuilder(tile).create());
     }
 
-    // [debug]
-    /*
-        public void spawnNewBlock1(Inventory inventory) {
-            List<Integer> emptySlots = IntStream.range(0, inventory.getSize())
-                                                .filter(i -> Objects.isNull(inventory.getItem(i)))
-                                                .boxed()
-                                                .toList();
-            if (emptySlots.isEmpty()) return;
-            inventory.setItem(37, generateNewBlock());
+    private int[][] toValueBoard(ItemStack[][] itemBoard) {
+        int[][] values = new int[ROW_AND_COLUMN_SIZE][ROW_AND_COLUMN_SIZE];
+        for (int row = 0; row < ROW_AND_COLUMN_SIZE; row++) {
+            for (int column = 0; column < ROW_AND_COLUMN_SIZE; column++) {
+                ItemStack item = itemBoard[row][column];
+                values[row][column] = item == null ? 0 : NumberRepresentation.getScoreFromItem(item);
+            }
         }
-        
-        public void spawnNewBlock2(Inventory inventory) {
-            List<Integer> emptySlots = IntStream.range(0, inventory.getSize())
-                                                .filter(i -> Objects.isNull(inventory.getItem(i)))
-                                                .boxed()
-                                                .toList();
-            if (emptySlots.isEmpty()) return;
-            inventory.setItem(40, generateNewBlock());
-        }
-    */
+        return values;
+    }
 
-    private ItemStack generateNewBlock() {
-        int fourPercentage = GENERATE_NEW_BLOCK_FOUR_PERCENT.getIntValue();
-        NumberRepresentation chosenNumber = random.nextInt(100) < fourPercentage ? NumberRepresentation.FOUR : NumberRepresentation.TWO;
-        
-        return new ItemBuilder(chosenNumber.getDisplayableBlock()).create();
+    private void copyValueBoardToItems(int[][] valueBoard, ItemStack[][] itemBoard) {
+        for (int row = 0; row < ROW_AND_COLUMN_SIZE; row++) {
+            for (int column = 0; column < ROW_AND_COLUMN_SIZE; column++) {
+                int value = valueBoard[row][column];
+                itemBoard[row][column] = value == 0
+                    ? null
+                    : NumberRepresentation.fromScore(value).orElseThrow().getDisplayableBlock();
+            }
+        }
     }
 
     private ItemStack getHelpGUIPlayerStatsHead(Player player, PlayerData playerData) {
