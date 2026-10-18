@@ -40,10 +40,12 @@ import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_TWO_THOUSAND_F
 import static io.stealingdapenta.mc2048.utils.ItemBuilder.setCustomModelDataTo;
 
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -73,6 +75,11 @@ public enum NumberRepresentation {
     TWO_HUNDRED_SIXTY_TWO_THOUSAND_HUNDRED_FOURTY_FOUR(64, 262144, MATERIAL_TWO_HUNDRED_SIXTY_TWO_THOUSAND_HUNDRED_FOURTY_FOUR::getMaterialValue, MATERIAL_TWO_HUNDRED_SIXTY_TWO_THOUSAND_HUNDRED_FOURTY_FOUR_CMD::getIntValue);
 
     private static final String ERROR_REPRESENTATION = "Error getting representation for %s. Returning 0!";
+    private static final NumberRepresentation[] REPRESENTATIONS = values();
+    private static final Map<Integer, NumberRepresentation> REPRESENTATIONS_BY_SCORE =
+        Arrays.stream(REPRESENTATIONS)
+              .collect(Collectors.toUnmodifiableMap(NumberRepresentation::getScore, representation -> representation));
+
     private final int amount;
     private final int score;
     private final Supplier<Integer> customModelData;
@@ -94,44 +101,35 @@ public enum NumberRepresentation {
             }
         }
 
-        return Arrays.stream(NumberRepresentation.values())
-                     .filter(representation -> representation.getRepresentation() == itemStack.getType())
-                     .findFirst()
-                     .map(NumberRepresentation::getScore)
-                     .orElseGet(() -> {
-                         logger.severe(ERROR_REPRESENTATION.formatted(itemStack.getType()));
-                         return 0;
-                     });
+        for (NumberRepresentation representation : REPRESENTATIONS) {
+            if (representation.getRepresentation() == itemStack.getType()) {
+                return representation.getScore();
+            }
+        }
+
+        logger.severe(ERROR_REPRESENTATION.formatted(itemStack.getType()));
+        return 0;
     }
 
     static Optional<NumberRepresentation> getRepresentationByDisplayName(String displayName) {
         String numericName = Objects.requireNonNullElse(ChatColor.stripColor(displayName), "").replace(",", "");
         try {
-            int score = Integer.parseInt(numericName);
-            return Arrays.stream(values())
-                        .filter(representation -> representation.getScore() == score)
-                        .findFirst();
+            return fromScore(Integer.parseInt(numericName));
         } catch (NumberFormatException exception) {
             return Optional.empty();
         }
     }
 
     public static Optional<NumberRepresentation> getNextRepresentation(int currentRepresentation) {
-        NumberRepresentation[] representations = NumberRepresentation.values();
-
-        for (int i = 0; i < representations.length - 1; i++) {
-            if (representations[i].getScore() == currentRepresentation) {
-                return Optional.of(representations[i + 1]);
-            }
+        NumberRepresentation current = REPRESENTATIONS_BY_SCORE.get(currentRepresentation);
+        if (current == null || current.ordinal() == REPRESENTATIONS.length - 1) {
+            return Optional.empty();
         }
-
-        return Optional.empty();
+        return Optional.of(REPRESENTATIONS[current.ordinal() + 1]);
     }
 
     public static Optional<NumberRepresentation> fromScore(int score) {
-        return Arrays.stream(values())
-                     .filter(representation -> representation.getScore() == score)
-                     .findFirst();
+        return Optional.ofNullable(REPRESENTATIONS_BY_SCORE.get(score));
     }
 
 

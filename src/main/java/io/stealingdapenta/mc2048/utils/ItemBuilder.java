@@ -18,6 +18,9 @@ import org.bukkit.inventory.meta.components.CustomModelDataComponent;
  */
 public class ItemBuilder {
 
+    private static final LegacyComponentSerializer LEGACY_SERIALIZER =
+        LegacyComponentSerializer.legacySection();
+
     private final ItemStack itemStack;
     private final List<String> loreList;
     private ItemMeta itemMeta;
@@ -38,8 +41,7 @@ public class ItemBuilder {
     }
 
     public ItemBuilder setDisplayName(Component name) {
-        return setDisplayName(LegacyComponentSerializer.legacySection()
-                                                       .serialize(name));
+        return setDisplayName(LEGACY_SERIALIZER.serialize(name));
     }
 
     public ItemBuilder setDisplayName(String name) {
@@ -93,22 +95,12 @@ public class ItemBuilder {
         return switch (obj) {
             case ConfigKey configKey -> {
                 Component formatted = configKey.getFormattedValue();
-                String legacy = LegacyComponentSerializer.legacySection()
-                                                         .serialize(formatted);
-                if (legacy.isEmpty()) {
-                    yield null;
-                }
-                yield LegacyComponentSerializer.legacySection()
-                                               .serialize(formatted);
+                String legacy = LEGACY_SERIALIZER.serialize(formatted);
+                yield legacy.isEmpty() ? null : legacy;
             }
             case Component component -> {
-                String legacy = LegacyComponentSerializer.legacySection()
-                                                         .serialize(component);
-                if (legacy.isEmpty()) {
-                    yield null;
-                }
-                yield LegacyComponentSerializer.legacySection()
-                                               .serialize(component);
+                String legacy = LEGACY_SERIALIZER.serialize(component);
+                yield legacy.isEmpty() ? null : legacy;
             }
             case String str -> {
                 if (str.isEmpty()) {

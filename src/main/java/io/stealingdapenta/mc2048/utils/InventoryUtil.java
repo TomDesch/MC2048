@@ -101,6 +101,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
+import java.util.function.Supplier;
 import java.util.logging.Logger;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -162,55 +163,11 @@ public class InventoryUtil {
             return;
         }
 
-        for (int i = 0; i < REQUIRED_SIZE; i++) {
-            if (isInvalidGameSlot(i) && i!=PLAYER_ITEM_SLOT.getIntValue()) {
-                inventory.setItem(i, getGameEndItem());
-            }
-        }
-
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                for (int i = 0; i < REQUIRED_SIZE; i++) {
-                    if (isInvalidGameSlot(i) && i!=PLAYER_ITEM_SLOT.getIntValue()) {
-                        inventory.setItem(i, getGameFillerItem());
-                    }
-                }
-            }
-        }.runTaskLater(javaPlugin, delay);
-
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                for (int i = 0; i < REQUIRED_SIZE; i++) {
-                    if (isInvalidGameSlot(i) && i!=PLAYER_ITEM_SLOT.getIntValue()) {
-                        inventory.setItem(i, getGameEndItem());
-                    }
-                }
-            }
-        }.runTaskLater(javaPlugin, delay*2);
-
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                for (int i = 0; i < REQUIRED_SIZE; i++) {
-                    if (isInvalidGameSlot(i) && i!=PLAYER_ITEM_SLOT.getIntValue()) {
-                        inventory.setItem(i, getGameFillerItem());
-                    }
-                }
-            }
-        }.runTaskLater(javaPlugin, delay*3);
-
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                for (int i = 0; i < REQUIRED_SIZE; i++) {
-                    if (isInvalidGameSlot(i) && i!=PLAYER_ITEM_SLOT.getIntValue()) {
-                        inventory.setItem(i, getGameEndItem());
-                    }
-                }
-            }
-        }.runTaskLater(javaPlugin, delay*4);
+        fillAnimationSlots(inventory, getGameEndItem());
+        scheduleAnimationFill(inventory, delay, this::getGameFillerItem);
+        scheduleAnimationFill(inventory, delay * 2, this::getGameEndItem);
+        scheduleAnimationFill(inventory, delay * 3, this::getGameFillerItem);
+        scheduleAnimationFill(inventory, delay * 4, this::getGameEndItem);
     }
 
     public Inventory createGameInventory(ActiveGame activeGame) {
@@ -227,8 +184,9 @@ public class InventoryUtil {
             27,
             LegacyComponentSerializer.legacySection().serialize(RESET_CONFIRM_TITLE.getFormattedValue())
         );
+        ItemStack filler = getGameFillerItem();
         for (int slot = 0; slot < inventory.getSize(); slot++) {
-            inventory.setItem(slot, getGameFillerItem());
+            inventory.setItem(slot, filler.clone());
         }
         inventory.setItem(RESET_CONFIRM_SLOT, createMenuButton(RESET_CONFIRM_YES_NAME, RESET_CONFIRM_YES_MATERIAL, RESET_CONFIRM_YES_MATERIAL_CMD));
         inventory.setItem(RESET_CANCEL_SLOT, createMenuButton(RESET_CONFIRM_NO_NAME, RESET_CONFIRM_NO_MATERIAL, RESET_CONFIRM_NO_MATERIAL_CMD));
@@ -269,9 +227,10 @@ public class InventoryUtil {
             return;
         }
 
+        ItemStack filler = getHelpGuiFillerItem();
         for (int i = 0; i < REQUIRED_SIZE; i++) {
             if (Objects.isNull(inventory.getItem(i))) {
-                inventory.setItem(i, getHelpGuiFillerItem());
+                inventory.setItem(i, filler.clone());
             }
         }
     }
@@ -287,9 +246,10 @@ public class InventoryUtil {
             return;
         }
 
+        ItemStack filler = getGameFillerItem();
         for (int i = 0; i < REQUIRED_SIZE; i++) {
             if (isInvalidGameSlot(i)) {
-                inventory.setItem(i, getGameFillerItem());
+                inventory.setItem(i, filler.clone());
             }
         }
     }
@@ -303,6 +263,24 @@ public class InventoryUtil {
             }
         }
         return true;
+    }
+
+    private void scheduleAnimationFill(Inventory inventory, long delay, Supplier<ItemStack> itemSupplier) {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                fillAnimationSlots(inventory, itemSupplier.get());
+            }
+        }.runTaskLater(javaPlugin, delay);
+    }
+
+    private void fillAnimationSlots(Inventory inventory, ItemStack item) {
+        int playerItemSlot = PLAYER_ITEM_SLOT.getIntValue();
+        for (int slot = 0; slot < REQUIRED_SIZE; slot++) {
+            if (isInvalidGameSlot(slot) && slot != playerItemSlot) {
+                inventory.setItem(slot, item.clone());
+            }
+        }
     }
 
     private ItemStack getGameFillerItem() {
@@ -777,7 +755,7 @@ public class InventoryUtil {
         }
         BoardEngine.Cell cell = spawn.cell();
         ItemStack tile = NumberRepresentation.fromScore(spawn.value()).orElseThrow().getDisplayableBlock();
-        inventory.setItem(MERGE_SLOTS[cell.row()][cell.column()], new ItemBuilder(tile).create());
+        inventory.setItem(MERGE_SLOTS[cell.row()][cell.column()], tile);
     }
 
     private int[][] toValueBoard(ItemStack[][] itemBoard) {
