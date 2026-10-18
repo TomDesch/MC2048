@@ -8,13 +8,13 @@ import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_LORE_HIGH_S
 import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_LORE_TOTAL_PLAYTIME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_SLOT;
 import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_USAGES;
-import static io.stealingdapenta.mc2048.utils.FileManager.FILE_MANAGER;
 import static io.stealingdapenta.mc2048.utils.InventoryUtil.getPlayerSkullItem;
 
 import io.stealingdapenta.mc2048.config.ConfigKey;
-import io.stealingdapenta.mc2048.config.PlayerConfigField;
+import io.stealingdapenta.mc2048.persistence.PlayerData;
 import io.stealingdapenta.mc2048.utils.ItemBuilder;
 import io.stealingdapenta.mc2048.utils.StringUtil;
+import java.util.logging.Logger;
 
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -24,6 +24,7 @@ import org.bukkit.inventory.ItemStack;
 public class ActiveGame {
 
     private final Player player;
+    private final Logger logger;
     private final RepeatingUpdateTask relatedTask;
     private Inventory gameWindow;
     private final long gameOpenTime;
@@ -33,29 +34,31 @@ public class ActiveGame {
     private final int attempts;
     private final long totalPlayTime;
     private final double averageScore;
+    private int animationSpeed;
     private int undoLastMoveCounter;
     private ItemStack[][] lastPosition;
+    private ItemStack[][] pendingBoard;
     private int scoreGainedAfterLastMove = 0;
     private boolean lastMoveUndo = false;
     private boolean locked = false;
     private boolean closeRequested = false;
     private boolean resetConfirmationOpen = false;
+    private boolean terminalSavePending = false;
 
-    public ActiveGame(Player player, RepeatingUpdateTask relatedTask) {
-        this(player, relatedTask, null);
-    }
-
-    public ActiveGame(Player player, RepeatingUpdateTask relatedTask, SavedGame savedGame) {
+    public ActiveGame(Player player, RepeatingUpdateTask relatedTask, PlayerData playerData, Logger logger) {
+        SavedGame savedGame = playerData.savedGame().orElse(null);
         this.player = player;
+        this.logger = logger;
         this.relatedTask = relatedTask;
         this.score = savedGame == null ? 0 : savedGame.score();
         this.gameOpenTime = System.currentTimeMillis();
         this.previouslyElapsedPlaytime = savedGame == null ? 0 : savedGame.elapsedPlaytime();
 
-        this.highScore = FILE_MANAGER.getIntByKey(player, PlayerConfigField.HIGH_SCORE.getKey());
-        this.attempts = FILE_MANAGER.getIntByKey(player, PlayerConfigField.ATTEMPTS.getKey());
-        this.totalPlayTime = FILE_MANAGER.getLongByKey(player, PlayerConfigField.PLAYTIME.getKey());
-        this.averageScore = FILE_MANAGER.getDoubleByKey(player, PlayerConfigField.AVERAGE_SCORE.getKey());
+        this.highScore = playerData.highScore();
+        this.attempts = playerData.attempts();
+        this.totalPlayTime = playerData.playtime();
+        this.averageScore = playerData.averageScore();
+        this.animationSpeed = playerData.animationSpeed();
         this.undoLastMoveCounter = savedGame == null ? UNDO_BUTTON_USAGES.getIntValue() : savedGame.undoRemaining();
         this.scoreGainedAfterLastMove = savedGame == null ? 0 : savedGame.scoreGainedAfterLastMove();
         this.lastMoveUndo = savedGame != null && savedGame.lastMoveUndo();
@@ -130,9 +133,21 @@ public class ActiveGame {
         return averageScore;
     }
 
+    public int getAnimationSpeed() {
+        return animationSpeed;
+    }
+
+    public int getAnimationDelay() {
+        return 6 - animationSpeed;
+    }
+
+    public void setAnimationSpeed(int animationSpeed) {
+        this.animationSpeed = animationSpeed;
+    }
+
     public void decrementUndoLastMoveCounter() {
         if (undoLastMoveCounter < 0) {
-            return; // infinite undo
+            return;
         }
 
         undoLastMoveCounter--;
@@ -140,7 +155,7 @@ public class ActiveGame {
 
     public boolean hasNoUndoLastMoveLeft() {
         if (undoLastMoveCounter < 0) {
-            return false; // infinite undo
+            return false;
         }
 
         return undoLastMoveCounter == 0;
@@ -156,6 +171,18 @@ public class ActiveGame {
 
     public void setLastPosition(ItemStack[][] lastPosition) {
         this.lastPosition = lastPosition;
+    }
+
+    public ItemStack[][] getPendingBoard() {
+        return pendingBoard;
+    }
+
+    public void setPendingBoard(ItemStack[][] pendingBoard) {
+        this.pendingBoard = pendingBoard;
+    }
+
+    public void clearPendingBoard() {
+        pendingBoard = null;
     }
 
     public int getScoreGainedAfterLastMove() {
@@ -206,17 +233,24 @@ public class ActiveGame {
         this.resetConfirmationOpen = resetConfirmationOpen;
     }
 
+    public boolean isTerminalSavePending() {
+        return terminalSavePending;
+    }
+
+    public void setTerminalSavePending(boolean terminalSavePending) {
+        this.terminalSavePending = terminalSavePending;
+    }
+
     public double calculateNewAverageScore() {
         return (getAttempts() * getAverageScore() + getScore()) / (getAttempts() + 1);
     }
 
-    // Doesn't need a disabled check as the caller method implies its enabled
     public void updateStatisticsItem() {
         getGameWindow().setItem(PLAYER_ITEM_SLOT.getIntValue(), getPlayerStatsHead());
     }
 
     private ItemStack getPlayerStatsHead() {
-        return (new ItemBuilder(getPlayerSkullItem(getPlayer()))).addLore(PLAYER_ITEM_LORE_CURRENT_SCORE.getFormattedValue(StringUtil.formatInt(getScore())))
+        return (new ItemBuilder(getPlayerSkullItem(getPlayer(), logger))).addLore(PLAYER_ITEM_LORE_CURRENT_SCORE.getFormattedValue(StringUtil.formatInt(getScore())))
                                                                  .addLore(PLAYER_ITEM_LORE_CURRENT_PLAYTIME.getFormattedValue(getCurrentPlayTimeFormatted()))
                                                                  .addLore(PLAYER_ITEM_LORE_TOTAL_PLAYTIME.getFormattedValue(getTotalPlusCurrentPlayTimeFormatted()))
                                                                  .addLore(PLAYER_ITEM_LORE_GAMES_PLAYED.getFormattedValue(StringUtil.formatInt(getAttempts())))

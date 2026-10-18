@@ -1,28 +1,44 @@
 package io.stealingdapenta.mc2048.listeners;
 
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
+
 import io.stealingdapenta.mc2048.GameManager;
-import io.stealingdapenta.mc2048.MC2048;
 import io.stealingdapenta.mc2048.config.ConfigKey;
+import io.stealingdapenta.mc2048.config.ConfigurationFileManager;
+import io.stealingdapenta.mc2048.config.ConfigurationSnapshot;
 import io.stealingdapenta.mc2048.utils.InventoryUtil;
+import io.stealingdapenta.mc2048.utils.MessageSender;
 import io.stealingdapenta.mc2048.utils.data.ActiveGame;
 import io.stealingdapenta.mc2048.utils.data.ButtonAction;
 import io.stealingdapenta.mc2048.utils.data.GameHolder;
 import io.stealingdapenta.mc2048.utils.data.HelperHolder;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.lang.reflect.Field;
+import java.nio.charset.StandardCharsets;
+import java.util.Objects;
+import java.util.logging.Logger;
 import org.bukkit.entity.Player;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.player.PlayerKickEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.InventoryView;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 /**
  * Tests for the slot-based GUI click mapping.
@@ -44,26 +60,20 @@ class GameControlsListenerTest {
     private Inventory clickedInventory;
 
     private ActiveGame activeGame;
-    private MockedStatic<MC2048> mc2048;
-
     @BeforeEach
-    void setUp() {
-        MC2048 plugin = mock(MC2048.class);
-        FileConfiguration configuration = mock(FileConfiguration.class);
-        mc2048 = mockStatic(MC2048.class);
-        mc2048.when(MC2048::getInstance).thenReturn(plugin);
-        when(plugin.getConfig()).thenReturn(configuration);
-        when(configuration.getString(anyString())).thenAnswer(invocation -> {
-            String key = invocation.getArgument(0, String.class);
-            return key.equals(ConfigKey.MSG_INVALID_MOVE.name().toLowerCase())
-                || key.equals(ConfigKey.MSG_GAME_PAUSED.name().toLowerCase())
-                ? ""
-                : ConfigKey.valueOf(key.toUpperCase()).getDefaultValue();
-        });
+    void setUp() throws ReflectiveOperationException {
+        JavaPlugin plugin = mock(JavaPlugin.class);
+        when(plugin.getLogger()).thenReturn(mock(Logger.class));
+        installTestConfiguration();
 
         inventoryUtil = mock(InventoryUtil.class);
         gameManager = mock(GameManager.class);
-        listener = new GameControlsListener(inventoryUtil, gameManager);
+        listener = new GameControlsListener(
+            plugin,
+            inventoryUtil,
+            gameManager,
+            mock(MessageSender.class)
+        );
 
         player = mock(Player.class);
         view = mock(InventoryView.class);
@@ -83,9 +93,17 @@ class GameControlsListenerTest {
         when(inventoryUtil.isHelpWindow(view)).thenReturn(false);
     }
 
-    @AfterEach
-    void tearDown() {
-        mc2048.close();
+    private void installTestConfiguration() throws ReflectiveOperationException {
+        InputStream input = Objects.requireNonNull(
+            getClass().getClassLoader().getResourceAsStream("config.yml"));
+        YamlConfiguration configuration = YamlConfiguration.loadConfiguration(
+            new InputStreamReader(input, StandardCharsets.UTF_8));
+        configuration.set(ConfigKey.MSG_INVALID_MOVE.path(), "");
+        configuration.set(ConfigKey.MSG_GAME_PAUSED.path(), "");
+
+        Field snapshot = ConfigurationFileManager.class.getDeclaredField("snapshot");
+        snapshot.setAccessible(true);
+        snapshot.set(ConfigurationFileManager.CONFIGURATION_FILE_MANAGER, ConfigurationSnapshot.from(configuration));
     }
 
     private InventoryClickEvent clickEvent(int slot, Inventory clickedInventory) {
@@ -241,7 +259,7 @@ class GameControlsListenerTest {
         listener.onGameClose(event);
 
         verify(gameManager).pauseGame(activeGame);
-        verify(gameManager, never()).completeGame(any());
+        verify(gameManager, never()).completeGame(any(), any());
     }
 
     @Test
@@ -268,7 +286,7 @@ class GameControlsListenerTest {
 
         verify(activeGame).setResetConfirmationOpen(true);
         verify(player).openInventory(confirmation);
-        verify(gameManager, never()).resetGame(any());
+        verify(gameManager, never()).resetGame(any(), any());
     }
 
     @Test
@@ -276,12 +294,16 @@ class GameControlsListenerTest {
     void confirmingResetStartsNewGame() {
         when(inventoryUtil.isGameWindow(view)).thenReturn(false);
         when(inventoryUtil.isResetConfirmationWindow(view)).thenReturn(true);
+        doAnswer(invocation -> {
+            invocation.getArgument(1, Runnable.class).run();
+            return null;
+        }).when(gameManager).resetGame(eq(activeGame), any());
         InventoryClickEvent event = clickEvent(InventoryUtil.RESET_CONFIRM_SLOT, clickedInventory);
 
         listener.onButtonClick(event);
 
         verify(activeGame).setResetConfirmationOpen(false);
-        verify(gameManager).resetGame(activeGame);
+        verify(gameManager).resetGame(eq(activeGame), any());
         verify(gameManager).activateGame(player);
     }
 
@@ -295,7 +317,7 @@ class GameControlsListenerTest {
 
         listener.onButtonClick(event);
 
-        verify(gameManager, never()).resetGame(any());
+        verify(gameManager, never()).resetGame(any(), any());
         verify(player).openInventory(gameInventory);
     }
 
@@ -313,6 +335,26 @@ class GameControlsListenerTest {
 
         verify(activeGame).setResetConfirmationOpen(false);
         verify(gameManager).pauseGame(activeGame);
+    }
+
+    @Test
+    void onPlayerQuitSavesActiveSession() {
+        PlayerQuitEvent event = mock(PlayerQuitEvent.class);
+        when(event.getPlayer()).thenReturn(player);
+
+        listener.onPlayerQuit(event);
+
+        verify(gameManager).saveOnDeparture(player);
+    }
+
+    @Test
+    void onPlayerKickSavesActiveSession() {
+        PlayerKickEvent event = mock(PlayerKickEvent.class);
+        when(event.getPlayer()).thenReturn(player);
+
+        listener.onPlayerKick(event);
+
+        verify(gameManager).saveOnDeparture(player);
     }
 
     @Test

@@ -3,6 +3,7 @@ package io.stealingdapenta.mc2048.utils.data;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 
 class NumberRepresentationTest {
@@ -23,5 +24,19 @@ class NumberRepresentationTest {
             NumberRepresentation.HUNDRED_THIRTY_ONE_THOUSAND_SEVENTY_TWO,
             NumberRepresentation.getRepresentationByDisplayName("131,072").orElseThrow()
         );
+    }
+
+    @Test
+    void fromScoreWithEveryRepresentationReturnsMatchingValue() {
+        Arrays.stream(NumberRepresentation.values()).forEach(representation ->
+            assertEquals(
+                representation,
+                NumberRepresentation.fromScore(representation.getScore()).orElseThrow()
+            ));
+    }
+
+    @Test
+    void getNextRepresentationWithUnknownScoreReturnsEmpty() {
+        assertTrue(NumberRepresentation.getNextRepresentation(3).isEmpty());
     }
 }

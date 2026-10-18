@@ -1,9 +1,8 @@
 package io.stealingdapenta.mc2048.config;
 
 
-import static io.stealingdapenta.mc2048.MC2048.logger;
+import static io.stealingdapenta.mc2048.config.ConfigurationFileManager.CONFIGURATION_FILE_MANAGER;
 
-import io.stealingdapenta.mc2048.MC2048;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -159,19 +158,7 @@ public enum ConfigKey {
     MATERIAL_TWO_HUNDRED_SIXTY_TWO_THOUSAND_HUNDRED_FOURTY_FOUR("END_STONE"),
     MATERIAL_TWO_HUNDRED_SIXTY_TWO_THOUSAND_HUNDRED_FOURTY_FOUR_CMD("1000");
 
-    private final String defaultValue;
-
-    ConfigKey(String defaultValue) {
-        this.defaultValue = defaultValue;
-    }
-
-    /**
-     * Used for first time config initialisation
-     *
-     * @return the hardcoded value from this ENUM config
-     */
-    public String getDefaultValue() {
-        return defaultValue;
+    ConfigKey(String ignoredLegacyDefault) {
     }
 
     /**
@@ -190,9 +177,7 @@ public enum ConfigKey {
      * @return the stored value from the config as a String literal
      */
     public String getStringValue() {
-        return MC2048.getInstance()
-                     .getConfig()
-                     .getString(name().toLowerCase());
+        return CONFIGURATION_FILE_MANAGER.getSnapshot().get(this);
     }
 
     /**
@@ -216,23 +201,22 @@ public enum ConfigKey {
     public Component getFormattedValue(String... replacements) {
         Component component = getFormattedValue();
         for (String replacement : replacements) {
+            // Replacements are positional, so consume one placeholder per value.
             component = component.replaceText(builder -> builder.match("%s")
                                                                 .replacement(replacement)
-                                                                .once()); // Replace one at a time
+                                                                .once());
         }
         return component;
     }
 
     /**
-     * @return the stored value from the config as an integer NumberFormatException safe
+     * @return the validated stored value from the config as an integer
      */
     public int getIntValue() {
-        String value = MC2048.getInstance().getConfig().getString(name().toLowerCase());
-        try {
-            return Integer.parseInt(value);
-        } catch (NumberFormatException e) {
-            logger.warning(MSG_PARSING_ERROR.getStringValue() + name().toLowerCase());
-            return 0;
-        }
+        return Integer.parseInt(getStringValue());
+    }
+
+    public String path() {
+        return name().toLowerCase();
     }
 }

@@ -1,11 +1,9 @@
 package io.stealingdapenta.mc2048.utils;
 
-import static io.stealingdapenta.mc2048.MC2048.logger;
-
-import io.stealingdapenta.mc2048.MC2048;
 import io.stealingdapenta.mc2048.config.ConfigKey;
 import java.time.Duration;
 import java.util.Objects;
+import java.util.logging.Logger;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
@@ -14,31 +12,24 @@ import net.kyori.adventure.title.Title;
 import net.kyori.adventure.title.Title.Times;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
-public enum MessageSender {
-    MESSAGE_SENDER;
-    
+public final class MessageSender implements AutoCloseable {
+
     public static final String ERROR_IS_NULL = "Error sending message, %s is null.";
     private final LegacyComponentSerializer serializer = LegacyComponentSerializer.legacySection();
-    private BukkitAudiences audiences;
+    private final BukkitAudiences audiences;
+    private final Logger logger;
 
-    private BukkitAudiences getAudiences() {
-        lazyInitAudiences();
-        return audiences;
+    public MessageSender(JavaPlugin plugin) {
+        audiences = BukkitAudiences.create(plugin);
+        logger = plugin.getLogger();
     }
 
-    private void lazyInitAudiences() {
-        if (Objects.isNull(audiences)) {
-            audiences = BukkitAudiences.create(MC2048.getInstance());
-        }
-    }
-
+    @Override
     public void close() {
-        if (Objects.nonNull(audiences)) {
-            audiences.close();
-            audiences = null;
-        }
+        audiences.close();
     }
 
     public void sendMessage(CommandSender sender, ConfigKey messageConfig) {
@@ -51,8 +42,8 @@ public enum MessageSender {
             return;
         }
 
-        getAudiences().sender(sender)
-                      .sendMessage(messageConfig.getFormattedValue());
+        audiences.sender(sender)
+                 .sendMessage(messageConfig.getFormattedValue());
     }
 
     public void sendMessage(Player player, ConfigKey messageConfig) {
@@ -70,12 +61,13 @@ public enum MessageSender {
         }
 
         String processedStr = serializer.serialize(message).trim();
+        // Empty configured messages intentionally disable that notification.
         if (processedStr.isEmpty()) {
-            return; // Don't send a blank message, this is a feature for admins to disable config messages
+            return;
         }
 
-        getAudiences().player(player)
-                      .sendMessage(message);
+        audiences.player(player)
+                 .sendMessage(message);
     }
 
     /**
@@ -94,7 +86,7 @@ public enum MessageSender {
         Times times = Title.Times.times(Duration.ofSeconds(1), Duration.ofSeconds(3), Duration.ofSeconds(1));
         Title title = Title.title(titleComponent, subtitleComponent, times);
         
-        Audience audience = getAudiences().player(player);
+        Audience audience = audiences.player(player);
         audience.showTitle(title);
     }
 }

@@ -1,6 +1,5 @@
 package io.stealingdapenta.mc2048.config;
 
-import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.List;
@@ -36,20 +35,20 @@ public final class ConfigurationValidator {
     public static void validate(FileConfiguration configuration) {
         Map<ConfigKey, String> values = new EnumMap<>(ConfigKey.class);
         for (ConfigKey key : ConfigKey.values()) {
-            values.put(key, configuration.getString(key.name().toLowerCase()));
+            values.put(key, configuration.getString(key.path()));
         }
         validate(values);
     }
 
     static void validate(Map<ConfigKey, String> values) {
-        List<String> errors = new ArrayList<>();
+        Map<ConfigKey, String> errors = new EnumMap<>(ConfigKey.class);
 
         for (ConfigKey key : ConfigKey.values()) {
             String value = values.get(key);
             if (value == null) {
-                errors.add(key.name().toLowerCase() + " is missing");
+                errors.put(key, key.path() + " is missing");
             } else if (isMaterialKey(key) && Material.matchMaterial(value) == null) {
-                errors.add(key.name().toLowerCase() + " is not a valid material: " + value);
+                errors.put(key, key.path() + " is not a valid material: " + value);
             }
         }
 
@@ -62,7 +61,7 @@ public final class ConfigurationValidator {
         OPTIONAL_SLOTS.forEach(key -> validateSlot(values, key, true, occupiedSlots, errors));
 
         if (!errors.isEmpty()) {
-            throw new IllegalArgumentException("Invalid MC2048 configuration: " + String.join("; ", errors));
+            throw new ConfigurationValidationException(errors);
         }
     }
 
@@ -72,7 +71,7 @@ public final class ConfigurationValidator {
     }
 
     private static void validateSlot(Map<ConfigKey, String> values, ConfigKey key, boolean optional,
-                                     Set<Integer> occupiedSlots, List<String> errors) {
+                                     Set<Integer> occupiedSlots, Map<ConfigKey, String> errors) {
         Integer slot = parseInteger(values, key, errors);
         if (slot == null) {
             return;
@@ -81,23 +80,23 @@ public final class ConfigurationValidator {
             return;
         }
         if (slot < 0 || slot >= 54) {
-            errors.add(key.name().toLowerCase() + " must be between 0 and 53" + (optional ? ", or -1" : ""));
+            errors.put(key, key.path() + " must be between 0 and 53" + (optional ? ", or -1" : ""));
         } else if (BOARD_SLOTS.contains(slot)) {
-            errors.add(key.name().toLowerCase() + " cannot use game-board slot " + slot);
+            errors.put(key, key.path() + " cannot use game-board slot " + slot);
         } else if (!occupiedSlots.add(slot)) {
-            errors.add(key.name().toLowerCase() + " conflicts with another item at slot " + slot);
+            errors.put(key, key.path() + " conflicts with another item at slot " + slot);
         }
     }
 
     private static void validateRange(Map<ConfigKey, String> values, ConfigKey key, int minimum, int maximum,
-                                      List<String> errors) {
+                                      Map<ConfigKey, String> errors) {
         Integer value = parseInteger(values, key, errors);
         if (value != null && (value < minimum || value > maximum)) {
-            errors.add(key.name().toLowerCase() + " must be between " + minimum + " and " + maximum);
+            errors.put(key, key.path() + " must be between " + minimum + " and " + maximum);
         }
     }
 
-    private static Integer parseInteger(Map<ConfigKey, String> values, ConfigKey key, List<String> errors) {
+    private static Integer parseInteger(Map<ConfigKey, String> values, ConfigKey key, Map<ConfigKey, String> errors) {
         String value = values.get(key);
         if (value == null) {
             return null;
@@ -105,7 +104,7 @@ public final class ConfigurationValidator {
         try {
             return Integer.valueOf(value);
         } catch (NumberFormatException exception) {
-            errors.add(key.name().toLowerCase() + " must be an integer: " + value);
+            errors.put(key, key.path() + " must be an integer: " + value);
             return null;
         }
     }

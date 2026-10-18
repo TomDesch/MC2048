@@ -11,11 +11,15 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.components.CustomModelDataComponent;
 
 /**
  * Code based on original code from XTens Prison Core
  */
 public class ItemBuilder {
+
+    private static final LegacyComponentSerializer LEGACY_SERIALIZER =
+        LegacyComponentSerializer.legacySection();
 
     private final ItemStack itemStack;
     private final List<String> loreList;
@@ -37,8 +41,7 @@ public class ItemBuilder {
     }
 
     public ItemBuilder setDisplayName(Component name) {
-        return setDisplayName(LegacyComponentSerializer.legacySection()
-                                                       .serialize(name));
+        return setDisplayName(LEGACY_SERIALIZER.serialize(name));
     }
 
     public ItemBuilder setDisplayName(String name) {
@@ -92,22 +95,12 @@ public class ItemBuilder {
         return switch (obj) {
             case ConfigKey configKey -> {
                 Component formatted = configKey.getFormattedValue();
-                String legacy = LegacyComponentSerializer.legacySection()
-                                                         .serialize(formatted);
-                if (legacy.isEmpty()) {
-                    yield null;
-                }
-                yield LegacyComponentSerializer.legacySection()
-                                               .serialize(formatted);
+                String legacy = LEGACY_SERIALIZER.serialize(formatted);
+                yield legacy.isEmpty() ? null : legacy;
             }
             case Component component -> {
-                String legacy = LegacyComponentSerializer.legacySection()
-                                                         .serialize(component);
-                if (legacy.isEmpty()) {
-                    yield null;
-                }
-                yield LegacyComponentSerializer.legacySection()
-                                               .serialize(component);
+                String legacy = LEGACY_SERIALIZER.serialize(component);
+                yield legacy.isEmpty() ? null : legacy;
             }
             case String str -> {
                 if (str.isEmpty()) {
@@ -129,8 +122,15 @@ public class ItemBuilder {
     }
 
     public static ItemStack setCustomModelDataTo(ItemStack itemStack, Integer amount) {
-        Objects.requireNonNull(itemStack.getItemMeta(), ERROR_SETTING_CMD.formatted(itemStack))
-               .setCustomModelData(amount);
+        ItemMeta itemMeta = Objects.requireNonNull(itemStack.getItemMeta(), ERROR_SETTING_CMD.formatted(itemStack));
+        if (Objects.isNull(amount)) {
+            itemMeta.setCustomModelDataComponent(null);
+        } else {
+            CustomModelDataComponent customModelData = itemMeta.getCustomModelDataComponent();
+            customModelData.setFloats(List.of(amount.floatValue()));
+            itemMeta.setCustomModelDataComponent(customModelData);
+        }
+        itemStack.setItemMeta(itemMeta);
         return itemStack;
     }
 }

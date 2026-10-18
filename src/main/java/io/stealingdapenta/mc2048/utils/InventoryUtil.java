@@ -1,6 +1,5 @@
 package io.stealingdapenta.mc2048.utils;
 
-import static io.stealingdapenta.mc2048.MC2048.logger;
 import static io.stealingdapenta.mc2048.config.ConfigKey.GAME_GUI_FILLER_ANIMATION_MATERIAL;
 import static io.stealingdapenta.mc2048.config.ConfigKey.GAME_GUI_FILLER_ANIMATION_MATERIAL_CMD;
 import static io.stealingdapenta.mc2048.config.ConfigKey.GAME_GUI_FILLER_MATERIAL;
@@ -78,14 +77,15 @@ import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_USED_MATERI
 import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_USED_MATERIAL_CMD;
 import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_USED_NAME;
 import static io.stealingdapenta.mc2048.config.ConfigKey.UNDO_BUTTON_USED_USES;
-import static io.stealingdapenta.mc2048.utils.FileManager.FILE_MANAGER;
 import static io.stealingdapenta.mc2048.utils.ItemBuilder.setCustomModelDataTo;
 import static io.stealingdapenta.mc2048.utils.data.ActiveGame.makeSecondsATimestamp;
 import static org.bukkit.Bukkit.createInventory;
 
 import io.stealingdapenta.mc2048.MC2048;
 import io.stealingdapenta.mc2048.config.ConfigKey;
-import io.stealingdapenta.mc2048.config.PlayerConfigField;
+import io.stealingdapenta.mc2048.game.BoardEngine;
+import io.stealingdapenta.mc2048.game.BoardEngine.Direction;
+import io.stealingdapenta.mc2048.persistence.PlayerData;
 import io.stealingdapenta.mc2048.utils.data.ActiveGame;
 import io.stealingdapenta.mc2048.utils.data.ButtonAction;
 import io.stealingdapenta.mc2048.utils.data.GameHolder;
@@ -101,7 +101,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
-import java.util.stream.IntStream;
+import java.util.function.Supplier;
+import java.util.logging.Logger;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.entity.Player;
@@ -115,7 +116,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 public class InventoryUtil {
 
-    public final MC2048 javaPlugin;
+    private final MC2048 javaPlugin;
     private final HighScoreManager highScoreManager;
 
     public static final int INVENTORY_ROWS = 6;
@@ -124,18 +125,25 @@ public class InventoryUtil {
     public static final int REQUIRED_SIZE = INVENTORY_ROWS * INVENTORY_COLUMNS;
     public static final int RESET_CONFIRM_SLOT = 11;
     public static final int RESET_CANCEL_SLOT = 15;
-    private static final int[][] mergeSlots = {{10, 11, 12, 13}, {19, 20, 21, 22}, {28, 29, 30, 31}, {37, 38, 39, 40}};
+    public static final int HELP_PLAY_BUTTON_SLOT = 49;
+    private static final int[][] MERGE_SLOTS = {
+        {10, 11, 12, 13},
+        {19, 20, 21, 22},
+        {28, 29, 30, 31},
+        {37, 38, 39, 40}
+    };
     private static final String WRONG_SIZE = "Error filling sides of inventory: wrong size!";
 
     private static final String ERROR_SKULL = "Error getting skull meta for %s.";
     private final Random random = new Random();
+    private final BoardEngine boardEngine = new BoardEngine();
 
     public InventoryUtil(MC2048 javaPlugin, HighScoreManager highScoreManager) {
         this.javaPlugin = javaPlugin;
         this.highScoreManager = highScoreManager;
     }
 
-    public static ItemStack getPlayerSkullItem(Player player) {
+    public static ItemStack getPlayerSkullItem(Player player, Logger logger) {
         ItemStack playerHead = setCustomModelDataTo((new ItemBuilder(PLAYER_ITEM_MATERIAL.getMaterialValue())).create(), PLAYER_ITEM_MATERIAL_CMD);
         SkullMeta skullMeta = (SkullMeta) playerHead.getItemMeta();
         if (Objects.isNull(skullMeta)) {
@@ -151,59 +159,15 @@ public class InventoryUtil {
 
     public void showEndAnimation(Inventory inventory, long delay) {
         if (inventory.getSize() != REQUIRED_SIZE) {
-            logger.warning(WRONG_SIZE);
+            javaPlugin.getLogger().warning(WRONG_SIZE);
             return;
         }
 
-        for (int i = 0; i < REQUIRED_SIZE; i++) {
-            if (isInvalidGameSlot(i) && i!=PLAYER_ITEM_SLOT.getIntValue()) {
-                inventory.setItem(i, getGameEndItem());
-            }
-        }
-
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                for (int i = 0; i < REQUIRED_SIZE; i++) {
-                    if (isInvalidGameSlot(i) && i!=PLAYER_ITEM_SLOT.getIntValue()) {
-                        inventory.setItem(i, getGameFillerItem());
-                    }
-                }
-            }
-        }.runTaskLater(javaPlugin, delay);
-
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                for (int i = 0; i < REQUIRED_SIZE; i++) {
-                    if (isInvalidGameSlot(i) && i!=PLAYER_ITEM_SLOT.getIntValue()) {
-                        inventory.setItem(i, getGameEndItem());
-                    }
-                }
-            }
-        }.runTaskLater(javaPlugin, delay*2);
-
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                for (int i = 0; i < REQUIRED_SIZE; i++) {
-                    if (isInvalidGameSlot(i) && i!=PLAYER_ITEM_SLOT.getIntValue()) {
-                        inventory.setItem(i, getGameFillerItem());
-                    }
-                }
-            }
-        }.runTaskLater(javaPlugin, delay*3);
-
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                for (int i = 0; i < REQUIRED_SIZE; i++) {
-                    if (isInvalidGameSlot(i) && i!=PLAYER_ITEM_SLOT.getIntValue()) {
-                        inventory.setItem(i, getGameEndItem());
-                    }
-                }
-            }
-        }.runTaskLater(javaPlugin, delay*4);
+        fillAnimationSlots(inventory, getGameEndItem());
+        scheduleAnimationFill(inventory, delay, this::getGameFillerItem);
+        scheduleAnimationFill(inventory, delay * 2, this::getGameEndItem);
+        scheduleAnimationFill(inventory, delay * 3, this::getGameFillerItem);
+        scheduleAnimationFill(inventory, delay * 4, this::getGameEndItem);
     }
 
     public Inventory createGameInventory(ActiveGame activeGame) {
@@ -220,24 +184,24 @@ public class InventoryUtil {
             27,
             LegacyComponentSerializer.legacySection().serialize(RESET_CONFIRM_TITLE.getFormattedValue())
         );
+        ItemStack filler = getGameFillerItem();
         for (int slot = 0; slot < inventory.getSize(); slot++) {
-            inventory.setItem(slot, getGameFillerItem());
+            inventory.setItem(slot, filler.clone());
         }
         inventory.setItem(RESET_CONFIRM_SLOT, createMenuButton(RESET_CONFIRM_YES_NAME, RESET_CONFIRM_YES_MATERIAL, RESET_CONFIRM_YES_MATERIAL_CMD));
         inventory.setItem(RESET_CANCEL_SLOT, createMenuButton(RESET_CONFIRM_NO_NAME, RESET_CONFIRM_NO_MATERIAL, RESET_CONFIRM_NO_MATERIAL_CMD));
         return inventory;
     }
 
-    public Inventory createHelpInventory(Player player) {
+    public Inventory createHelpInventory(Player player, PlayerData playerData) {
         Inventory helpGUI = createHelperGUIWindow(player, HELP_GUI_TITLE);
 
         final int playerStatsSlot = 28;
         final int highScoreSlot = 34;
         final int infoSlot = 31;
-        final int playButtonSlot = 49;
 
         fillWithLegend(helpGUI);
-        setItemInSlot(helpGUI, playerStatsSlot, getHelpGUIPlayerStatsHead(player));
+        setItemInSlot(helpGUI, playerStatsSlot, getHelpGUIPlayerStatsHead(player, playerData));
         setItemInSlot(helpGUI, highScoreSlot, highScoreManager.getHighScoresItem());
         setItemInSlot(helpGUI, infoSlot, setCustomModelDataTo(new ItemBuilder(INFO_ITEM_MATERIAL.getMaterialValue()).setDisplayName(INFO_ITEM_NAME.getFormattedValue())
                                                                                                                     .addLore(INFO_ITEM_LORE_1.getFormattedValue())
@@ -247,7 +211,7 @@ public class InventoryUtil {
                                                                                                                     .addLore(INFO_ITEM_LORE_5.getFormattedValue())
                                                                                                                     .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
                                                                                                                     .create(), INFO_ITEM_MATERIAL_CMD));
-        setItemInSlot(helpGUI, playButtonSlot, setCustomModelDataTo(new ItemBuilder(START_BUTTON_MATERIAL.getMaterialValue()).setDisplayName(START_BUTTON_NAME.getFormattedValue())
+        setItemInSlot(helpGUI, HELP_PLAY_BUTTON_SLOT, setCustomModelDataTo(new ItemBuilder(START_BUTTON_MATERIAL.getMaterialValue()).setDisplayName(START_BUTTON_NAME.getFormattedValue())
                                                                                                                             .addLore(START_BUTTON_LORE_1.getFormattedValue())
                                                                                                                             .addLore(START_BUTTON_LORE_2.getFormattedValue())
                                                                                                                             .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
@@ -259,13 +223,14 @@ public class InventoryUtil {
 
     private void fillEmptySlots(Inventory inventory) {
         if (inventory.getSize() != REQUIRED_SIZE) {
-            logger.warning(WRONG_SIZE);
+            javaPlugin.getLogger().warning(WRONG_SIZE);
             return;
         }
 
+        ItemStack filler = getHelpGuiFillerItem();
         for (int i = 0; i < REQUIRED_SIZE; i++) {
             if (Objects.isNull(inventory.getItem(i))) {
-                inventory.setItem(i, getHelpGuiFillerItem());
+                inventory.setItem(i, filler.clone());
             }
         }
     }
@@ -277,19 +242,20 @@ public class InventoryUtil {
 
     private void fillSides(Inventory inventory) {
         if (inventory.getSize() != REQUIRED_SIZE) {
-            logger.warning(WRONG_SIZE);
+            javaPlugin.getLogger().warning(WRONG_SIZE);
             return;
         }
 
+        ItemStack filler = getGameFillerItem();
         for (int i = 0; i < REQUIRED_SIZE; i++) {
             if (isInvalidGameSlot(i)) {
-                inventory.setItem(i, getGameFillerItem());
+                inventory.setItem(i, filler.clone());
             }
         }
     }
 
     private boolean isInvalidGameSlot(int slot) {
-        for (int[] row : mergeSlots) {
+        for (int[] row : MERGE_SLOTS) {
             for (int validSlot : row) {
                 if (validSlot == slot) {
                     return false;
@@ -297,6 +263,24 @@ public class InventoryUtil {
             }
         }
         return true;
+    }
+
+    private void scheduleAnimationFill(Inventory inventory, long delay, Supplier<ItemStack> itemSupplier) {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                fillAnimationSlots(inventory, itemSupplier.get());
+            }
+        }.runTaskLater(javaPlugin, delay);
+    }
+
+    private void fillAnimationSlots(Inventory inventory, ItemStack item) {
+        int playerItemSlot = PLAYER_ITEM_SLOT.getIntValue();
+        for (int slot = 0; slot < REQUIRED_SIZE; slot++) {
+            if (isInvalidGameSlot(slot) && slot != playerItemSlot) {
+                inventory.setItem(slot, item.clone());
+            }
+        }
     }
 
     private ItemStack getGameFillerItem() {
@@ -340,7 +324,7 @@ public class InventoryUtil {
         }
 
         if (SLOT_SPEED >= 0) {
-            setItemInSlot(activeGame.getGameWindow(), SLOT_SPEED, getSpeedButton(FILE_MANAGER.getAnimationSpeed(activeGame.getPlayer())));
+            setItemInSlot(activeGame.getGameWindow(), SLOT_SPEED, getSpeedButton(activeGame.getAnimationSpeed()));
         }
         if (SLOT_RESET >= 0) {
             setItemInSlot(
@@ -432,7 +416,6 @@ public class InventoryUtil {
         }
     }
 
-    // Doesn't need a disabled check as the caller method implies its enabled
     public void updateSpeedButton(ActiveGame activeGame, int newSpeed) {
         setItemInSlot(activeGame.getGameWindow(), SPEED_BUTTON_SLOT.getIntValue(), getSpeedButton(newSpeed));
     }
@@ -485,14 +468,10 @@ public class InventoryUtil {
 
         int tickDelay;
         if (action.equals(ButtonAction.UNDO)) {
-            // [debug] javaPlugin.getLogger().info("processGameAction: undoing last move");
             tickDelay = undoLastMove(itemsInGame, activeGame);
         } else {
-            // [debug] javaPlugin.getLogger().info("processGameAction: moving items");
-            tickDelay = moveItems(activeGame.getPlayer(), itemsInGame, activeGame, action);
+            tickDelay = moveItems(itemsInGame, activeGame, action);
         }
-
-        // [debug] javaPlugin.getLogger().info("processGameAction.tickDelay == " + tickDelay);
 
         if (tickDelay < 0 || ButtonAction.UNDO.equals(action)) {
             copyItemArrayToGameWindow(gameWindow, itemsInGame);
@@ -503,6 +482,7 @@ public class InventoryUtil {
                     activeGame.setLastMoveUndo(false);
 
                     copyItemArrayToGameWindow(gameWindow, itemsInGame);
+                    activeGame.clearPendingBoard();
                 }
             }.runTaskLater(javaPlugin, tickDelay);
         }
@@ -515,9 +495,8 @@ public class InventoryUtil {
      *
      * @return tick delay for caller method continuation
      */
-    private int moveItems(Player player, ItemStack[][] inventoryArray, ActiveGame activeGame, ButtonAction action) {
+    private int moveItems(ItemStack[][] inventoryArray, ActiveGame activeGame, ButtonAction action) {
 
-        // Create a deep copy of the current state before making moves
         ItemStack[][] lastPosition = new ItemStack[ROW_AND_COLUMN_SIZE][ROW_AND_COLUMN_SIZE];
         for (int i = 0; i < inventoryArray.length; i++) {
             lastPosition[i] = Arrays.copyOf(inventoryArray[i], inventoryArray[i].length);
@@ -526,155 +505,54 @@ public class InventoryUtil {
         int previousMoveScore = activeGame.getScoreGainedAfterLastMove();
         activeGame.resetGainedAfterLastMove();
 
-        // Calculate moves (updates board simulation and scores)
-        List<MovementInstruction> instructions = calculateMoves(inventoryArray, activeGame, action);
-        if ((Objects.isNull(instructions)) || instructions.isEmpty()) {
+        BoardEngine.MoveResult result = boardEngine.move(toValueBoard(inventoryArray), toDirection(action));
+        if (!result.moved()) {
             activeGame.setScoreGainedAfterLastMove(previousMoveScore);
-            // [debug] javaPlugin.getLogger().info("moveItems.instructions.isEmpty() == true");
             return 0;
         }
-        
-        // [debug] javaPlugin.getLogger().info("moveItems.instructions.isEmpty() == false");
 
-        // Since there will be movement, we can update the acitveGame's saved lastPosition
+        copyValueBoardToItems(result.board(), inventoryArray);
+        activeGame.setPendingBoard(copyBoard(inventoryArray));
+        activeGame.addToScore(result.scoreGain());
+        activeGame.setScoreGainedAfterLastMove(result.scoreGain());
+        List<MovementInstruction> instructions = result.movements().stream()
+            .map(this::toMovementInstruction)
+            .toList();
+
         activeGame.setLastPosition(lastPosition);
-        // [debug] javaPlugin.getLogger().info("moveItems.lastPosition saved");
 
-        // Animate the moves and get the maximum number of steps (ticks) needed
-        int maxSteps = animateMovementsSimultaneous(player, activeGame.getGameWindow(), instructions);
+        int maxSteps = animateMovementsSimultaneous(activeGame, activeGame.getGameWindow(), instructions);
 
-        // Compute tick delay for final board update (ensure at least 1 tick delay)
-        return Math.max((maxSteps - 1) * FILE_MANAGER.getAnimationDelay(player), 1);
+        return Math.max((maxSteps - 1) * activeGame.getAnimationDelay(), 1);
     }
 
 
-    /**
-     * Calculates the moves and merges for the board. Updates the game's score.
-     *
-     * @return list of movements to preform, or null if none
-     */
-    private List<MovementInstruction> calculateMoves(ItemStack[][] board, ActiveGame activeGame, ButtonAction action) {
-        List<MovementInstruction> instructions = new ArrayList<>();
-        boolean[][] mergedCells = new boolean[ROW_AND_COLUMN_SIZE][ROW_AND_COLUMN_SIZE];
-
-        switch (action) {
-            case UP:
-                for (int row = 1; row < ROW_AND_COLUMN_SIZE; row++) {
-                    for (int col = 0; col < ROW_AND_COLUMN_SIZE; col++) {
-                        if (Objects.nonNull(board[row][col])) {
-                            // [debug] javaPlugin.getLogger().info("calculateMoves.processCell(UP row: " + row + " col: " + col + ")");
-                            processCell(row, col, -1, 0, board, mergedCells, activeGame, instructions);
-                        }
-                    }
-                }
-                break;
-            case DOWN:
-                for (int row = ROW_AND_COLUMN_SIZE - 2; row >= 0; row--) {
-                    for (int col = 0; col < ROW_AND_COLUMN_SIZE; col++) {
-                        if (Objects.nonNull(board[row][col])) {
-                            // [debug] javaPlugin.getLogger().info("calculateMoves.processCell(DOWN row: " + row + " col: " + col + ")");
-                            processCell(row, col, 1, 0, board, mergedCells, activeGame, instructions);
-                        }
-                    }
-                }
-                break;
-            case LEFT:
-                for (int col = 1; col < ROW_AND_COLUMN_SIZE; col++) {
-                    for (int row = 0; row < ROW_AND_COLUMN_SIZE; row++) {
-                        if (Objects.nonNull(board[row][col])) {
-                            // [debug] javaPlugin.getLogger().info("calculateMoves.processCell(LEFT row: " + row + " col: " + col + ")");
-                            processCell(row, col, 0, -1, board, mergedCells, activeGame, instructions);
-                        }
-                    }
-                }
-                break;
-            case RIGHT:
-                for (int col = ROW_AND_COLUMN_SIZE - 2; col >= 0; col--) {
-                    for (int row = 0; row < ROW_AND_COLUMN_SIZE; row++) {
-                        if (Objects.nonNull(board[row][col])) {
-                            // [debug] javaPlugin.getLogger().info("calculateMoves.processCell(RIGHT row: " + row + " col: " + col + ")");
-                            processCell(row, col, 0, 1, board, mergedCells, activeGame, instructions);
-                        }
-                    }
-                }
-                break;
-            case UNDO:
-            case SPEED:
-            case START:
-                return null;
-        }
-        return instructions;
+    private Direction toDirection(ButtonAction action) {
+        return switch (action) {
+            case UP -> Direction.UP;
+            case DOWN -> Direction.DOWN;
+            case LEFT -> Direction.LEFT;
+            case RIGHT -> Direction.RIGHT;
+            default -> throw new IllegalArgumentException("Not a board movement: " + action);
+        };
     }
 
-    /**
-     * Processes a single cell by sliding it as far as possible and then merging if possible.
-     *
-     * @param row          the starting row of the cell
-     * @param col          the starting column of the cell
-     * @param rowDelta     the row increment (e.g., -1 for up, 1 for down, 0 for neither)
-     * @param colDelta     the column increment (e.g., -1 for left, 1 for right, 0 for neither)
-     * @param board        the game board
-     * @param activeGame   the active game instance for updating scores
-     * @param instructions the list to add movement instructions to
-     */
-    private void processCell(int row, int col, int rowDelta, int colDelta, ItemStack[][] board, boolean[][] mergedCells,
-                             ActiveGame activeGame, List<MovementInstruction> instructions) {
-        int currentRow = row;
-        int currentCol = col;
-        int stepCount = 0;
-
-        // Temporary list to hold all instructions for this tile’s movement
-        List<MovementInstruction> tileInstructions = new ArrayList<>();
-
-        // Slide one spot at a time while the next cell is empty
-        while (isInBounds(currentRow + rowDelta, currentCol + colDelta) && Objects.isNull(board[currentRow + rowDelta][currentCol + colDelta])) {
-            int fromRow = currentRow;
-            int fromCol = currentCol;
-            currentRow += rowDelta;
-            currentCol += colDelta;
-            stepCount++;
-            // Record this one-step movement; temporarily totalSteps is 0 (will be updated later)
-            tileInstructions.add(new MovementInstruction(fromRow, fromCol, currentRow, currentCol, board[fromRow][fromCol], false, null, stepCount, 0));
-            // Update the simulation: move the tile one step
-            board[currentRow][currentCol] = board[fromRow][fromCol];
-            board[fromRow][fromCol] = null;
-        }
-
-        // If a merge is possible from the current position, do it as an extra step.
-        int destinationRow = currentRow + rowDelta;
-        int destinationCol = currentCol + colDelta;
-        if (isInBounds(destinationRow, destinationCol) && Objects.nonNull(board[destinationRow][destinationCol])) {
-            if (!mergedCells[destinationRow][destinationCol]
-                && board[destinationRow][destinationCol].isSimilar(board[currentRow][currentCol])) {
-                ItemStack currentItem = board[currentRow][currentCol];
-                Optional<ItemStack> nextRepresentation = getNextRepresentation(currentItem);
-                if (nextRepresentation.isPresent()) {
-                    stepCount++; // merging counts as an extra step
-                    ItemStack merged = nextRepresentation.get();
-                    tileInstructions.add(new MovementInstruction(currentRow, currentCol, destinationRow, destinationCol, currentItem, true, merged, stepCount, 0));
-                    board[destinationRow][destinationCol] = merged;
-                    board[currentRow][currentCol] = null;
-                    mergedCells[destinationRow][destinationCol] = true;
-                    activeGame.addToScore(NumberRepresentation.getScoreFromItem(merged));
-                    activeGame.addToGainedAfterLastMove(NumberRepresentation.getScoreFromItem(merged));
-                }
-            }
-        }
-
-        // Update all instructions with the final total step count, then add them to the overall list
-        for (MovementInstruction instruction : tileInstructions) {
-            instruction.totalSteps = stepCount;
-            instructions.add(instruction);
-        }
-    }
-
-    /**
-     * Checks if the given row and column indices are within the board boundaries.
-     *
-     * @return true if the indices are valid; false otherwise
-     */
-    private boolean isInBounds(int row, int col) {
-        return row >= 0 && row < ROW_AND_COLUMN_SIZE && col >= 0 && col < ROW_AND_COLUMN_SIZE;
+    private MovementInstruction toMovementInstruction(BoardEngine.Movement movement) {
+        ItemStack item = NumberRepresentation.fromScore(movement.value()).orElseThrow().getDisplayableBlock();
+        ItemStack merged = movement.merge()
+            ? NumberRepresentation.fromScore(movement.mergedValue()).orElseThrow().getDisplayableBlock()
+            : null;
+        return new MovementInstruction(
+            movement.fromRow(),
+            movement.fromColumn(),
+            movement.toRow(),
+            movement.toColumn(),
+            item,
+            movement.merge(),
+            merged,
+            movement.step(),
+            movement.totalSteps()
+        );
     }
 
     /**
@@ -684,52 +562,80 @@ public class InventoryUtil {
      *
      * @return max steps for this movement
      */
-    public int animateMovementsSimultaneous(Player player, Inventory menu, List<MovementInstruction> instructions) {
-        // Compute the overall maximum steps from the instructions
+    public int animateMovementsSimultaneous(ActiveGame activeGame, Inventory menu,
+                                            List<MovementInstruction> instructions) {
         int maxSteps = instructions.stream()
-                                   .mapToInt(instruction -> instruction.totalSteps)
+                                   .mapToInt(MovementInstruction::totalSteps)
                                    .max()
                                    .orElse(0);
-        // [debug] javaPlugin.getLogger().info("animateMovementsSimultaneous.maxSteps == " + maxSteps);
 
-        // For each step, schedule a task to update the GUI accordingly
         for (int step = 1; step <= maxSteps; step++) {
             final int currentStep = step;
             new BukkitRunnable() {
                 @Override
                 public void run() {
-                    // [debug] javaPlugin.getLogger().info("animateMovementsSimultaneous.currentStep == __" + currentStep + "__");
-                    // Process all instructions whose step matches this tick.
                     for (MovementInstruction instruction : instructions) {
-                        if (instruction.step == currentStep) {
-                            // Clear the previous slot (i.e. the from slot for this step)
-                            int clearSlot = mergeSlots[instruction.fromRow][instruction.fromColumn];
+                        if (instruction.step() == currentStep) {
+                            int clearSlot = MERGE_SLOTS[instruction.fromRow()][instruction.fromColumn()];
                             menu.setItem(clearSlot, null);
-                            // Place the item into the destination slot for this step
-                            int newSlot = mergeSlots[instruction.toRow][instruction.toColumn];
-                            if (instruction.merge && currentStep == instruction.totalSteps) {
-                                menu.setItem(newSlot, instruction.mergedItem);
+                            int newSlot = MERGE_SLOTS[instruction.toRow()][instruction.toColumn()];
+                            if (instruction.merge() && currentStep == instruction.totalSteps()) {
+                                menu.setItem(newSlot, instruction.mergedItem());
                             } else {
-                                menu.setItem(newSlot, instruction.item);
+                                menu.setItem(newSlot, instruction.item());
                             }
                         }
                     }
                 }
-            }.runTaskLater(javaPlugin, (currentStep - 1L) * FILE_MANAGER.getAnimationDelay(player));
+            }.runTaskLater(javaPlugin, (currentStep - 1L) * activeGame.getAnimationDelay());
         }
         return maxSteps;
     }
 
     public SavedGame createSavedGame(ActiveGame activeGame) {
+        ItemStack[][] logicalBoard = currentLogicalBoard(activeGame);
         return new SavedGame(
             activeGame.getScore(),
             activeGame.getMillisecondsSinceStart(),
             activeGame.getUndoLastMoveCounter(),
             activeGame.getScoreGainedAfterLastMove(),
             activeGame.isLastMoveUndo(),
-            flattenBoard(activeGame.getGameWindow()),
+            flattenBoard(logicalBoard),
             flattenBoard(activeGame.getLastPosition())
         );
+    }
+
+    public SavedGame createShutdownSavedGame(ActiveGame activeGame) {
+        ItemStack[][] logicalBoard = currentLogicalBoard(activeGame);
+        if (activeGame.getPendingBoard() != null) {
+            BoardEngine.SpawnResult spawn = boardEngine.spawn(
+                toValueBoard(logicalBoard),
+                GENERATE_NEW_BLOCK_FOUR_PERCENT.getIntValue(),
+                random
+            );
+            copyValueBoardToItems(spawn.board(), logicalBoard);
+        }
+        return new SavedGame(
+            activeGame.getScore(),
+            activeGame.getMillisecondsSinceStart(),
+            activeGame.getUndoLastMoveCounter(),
+            activeGame.getScoreGainedAfterLastMove(),
+            activeGame.isLastMoveUndo(),
+            flattenBoard(logicalBoard),
+            flattenBoard(activeGame.getLastPosition())
+        );
+    }
+
+    public boolean noValidMovesLeft(ActiveGame activeGame) {
+        return !boardEngine.hasLegalMove(toValueBoard(currentLogicalBoard(activeGame)));
+    }
+
+    public boolean noValidMovesLeft(SavedGame savedGame) {
+        int[][] board = new int[ROW_AND_COLUMN_SIZE][ROW_AND_COLUMN_SIZE];
+        for (int index = 0; index < savedGame.board().size(); index++) {
+            board[index / ROW_AND_COLUMN_SIZE][index % ROW_AND_COLUMN_SIZE] = savedGame.board().get(index);
+        }
+        return !boardEngine.hasLegalMove(board);
     }
 
     public void restoreSavedGame(ActiveGame activeGame, SavedGame savedGame) {
@@ -745,13 +651,30 @@ public class InventoryUtil {
         return flattenBoard(board);
     }
 
+    private ItemStack[][] currentLogicalBoard(ActiveGame activeGame) {
+        if (activeGame.getPendingBoard() != null) {
+            return copyBoard(activeGame.getPendingBoard());
+        }
+        ItemStack[][] board = new ItemStack[ROW_AND_COLUMN_SIZE][ROW_AND_COLUMN_SIZE];
+        copyGameWindowContentsToArray(activeGame.getGameWindow(), board);
+        return board;
+    }
+
+    private ItemStack[][] copyBoard(ItemStack[][] source) {
+        ItemStack[][] copy = new ItemStack[ROW_AND_COLUMN_SIZE][ROW_AND_COLUMN_SIZE];
+        for (int row = 0; row < ROW_AND_COLUMN_SIZE; row++) {
+            copy[row] = Arrays.copyOf(source[row], source[row].length);
+        }
+        return copy;
+    }
+
     private List<Integer> flattenBoard(ItemStack[][] board) {
         if (board == null) {
             return List.of();
         }
         return Arrays.stream(board)
                      .flatMap(Arrays::stream)
-                     .map(item -> item == null ? 0 : NumberRepresentation.getScoreFromItem(item))
+                     .map(item -> item == null ? 0 : NumberRepresentation.getScoreFromItem(item, javaPlugin.getLogger()))
                      .toList();
     }
 
@@ -769,48 +692,7 @@ public class InventoryUtil {
     public boolean noValidMovesLeft(Inventory gameWindow) {
         ItemStack[][] itemsInGame = new ItemStack[ROW_AND_COLUMN_SIZE][ROW_AND_COLUMN_SIZE];
         copyGameWindowContentsToArray(gameWindow, itemsInGame);
-        if (Arrays.stream(itemsInGame)
-                  .flatMap(Arrays::stream)
-                  .noneMatch(Objects::isNull)) {
-            return !hasValidMoves(itemsInGame);
-        }
-
-        return false;
-    }
-
-    /**
-     * Checks if there are valid moves left by examining adjacent items in the given 2D matrix.
-     *
-     * @param itemsInGame The 2D matrix representing the game state.
-     * @return {@code true} if there are valid moves left, {@code false} otherwise.
-     */
-    private boolean hasValidMoves(ItemStack[][] itemsInGame) {
-        for (int row = 0; row < ROW_AND_COLUMN_SIZE; row++) {
-            for (int column = 0; column < ROW_AND_COLUMN_SIZE; column++) {
-                // Check right and down for each position
-                ItemStack currentItem = itemsInGame[row][column];
-                ItemStack rightItem = null;
-                if (column + 1 < ROW_AND_COLUMN_SIZE) {
-                    rightItem = itemsInGame[row][column + 1];
-                }
-
-                ItemStack belowItem = null;
-                if (row + 1 < ROW_AND_COLUMN_SIZE) {
-                    belowItem = itemsInGame[row + 1][column];
-                }
-
-                if ((column < ROW_AND_COLUMN_SIZE - 1 && canMerge(currentItem, rightItem))
-                    || (row < ROW_AND_COLUMN_SIZE - 1 && canMerge(currentItem, belowItem))) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    private boolean canMerge(ItemStack first, ItemStack second) {
-        return first.isSimilar(second)
-            && NumberRepresentation.getNextRepresentation(NumberRepresentation.getScoreFromItem(first)).isPresent();
+        return !boardEngine.hasLegalMove(toValueBoard(itemsInGame));
     }
 
     /**
@@ -819,20 +701,19 @@ public class InventoryUtil {
     private void copyItemArrayToGameWindow(Inventory gameWindow, ItemStack[][] itemsInGame) {
         for (int row = 0; row < ROW_AND_COLUMN_SIZE; row++) {
             for (int column = 0; column < ROW_AND_COLUMN_SIZE; column++) {
-                gameWindow.setItem(mergeSlots[row][column], itemsInGame[row][column]);
+                gameWindow.setItem(MERGE_SLOTS[row][column], itemsInGame[row][column]);
             }
         }
 
-        // [debug] javaPlugin.getLogger().info("ran copyItemArrayToGameWindow()");
     }
 
     /**
-     * Copy contents from actual items to the 2D array based on mergeSlots numbers
+     * Copy contents from actual items to the 2D array based on board slot numbers.
      */
     private void copyGameWindowContentsToArray(Inventory gameWindow, ItemStack[][] inventoryArray) {
         for (int row = 0; row < ROW_AND_COLUMN_SIZE; row++) {
             for (int column = 0; column < ROW_AND_COLUMN_SIZE; column++) {
-                inventoryArray[row][column] = gameWindow.getItem(mergeSlots[row][column]);
+                inventoryArray[row][column] = gameWindow.getItem(MERGE_SLOTS[row][column]);
             }
         }
     }
@@ -842,13 +723,13 @@ public class InventoryUtil {
             return 0;
         }
 
-        ItemStack[][] lastPosition = activeGame.getLastPosition();
-
-        for (int i = 0; i < inventoryArray.length; i++) {
-            System.arraycopy(lastPosition[i], 0, inventoryArray[i], 0, inventoryArray[i].length);
-        }
-
-        activeGame.removeFromScore(activeGame.getScoreGainedAfterLastMove());
+        BoardEngine.UndoResult undo = boardEngine.undo(
+            toValueBoard(activeGame.getLastPosition()),
+            activeGame.getScore(),
+            activeGame.getScoreGainedAfterLastMove()
+        );
+        copyValueBoardToItems(undo.board(), inventoryArray);
+        activeGame.setScore(undo.score());
         activeGame.decrementUndoLastMoveCounter();
 
         if (activeGame.hasNoUndoLastMoveLeft()) {
@@ -861,61 +742,50 @@ public class InventoryUtil {
         return -1;
     }
 
-    private Optional<ItemStack> getNextRepresentation(ItemStack itemStack) {
-        int currentRepresentation = NumberRepresentation.getScoreFromItem(itemStack);
-        return NumberRepresentation.getNextRepresentation(currentRepresentation)
-                                   .map(NumberRepresentation::getDisplayableBlock);
-    }
-
-    /**
-     * Sets a freshly generated ItemStack block (2 or 4) at any random open slot within the game window. If there's no empty slots: do nothing (shouldn't be possible because that would mean Game Over)
-     */
     public void spawnNewBlock(Inventory inventory) {
-        List<Integer> emptySlots = IntStream.range(0, inventory.getSize())
-                                            .filter(i -> Objects.isNull(inventory.getItem(i)))
-                                            .boxed()
-                                            .toList();
-
-        if (emptySlots.isEmpty()) {
+        ItemStack[][] itemsInGame = new ItemStack[ROW_AND_COLUMN_SIZE][ROW_AND_COLUMN_SIZE];
+        copyGameWindowContentsToArray(inventory, itemsInGame);
+        BoardEngine.SpawnResult spawn = boardEngine.spawn(
+            toValueBoard(itemsInGame),
+            GENERATE_NEW_BLOCK_FOUR_PERCENT.getIntValue(),
+            random
+        );
+        if (!spawn.spawned()) {
             return;
         }
-
-        inventory.setItem(emptySlots.get(new Random().nextInt(emptySlots.size())), generateNewBlock());
+        BoardEngine.Cell cell = spawn.cell();
+        ItemStack tile = NumberRepresentation.fromScore(spawn.value()).orElseThrow().getDisplayableBlock();
+        inventory.setItem(MERGE_SLOTS[cell.row()][cell.column()], tile);
     }
 
-    // [debug]
-    /*
-        public void spawnNewBlock1(Inventory inventory) {
-            List<Integer> emptySlots = IntStream.range(0, inventory.getSize())
-                                                .filter(i -> Objects.isNull(inventory.getItem(i)))
-                                                .boxed()
-                                                .toList();
-            if (emptySlots.isEmpty()) return;
-            inventory.setItem(37, generateNewBlock());
+    private int[][] toValueBoard(ItemStack[][] itemBoard) {
+        int[][] values = new int[ROW_AND_COLUMN_SIZE][ROW_AND_COLUMN_SIZE];
+        for (int row = 0; row < ROW_AND_COLUMN_SIZE; row++) {
+            for (int column = 0; column < ROW_AND_COLUMN_SIZE; column++) {
+                ItemStack item = itemBoard[row][column];
+                values[row][column] =
+                    item == null ? 0 : NumberRepresentation.getScoreFromItem(item, javaPlugin.getLogger());
+            }
         }
-        
-        public void spawnNewBlock2(Inventory inventory) {
-            List<Integer> emptySlots = IntStream.range(0, inventory.getSize())
-                                                .filter(i -> Objects.isNull(inventory.getItem(i)))
-                                                .boxed()
-                                                .toList();
-            if (emptySlots.isEmpty()) return;
-            inventory.setItem(40, generateNewBlock());
-        }
-    */
-
-    private ItemStack generateNewBlock() {
-        int fourPercentage = GENERATE_NEW_BLOCK_FOUR_PERCENT.getIntValue();
-        NumberRepresentation chosenNumber = random.nextInt(100) < fourPercentage ? NumberRepresentation.FOUR : NumberRepresentation.TWO;
-        
-        return new ItemBuilder(chosenNumber.getDisplayableBlock()).create();
+        return values;
     }
 
-    private ItemStack getHelpGUIPlayerStatsHead(Player player) {
-        return (new ItemBuilder(getPlayerSkullItem(player))).addLore(PLAYER_ITEM_LORE_GAMES_PLAYED.getFormattedValue(StringUtil.formatLong(FILE_MANAGER.getLongByKey(player, PlayerConfigField.ATTEMPTS.getKey()))))
-                                                            .addLore(PLAYER_ITEM_LORE_TOTAL_PLAYTIME.getFormattedValue(makeSecondsATimestamp(FILE_MANAGER.getLongByKey(player, PlayerConfigField.PLAYTIME.getKey()))))
-                                                            .addLore(PLAYER_ITEM_LORE_HIGH_SCORE.getFormattedValue(StringUtil.formatLong(FILE_MANAGER.getLongByKey(player, PlayerConfigField.HIGH_SCORE.getKey()))))
-                                                            .addLore(PLAYER_ITEM_LORE_AVERAGE_SCORE.getFormattedValue(StringUtil.formatLong(Math.round(FILE_MANAGER.getLongByKey(player, PlayerConfigField.AVERAGE_SCORE.getKey())))))
+    private void copyValueBoardToItems(int[][] valueBoard, ItemStack[][] itemBoard) {
+        for (int row = 0; row < ROW_AND_COLUMN_SIZE; row++) {
+            for (int column = 0; column < ROW_AND_COLUMN_SIZE; column++) {
+                int value = valueBoard[row][column];
+                itemBoard[row][column] = value == 0
+                    ? null
+                    : NumberRepresentation.fromScore(value).orElseThrow().getDisplayableBlock();
+            }
+        }
+    }
+
+    private ItemStack getHelpGUIPlayerStatsHead(Player player, PlayerData playerData) {
+        return (new ItemBuilder(getPlayerSkullItem(player, javaPlugin.getLogger()))).addLore(PLAYER_ITEM_LORE_GAMES_PLAYED.getFormattedValue(StringUtil.formatLong(playerData.attempts())))
+                                                            .addLore(PLAYER_ITEM_LORE_TOTAL_PLAYTIME.getFormattedValue(makeSecondsATimestamp(playerData.playtime())))
+                                                            .addLore(PLAYER_ITEM_LORE_HIGH_SCORE.getFormattedValue(StringUtil.formatLong(playerData.highScore())))
+                                                            .addLore(PLAYER_ITEM_LORE_AVERAGE_SCORE.getFormattedValue(StringUtil.formatLong(Math.round(playerData.averageScore()))))
                                                             .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
                                                             .create();
     }
