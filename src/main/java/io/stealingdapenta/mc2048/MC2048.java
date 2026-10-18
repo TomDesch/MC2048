@@ -10,6 +10,7 @@ import io.stealingdapenta.mc2048.commands.GameCommand;
 import io.stealingdapenta.mc2048.commands.HelpCommand;
 import io.stealingdapenta.mc2048.commands.HighScoreCommand;
 import io.stealingdapenta.mc2048.commands.ReloadConfigCommand;
+import io.stealingdapenta.mc2048.config.ConfigKey;
 import io.stealingdapenta.mc2048.listeners.GameControlsListener;
 import io.stealingdapenta.mc2048.persistence.PlayerDataService;
 import io.stealingdapenta.mc2048.persistence.PlayerDataStore;
@@ -49,7 +50,7 @@ public class MC2048 extends JavaPlugin {
         CONFIGURATION_FILE_MANAGER.loadConfig();
         playerDataService = new PlayerDataService(new PlayerDataStore(
             getDataFolder().toPath().resolve("mc2048"),
-            () -> io.stealingdapenta.mc2048.config.ConfigKey.SPEED_BUTTON_SPEED_DEFAULT.getIntValue()
+            () -> ConfigKey.SPEED_BUTTON_SPEED_DEFAULT.getIntValue()
         ));
         highScoreManager = new HighScoreManager();
         InventoryUtil inventoryUtil = new InventoryUtil(this, highScoreManager);

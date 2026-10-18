@@ -3,11 +3,14 @@ package io.stealingdapenta.mc2048.persistence;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -32,8 +35,8 @@ public final class PlayerDataService {
     private final PlayerDataStore store;
     private final ThreadPoolExecutor executor;
     private final Map<UUID, CompletableFuture<Void>> playerTails = new ConcurrentHashMap<>();
-    private final java.util.Set<CompletableFuture<?>> pendingFutures = ConcurrentHashMap.newKeySet();
-    private final List<Throwable> failures = java.util.Collections.synchronizedList(new ArrayList<>());
+    private final Set<CompletableFuture<?>> pendingFutures = ConcurrentHashMap.newKeySet();
+    private final List<Throwable> failures = Collections.synchronizedList(new ArrayList<>());
     private final Object shutdownMonitor = new Object();
     private final AtomicInteger threadNumber = new AtomicInteger();
     private Lifecycle lifecycle = Lifecycle.ACCEPTING;
@@ -171,7 +174,7 @@ public final class PlayerDataService {
                     try {
                         return operation.get();
                     } catch (IOException exception) {
-                        throw new java.util.concurrent.CompletionException(exception);
+                        throw new CompletionException(exception);
                     }
                 }, executor);
         } catch (RejectedExecutionException exception) {

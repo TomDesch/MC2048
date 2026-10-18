@@ -16,9 +16,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.logging.Logger;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
@@ -185,7 +187,7 @@ public class HighScoreManager {
         mergeIntoCache(loadHighScores(userFilesFolder));
     }
 
-    private java.util.Optional<Map.Entry<UUID, PlayerScore>> loadPlayerScore(File playerFile) {
+    private Optional<Map.Entry<UUID, PlayerScore>> loadPlayerScore(File playerFile) {
         String fileId = getPlayerUUIDFrom(playerFile);
         try {
             UUID playerId = UUID.fromString(fileId);
@@ -194,14 +196,14 @@ public class HighScoreManager {
             String playerName = configuration.getString(PLAYER_NAME_KEY);
             if (playerName == null || playerName.isBlank()) {
                 logWarning("Skipping player data without a player name: " + playerFile.getName());
-                return java.util.Optional.empty();
+                return Optional.empty();
             }
             int highScore = configuration.getInt(PlayerConfigField.HIGH_SCORE.getKey());
-            return java.util.Optional.of(Map.entry(playerId, new PlayerScore(playerName, highScore)));
+            return Optional.of(Map.entry(playerId, new PlayerScore(playerName, highScore)));
         } catch (IllegalArgumentException | IOException | InvalidConfigurationException exception) {
             logWarning("Skipping malformed player data file " + playerFile.getName() + ": "
                 + exception.getMessage());
-            return java.util.Optional.empty();
+            return Optional.empty();
         }
     }
 
@@ -212,9 +214,9 @@ public class HighScoreManager {
     }
 
     private void logWarning(String message) {
-        java.util.logging.Logger activeLogger = MC2048.logger != null
+        Logger activeLogger = MC2048.logger != null
             ? MC2048.logger
-            : java.util.logging.Logger.getLogger(HighScoreManager.class.getName());
+            : Logger.getLogger(HighScoreManager.class.getName());
         activeLogger.warning(message);
     }
 

@@ -5,6 +5,7 @@ import io.stealingdapenta.mc2048.utils.data.SavedGame;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +13,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.UnaryOperator;
 import java.util.function.IntSupplier;
+import java.util.stream.Stream;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -82,8 +84,8 @@ public final class PlayerDataStore {
     public PlayerDataBatch readAll() throws IOException {
         Files.createDirectories(dataDirectory);
         Map<UUID, PlayerData> players = new HashMap<>();
-        java.util.List<String> failures = new java.util.ArrayList<>();
-        try (java.util.stream.Stream<Path> files = Files.list(dataDirectory)) {
+        List<String> failures = new ArrayList<>();
+        try (Stream<Path> files = Files.list(dataDirectory)) {
             for (Path path : files.filter(Files::isRegularFile).filter(this::isYaml).toList()) {
                 String fileName = path.getFileName().toString();
                 String rawId = fileName.substring(0, fileName.length() - 4);

@@ -11,6 +11,7 @@ import io.stealingdapenta.mc2048.utils.HighScoreManager;
 import io.stealingdapenta.mc2048.utils.InventoryUtil;
 import io.stealingdapenta.mc2048.utils.data.ActiveGame;
 import java.lang.reflect.Field;
+import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
 import org.bukkit.entity.Player;
@@ -70,7 +71,7 @@ class GameManagerTest {
         Field field = GameManager.class.getDeclaredField("activeGames");
         field.setAccessible(true);
         Object activeGames = field.get(gameManager);
-        java.util.Map.class.getMethod("put", Object.class, Object.class)
+        Map.class.getMethod("put", Object.class, Object.class)
                            .invoke(activeGames, playerId, game);
     }
 }

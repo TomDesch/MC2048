@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -26,7 +28,7 @@ class PlayerDataServiceTest {
         CountDownLatch firstWriteStarted = new CountDownLatch(1);
         CountDownLatch releaseFirstWrite = new CountDownLatch(1);
         AtomicFileWriter systemWriter = AtomicFileWriter.system();
-        java.util.concurrent.atomic.AtomicInteger writes = new java.util.concurrent.atomic.AtomicInteger();
+        AtomicInteger writes = new AtomicInteger();
         PlayerDataStore store = new PlayerDataStore(temporaryDirectory, () -> 3, (target, content) -> {
             if (writes.incrementAndGet() == 1) {
                 firstWriteStarted.countDown();
@@ -221,14 +223,14 @@ class PlayerDataServiceTest {
         throw new AssertionError("Player data service did not stop accepting new work.");
     }
 
-    private void await(CountDownLatch latch) throws java.io.IOException {
+    private void await(CountDownLatch latch) throws IOException {
         try {
             if (!latch.await(5, TimeUnit.SECONDS)) {
-                throw new java.io.IOException("Timed out waiting for test latch.");
+                throw new IOException("Timed out waiting for test latch.");
             }
         } catch (InterruptedException exception) {
             Thread.currentThread().interrupt();
-            throw new java.io.IOException("Interrupted while waiting for test latch.", exception);
+            throw new IOException("Interrupted while waiting for test latch.", exception);
         }
     }
 }

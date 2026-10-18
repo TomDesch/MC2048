@@ -11,8 +11,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -27,7 +29,7 @@ class PlayerDataStoreTest {
         PlayerDataStore store = new PlayerDataStore(temporaryDirectory, () -> 3);
         SavedGame savedGame = savedGame();
         store.update(playerId, "Alex", data -> new PlayerData(
-            playerId, "Alex", 128, 2, 10_000, 64, 4, java.util.Optional.of(savedGame)));
+            playerId, "Alex", 128, 2, 10_000, 64, 4, Optional.of(savedGame)));
 
         store.update(playerId, "Alex", data -> data.completed(512, 5_000, 213.33));
 
@@ -37,7 +39,7 @@ class PlayerDataStoreTest {
         assertEquals(15_000, updated.playtime());
         assertEquals(213.33, updated.averageScore(), 0.001);
         assertTrue(updated.savedGame().isEmpty());
-        try (java.util.stream.Stream<Path> files = Files.list(temporaryDirectory)) {
+        try (Stream<Path> files = Files.list(temporaryDirectory)) {
             assertFalse(files.anyMatch(path -> path.getFileName().toString().endsWith(".tmp")));
         }
     }
