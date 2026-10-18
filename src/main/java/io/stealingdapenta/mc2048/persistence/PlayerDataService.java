@@ -98,31 +98,8 @@ public final class PlayerDataService {
         }
 
         WaitOutcome chainOutcome = awaitAcceptedChains(acceptedChains, startedAt, timeoutNanos);
-        WaitOutcome executorOutcome = WaitOutcome.TIMED_OUT;
-        if (chainOutcome == WaitOutcome.COMPLETED) {
-            executor.shutdown();
-            executorOutcome = awaitExecutorTermination();
-        }
-
         int pending = pendingFutures.size();
-        if (chainOutcome == WaitOutcome.TIMED_OUT) {
-            ShutdownTimeoutException timeoutFailure = new ShutdownTimeoutException(
-                "Timed out with " + pending + " pending player data tasks.");
-            failures.add(timeoutFailure);
-            executor.shutdownNow();
-            pendingFutures.forEach(future -> future.completeExceptionally(timeoutFailure));
-        } else if (chainOutcome == WaitOutcome.INTERRUPTED) {
-            ShutdownAbortedException aborted = new ShutdownAbortedException(
-                "Player data shutdown was interrupted.");
-            executor.shutdownNow();
-            pendingFutures.forEach(future -> future.completeExceptionally(aborted));
-        } else if (executorOutcome != WaitOutcome.COMPLETED) {
-            if (executorOutcome == WaitOutcome.TIMED_OUT) {
-                failures.add(new IllegalStateException(
-                    "Player data executor did not terminate after accepted tasks settled."));
-            }
-            executor.shutdownNow();
-        }
+        WaitOutcome executorOutcome = finishShutdown(chainOutcome, pending);
 
         synchronized (this) {
             lifecycle = Lifecycle.TERMINATED;
@@ -136,6 +113,48 @@ public final class PlayerDataService {
             pending,
             recordedFailures
         );
+    }
+
+    private WaitOutcome finishShutdown(WaitOutcome chainOutcome, int pending) {
+        return switch (chainOutcome) {
+            case COMPLETED -> finishExecutorShutdown();
+            case TIMED_OUT -> {
+                abortTimedOutShutdown(pending);
+                yield WaitOutcome.TIMED_OUT;
+            }
+            case INTERRUPTED -> {
+                abortInterruptedShutdown();
+                yield WaitOutcome.INTERRUPTED;
+            }
+        };
+    }
+
+    private WaitOutcome finishExecutorShutdown() {
+        executor.shutdown();
+        WaitOutcome executorOutcome = awaitExecutorTermination();
+        if (executorOutcome == WaitOutcome.TIMED_OUT) {
+            failures.add(new IllegalStateException(
+                "Player data executor did not terminate after accepted tasks settled."));
+        }
+        if (executorOutcome != WaitOutcome.COMPLETED) {
+            executor.shutdownNow();
+        }
+        return executorOutcome;
+    }
+
+    private void abortTimedOutShutdown(int pending) {
+        ShutdownTimeoutException timeoutFailure = new ShutdownTimeoutException(
+            "Timed out with " + pending + " pending player data tasks.");
+        failures.add(timeoutFailure);
+        executor.shutdownNow();
+        pendingFutures.forEach(future -> future.completeExceptionally(timeoutFailure));
+    }
+
+    private void abortInterruptedShutdown() {
+        ShutdownAbortedException aborted = new ShutdownAbortedException(
+            "Player data shutdown was interrupted.");
+        executor.shutdownNow();
+        pendingFutures.forEach(future -> future.completeExceptionally(aborted));
     }
 
     private synchronized <T> CompletableFuture<T> submit(UUID playerId, IoSupplier<T> operation) {
