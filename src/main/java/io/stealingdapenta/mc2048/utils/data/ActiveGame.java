@@ -147,7 +147,7 @@ public class ActiveGame {
 
     public void decrementUndoLastMoveCounter() {
         if (undoLastMoveCounter < 0) {
-            return; // infinite undo
+            return;
         }
 
         undoLastMoveCounter--;
@@ -155,7 +155,7 @@ public class ActiveGame {
 
     public boolean hasNoUndoLastMoveLeft() {
         if (undoLastMoveCounter < 0) {
-            return false; // infinite undo
+            return false;
         }
 
         return undoLastMoveCounter == 0;
@@ -245,7 +245,6 @@ public class ActiveGame {
         return (getAttempts() * getAverageScore() + getScore()) / (getAttempts() + 1);
     }
 
-    // Doesn't need a disabled check as the caller method implies its enabled
     public void updateStatisticsItem() {
         getGameWindow().setItem(PLAYER_ITEM_SLOT.getIntValue(), getPlayerStatsHead());
     }

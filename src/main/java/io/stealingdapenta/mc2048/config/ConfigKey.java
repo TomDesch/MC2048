@@ -201,9 +201,10 @@ public enum ConfigKey {
     public Component getFormattedValue(String... replacements) {
         Component component = getFormattedValue();
         for (String replacement : replacements) {
+            // Replacements are positional, so consume one placeholder per value.
             component = component.replaceText(builder -> builder.match("%s")
                                                                 .replacement(replacement)
-                                                                .once()); // Replace one at a time
+                                                                .once());
         }
         return component;
     }

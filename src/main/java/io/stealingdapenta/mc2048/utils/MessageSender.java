@@ -61,8 +61,9 @@ public final class MessageSender implements AutoCloseable {
         }
 
         String processedStr = serializer.serialize(message).trim();
+        // Empty configured messages intentionally disable that notification.
         if (processedStr.isEmpty()) {
-            return; // Don't send a blank message, this is a feature for admins to disable config messages
+            return;
         }
 
         audiences.player(player)

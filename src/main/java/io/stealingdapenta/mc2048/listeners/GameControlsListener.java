@@ -47,22 +47,18 @@ public class GameControlsListener implements Listener {
         this.messageSender = messageSender;
     }
 
-    // NOTE: We intentionally don't parse actions from display names.
-    // Display names are meant to be translatable and shouldn't affect gameplay logic.
+    // Display names are translatable, so button behavior is determined by stable slots.
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onButtonClick(InventoryClickEvent event) {
         InventoryView clickedInventoryView = event.getView();
 
-        // If it's not a game or help window, do nothing
         if (!inventoryUtil.isAnyGameWindow(clickedInventoryView) && !inventoryUtil.isHelpWindow(clickedInventoryView)) {
             return;
         }
 
-        // Cancel all default interaction behavior if it's any game or help window
         event.setCancelled(true);
 
-        // Only react to clicks inside the top inventory (our GUI), not the player's inventory
         if (event.getClickedInventory() == null || !event.getClickedInventory()
                                                          .equals(clickedInventoryView.getTopInventory())) {
             return;
@@ -77,7 +73,6 @@ public class GameControlsListener implements Listener {
         } else if (inventoryUtil.isGameWindow(clickedInventoryView)) {
             ActiveGame activeGame = gameManager.getActiveGame(player);
 
-            // If active game is null or locked, do nothing
             if (Objects.isNull(activeGame) || Objects.isNull(activeGame.getGameWindow()) || activeGame.isLocked()) {
                 return;
             }
@@ -132,9 +127,7 @@ public class GameControlsListener implements Listener {
     }
 
     private ButtonAction getHelpActionBySlot(int slot) {
-        // Help menu uses hardcoded slots in InventoryUtil#createHelpInventory
-        // (playButtonSlot == 49)
-        if (slot == 49) {
+        if (slot == InventoryUtil.HELP_PLAY_BUTTON_SLOT) {
             return ButtonAction.START;
         }
         return null;

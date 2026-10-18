@@ -124,7 +124,13 @@ public class InventoryUtil {
     public static final int REQUIRED_SIZE = INVENTORY_ROWS * INVENTORY_COLUMNS;
     public static final int RESET_CONFIRM_SLOT = 11;
     public static final int RESET_CANCEL_SLOT = 15;
-    private static final int[][] mergeSlots = {{10, 11, 12, 13}, {19, 20, 21, 22}, {28, 29, 30, 31}, {37, 38, 39, 40}};
+    public static final int HELP_PLAY_BUTTON_SLOT = 49;
+    private static final int[][] MERGE_SLOTS = {
+        {10, 11, 12, 13},
+        {19, 20, 21, 22},
+        {28, 29, 30, 31},
+        {37, 38, 39, 40}
+    };
     private static final String WRONG_SIZE = "Error filling sides of inventory: wrong size!";
 
     private static final String ERROR_SKULL = "Error getting skull meta for %s.";
@@ -235,7 +241,6 @@ public class InventoryUtil {
         final int playerStatsSlot = 28;
         final int highScoreSlot = 34;
         final int infoSlot = 31;
-        final int playButtonSlot = 49;
 
         fillWithLegend(helpGUI);
         setItemInSlot(helpGUI, playerStatsSlot, getHelpGUIPlayerStatsHead(player, playerData));
@@ -248,7 +253,7 @@ public class InventoryUtil {
                                                                                                                     .addLore(INFO_ITEM_LORE_5.getFormattedValue())
                                                                                                                     .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
                                                                                                                     .create(), INFO_ITEM_MATERIAL_CMD));
-        setItemInSlot(helpGUI, playButtonSlot, setCustomModelDataTo(new ItemBuilder(START_BUTTON_MATERIAL.getMaterialValue()).setDisplayName(START_BUTTON_NAME.getFormattedValue())
+        setItemInSlot(helpGUI, HELP_PLAY_BUTTON_SLOT, setCustomModelDataTo(new ItemBuilder(START_BUTTON_MATERIAL.getMaterialValue()).setDisplayName(START_BUTTON_NAME.getFormattedValue())
                                                                                                                             .addLore(START_BUTTON_LORE_1.getFormattedValue())
                                                                                                                             .addLore(START_BUTTON_LORE_2.getFormattedValue())
                                                                                                                             .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
@@ -290,7 +295,7 @@ public class InventoryUtil {
     }
 
     private boolean isInvalidGameSlot(int slot) {
-        for (int[] row : mergeSlots) {
+        for (int[] row : MERGE_SLOTS) {
             for (int validSlot : row) {
                 if (validSlot == slot) {
                     return false;
@@ -433,7 +438,6 @@ public class InventoryUtil {
         }
     }
 
-    // Doesn't need a disabled check as the caller method implies its enabled
     public void updateSpeedButton(ActiveGame activeGame, int newSpeed) {
         setItemInSlot(activeGame.getGameWindow(), SPEED_BUTTON_SLOT.getIntValue(), getSpeedButton(newSpeed));
     }
@@ -486,14 +490,10 @@ public class InventoryUtil {
 
         int tickDelay;
         if (action.equals(ButtonAction.UNDO)) {
-            // [debug] javaPlugin.getLogger().info("processGameAction: undoing last move");
             tickDelay = undoLastMove(itemsInGame, activeGame);
         } else {
-            // [debug] javaPlugin.getLogger().info("processGameAction: moving items");
             tickDelay = moveItems(itemsInGame, activeGame, action);
         }
-
-        // [debug] javaPlugin.getLogger().info("processGameAction.tickDelay == " + tickDelay);
 
         if (tickDelay < 0 || ButtonAction.UNDO.equals(action)) {
             copyItemArrayToGameWindow(gameWindow, itemsInGame);
@@ -519,7 +519,6 @@ public class InventoryUtil {
      */
     private int moveItems(ItemStack[][] inventoryArray, ActiveGame activeGame, ButtonAction action) {
 
-        // Create a deep copy of the current state before making moves
         ItemStack[][] lastPosition = new ItemStack[ROW_AND_COLUMN_SIZE][ROW_AND_COLUMN_SIZE];
         for (int i = 0; i < inventoryArray.length; i++) {
             lastPosition[i] = Arrays.copyOf(inventoryArray[i], inventoryArray[i].length);
@@ -528,7 +527,6 @@ public class InventoryUtil {
         int previousMoveScore = activeGame.getScoreGainedAfterLastMove();
         activeGame.resetGainedAfterLastMove();
 
-        // Calculate moves (updates board simulation and scores)
         BoardEngine.MoveResult result = boardEngine.move(toValueBoard(inventoryArray), toDirection(action));
         if (!result.moved()) {
             activeGame.setScoreGainedAfterLastMove(previousMoveScore);
@@ -543,14 +541,10 @@ public class InventoryUtil {
             .map(this::toMovementInstruction)
             .toList();
 
-        // Since there will be movement, we can update the acitveGame's saved lastPosition
         activeGame.setLastPosition(lastPosition);
-        // [debug] javaPlugin.getLogger().info("moveItems.lastPosition saved");
 
-        // Animate the moves and get the maximum number of steps (ticks) needed
         int maxSteps = animateMovementsSimultaneous(activeGame, activeGame.getGameWindow(), instructions);
 
-        // Compute tick delay for final board update (ensure at least 1 tick delay)
         return Math.max((maxSteps - 1) * activeGame.getAnimationDelay(), 1);
     }
 
@@ -592,32 +586,25 @@ public class InventoryUtil {
      */
     public int animateMovementsSimultaneous(ActiveGame activeGame, Inventory menu,
                                             List<MovementInstruction> instructions) {
-        // Compute the overall maximum steps from the instructions
         int maxSteps = instructions.stream()
-                                   .mapToInt(instruction -> instruction.totalSteps)
+                                   .mapToInt(MovementInstruction::totalSteps)
                                    .max()
                                    .orElse(0);
-        // [debug] javaPlugin.getLogger().info("animateMovementsSimultaneous.maxSteps == " + maxSteps);
 
-        // For each step, schedule a task to update the GUI accordingly
         for (int step = 1; step <= maxSteps; step++) {
             final int currentStep = step;
             new BukkitRunnable() {
                 @Override
                 public void run() {
-                    // [debug] javaPlugin.getLogger().info("animateMovementsSimultaneous.currentStep == __" + currentStep + "__");
-                    // Process all instructions whose step matches this tick.
                     for (MovementInstruction instruction : instructions) {
-                        if (instruction.step == currentStep) {
-                            // Clear the previous slot (i.e. the from slot for this step)
-                            int clearSlot = mergeSlots[instruction.fromRow][instruction.fromColumn];
+                        if (instruction.step() == currentStep) {
+                            int clearSlot = MERGE_SLOTS[instruction.fromRow()][instruction.fromColumn()];
                             menu.setItem(clearSlot, null);
-                            // Place the item into the destination slot for this step
-                            int newSlot = mergeSlots[instruction.toRow][instruction.toColumn];
-                            if (instruction.merge && currentStep == instruction.totalSteps) {
-                                menu.setItem(newSlot, instruction.mergedItem);
+                            int newSlot = MERGE_SLOTS[instruction.toRow()][instruction.toColumn()];
+                            if (instruction.merge() && currentStep == instruction.totalSteps()) {
+                                menu.setItem(newSlot, instruction.mergedItem());
                             } else {
-                                menu.setItem(newSlot, instruction.item);
+                                menu.setItem(newSlot, instruction.item());
                             }
                         }
                     }
@@ -736,20 +723,19 @@ public class InventoryUtil {
     private void copyItemArrayToGameWindow(Inventory gameWindow, ItemStack[][] itemsInGame) {
         for (int row = 0; row < ROW_AND_COLUMN_SIZE; row++) {
             for (int column = 0; column < ROW_AND_COLUMN_SIZE; column++) {
-                gameWindow.setItem(mergeSlots[row][column], itemsInGame[row][column]);
+                gameWindow.setItem(MERGE_SLOTS[row][column], itemsInGame[row][column]);
             }
         }
 
-        // [debug] javaPlugin.getLogger().info("ran copyItemArrayToGameWindow()");
     }
 
     /**
-     * Copy contents from actual items to the 2D array based on mergeSlots numbers
+     * Copy contents from actual items to the 2D array based on board slot numbers.
      */
     private void copyGameWindowContentsToArray(Inventory gameWindow, ItemStack[][] inventoryArray) {
         for (int row = 0; row < ROW_AND_COLUMN_SIZE; row++) {
             for (int column = 0; column < ROW_AND_COLUMN_SIZE; column++) {
-                inventoryArray[row][column] = gameWindow.getItem(mergeSlots[row][column]);
+                inventoryArray[row][column] = gameWindow.getItem(MERGE_SLOTS[row][column]);
             }
         }
     }
@@ -791,7 +777,7 @@ public class InventoryUtil {
         }
         BoardEngine.Cell cell = spawn.cell();
         ItemStack tile = NumberRepresentation.fromScore(spawn.value()).orElseThrow().getDisplayableBlock();
-        inventory.setItem(mergeSlots[cell.row()][cell.column()], new ItemBuilder(tile).create());
+        inventory.setItem(MERGE_SLOTS[cell.row()][cell.column()], new ItemBuilder(tile).create());
     }
 
     private int[][] toValueBoard(ItemStack[][] itemBoard) {

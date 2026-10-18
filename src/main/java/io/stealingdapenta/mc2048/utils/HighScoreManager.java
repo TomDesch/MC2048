@@ -52,19 +52,14 @@ public class HighScoreManager {
     }
 
     private List<Component> getTopTenLore() {
-        final String PLAYER_SCORE = "%d. %s: " + StringUtil.translate("&f"); // e.g. 3. StealingDaPenta:
-
-        // Get top 10 scores and convert to list for indexed access
+        final String PLAYER_SCORE = "%d. %s: " + StringUtil.translate("&f");
         List<Entry<String, Integer>> highScoresList = new ArrayList<>(getTop10HiScores().entrySet());
 
         List<Component> lore = new ArrayList<>();
         for (int i = 0; i < highScoresList.size(); i++) {
             Entry<String, Integer> entry = highScoresList.get(i);
-            String scoreText = String.format(PLAYER_SCORE, i + 1,                   // Position (1-based)
-                                             entry.getKey()                         // Player name
-                                            );
-            scoreText = scoreText + StringUtil.formatInt(entry.getValue());         // Score
-
+            String scoreText = String.format(PLAYER_SCORE, i + 1, entry.getKey())
+                + StringUtil.formatInt(entry.getValue());
             lore.add(HIGH_SCORE_ITEM_LORE_FORMAT.getFormattedValue(scoreText));
         }
         return lore;
@@ -181,10 +176,14 @@ public class HighScoreManager {
     public Map<String, Integer> getTop10HiScores(Map<String, Integer> highScores) {
         return highScores.entrySet()
                               .stream()
-                              .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())) // Sort by value in descending order
-                              .limit(10) // Take the top 10
-                              .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, // merge function in case of duplicates
-                                                        LinkedHashMap::new)); // Use LinkedHashMap to maintain insertion order
+                              .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                              .limit(10)
+                              .collect(Collectors.toMap(
+                                  Map.Entry::getKey,
+                                  Map.Entry::getValue,
+                                  (first, ignored) -> first,
+                                  LinkedHashMap::new
+                              ));
     }
 
     void refresh(File userFilesFolder) {
