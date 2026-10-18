@@ -1,6 +1,5 @@
 package io.stealingdapenta.mc2048.config;
 
-import io.stealingdapenta.mc2048.MC2048;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,8 +27,7 @@ public enum ConfigurationFileManager {
 
     private volatile ConfigurationSnapshot snapshot;
 
-    public void loadConfig() {
-        JavaPlugin plugin = MC2048.getInstance();
+    public void loadConfig(JavaPlugin plugin) {
         plugin.saveDefaultConfig();
 
         YamlConfiguration defaults = loadPackagedDefaults(plugin);
@@ -45,8 +43,7 @@ public enum ConfigurationFileManager {
         }
     }
 
-    public void reloadConfig(boolean gamesActive) {
-        JavaPlugin plugin = MC2048.getInstance();
+    public void reloadConfig(JavaPlugin plugin, boolean gamesActive) {
         YamlConfiguration defaults = loadPackagedDefaults(plugin);
         YamlConfiguration candidate = loadCandidate(plugin, defaults);
         ConfigurationSnapshot candidateSnapshot;

@@ -3,12 +3,12 @@ package io.stealingdapenta.mc2048;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MSG_GAME_RESUMED;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MSG_GAME_STARTED;
 import static io.stealingdapenta.mc2048.config.ConfigKey.PLAYER_ITEM_SLOT;
-import static io.stealingdapenta.mc2048.utils.MessageSender.MESSAGE_SENDER;
 
 import io.stealingdapenta.mc2048.persistence.PlayerData;
 import io.stealingdapenta.mc2048.persistence.PlayerDataService;
 import io.stealingdapenta.mc2048.utils.HighScoreManager;
 import io.stealingdapenta.mc2048.utils.InventoryUtil;
+import io.stealingdapenta.mc2048.utils.MessageSender;
 import io.stealingdapenta.mc2048.utils.data.ActiveGame;
 import io.stealingdapenta.mc2048.utils.data.RepeatingUpdateTask;
 import io.stealingdapenta.mc2048.utils.data.SavedGame;
@@ -33,6 +33,7 @@ public class GameManager {
     private final InventoryUtil inventoryUtil;
     private final HighScoreManager highScoreManager;
     private final PlayerDataService playerDataService;
+    private final MessageSender messageSender;
     private final Logger logger;
     private boolean shuttingDown;
 
@@ -40,12 +41,14 @@ public class GameManager {
         MC2048 plugin,
         InventoryUtil inventoryUtil,
         HighScoreManager highScoreManager,
-        PlayerDataService playerDataService
+        PlayerDataService playerDataService,
+        MessageSender messageSender
     ) {
         this.plugin = plugin;
         this.inventoryUtil = inventoryUtil;
         this.highScoreManager = highScoreManager;
         this.playerDataService = playerDataService;
+        this.messageSender = messageSender;
         this.logger = plugin.getLogger();
     }
 
@@ -101,8 +104,13 @@ public class GameManager {
     }
 
     private void startGame(Player player, PlayerData playerData) {
-        MESSAGE_SENDER.sendMessage(player, playerData.savedGame().isPresent() ? MSG_GAME_RESUMED : MSG_GAME_STARTED);
-        ActiveGame activeGame = new ActiveGame(player, createTaskUpdatingPlayerStatItem(player), playerData);
+        messageSender.sendMessage(player, playerData.savedGame().isPresent() ? MSG_GAME_RESUMED : MSG_GAME_STARTED);
+        ActiveGame activeGame = new ActiveGame(
+            player,
+            createTaskUpdatingPlayerStatItem(player),
+            playerData,
+            logger
+        );
         highScoreManager.recordScore(player, activeGame.getHighScore());
         Inventory gameWindow = inventoryUtil.createGameInventory(activeGame);
         activeGames.put(player.getUniqueId(), activeGame);
@@ -296,7 +304,7 @@ public class GameManager {
             return null;
         }
 
-        return new RepeatingUpdateTask(0, ONE_SECOND_IN_TICKS) {
+        return new RepeatingUpdateTask(plugin, 0, ONE_SECOND_IN_TICKS) {
             public void run() {
                 ActiveGame activeGame = getActiveGame(player);
                 if (activeGame == null) {

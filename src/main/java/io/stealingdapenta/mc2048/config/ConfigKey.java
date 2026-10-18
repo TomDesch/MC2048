@@ -1,7 +1,6 @@
 package io.stealingdapenta.mc2048.config;
 
 
-import static io.stealingdapenta.mc2048.MC2048.logger;
 import static io.stealingdapenta.mc2048.config.ConfigurationFileManager.CONFIGURATION_FILE_MANAGER;
 
 import net.kyori.adventure.text.Component;
@@ -210,16 +209,10 @@ public enum ConfigKey {
     }
 
     /**
-     * @return the stored value from the config as an integer NumberFormatException safe
+     * @return the validated stored value from the config as an integer
      */
     public int getIntValue() {
-        String value = getStringValue();
-        try {
-            return Integer.parseInt(value);
-        } catch (NumberFormatException e) {
-            logger.warning(MSG_PARSING_ERROR.getStringValue() + name().toLowerCase());
-            return 0;
-        }
+        return Integer.parseInt(getStringValue());
     }
 
     public String path() {

@@ -14,6 +14,7 @@ import io.stealingdapenta.mc2048.config.ConfigKey;
 import io.stealingdapenta.mc2048.persistence.PlayerData;
 import io.stealingdapenta.mc2048.utils.ItemBuilder;
 import io.stealingdapenta.mc2048.utils.StringUtil;
+import java.util.logging.Logger;
 
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -23,6 +24,7 @@ import org.bukkit.inventory.ItemStack;
 public class ActiveGame {
 
     private final Player player;
+    private final Logger logger;
     private final RepeatingUpdateTask relatedTask;
     private Inventory gameWindow;
     private final long gameOpenTime;
@@ -43,9 +45,10 @@ public class ActiveGame {
     private boolean resetConfirmationOpen = false;
     private boolean terminalSavePending = false;
 
-    public ActiveGame(Player player, RepeatingUpdateTask relatedTask, PlayerData playerData) {
+    public ActiveGame(Player player, RepeatingUpdateTask relatedTask, PlayerData playerData, Logger logger) {
         SavedGame savedGame = playerData.savedGame().orElse(null);
         this.player = player;
+        this.logger = logger;
         this.relatedTask = relatedTask;
         this.score = savedGame == null ? 0 : savedGame.score();
         this.gameOpenTime = System.currentTimeMillis();
@@ -248,7 +251,7 @@ public class ActiveGame {
     }
 
     private ItemStack getPlayerStatsHead() {
-        return (new ItemBuilder(getPlayerSkullItem(getPlayer()))).addLore(PLAYER_ITEM_LORE_CURRENT_SCORE.getFormattedValue(StringUtil.formatInt(getScore())))
+        return (new ItemBuilder(getPlayerSkullItem(getPlayer(), logger))).addLore(PLAYER_ITEM_LORE_CURRENT_SCORE.getFormattedValue(StringUtil.formatInt(getScore())))
                                                                  .addLore(PLAYER_ITEM_LORE_CURRENT_PLAYTIME.getFormattedValue(getCurrentPlayTimeFormatted()))
                                                                  .addLore(PLAYER_ITEM_LORE_TOTAL_PLAYTIME.getFormattedValue(getTotalPlusCurrentPlayTimeFormatted()))
                                                                  .addLore(PLAYER_ITEM_LORE_GAMES_PLAYED.getFormattedValue(StringUtil.formatInt(getAttempts())))

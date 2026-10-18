@@ -1,6 +1,5 @@
 package io.stealingdapenta.mc2048.utils.data;
 
-import static io.stealingdapenta.mc2048.MC2048.logger;
 import static io.stealingdapenta.mc2048.config.ConfigKey.HELP_GUI_LEGEND_ITEM_NAME_PREFIX;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_EIGHT;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MATERIAL_EIGHT_CMD;
@@ -44,6 +43,7 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
+import java.util.logging.Logger;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -85,7 +85,7 @@ public enum NumberRepresentation {
         this.materialSupplier = materialSupplier;
     }
 
-    public static int getScoreFromItem(ItemStack itemStack) {
+    public static int getScoreFromItem(ItemStack itemStack, Logger logger) {
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (Objects.nonNull(itemMeta) && itemMeta.hasDisplayName()) {
             Optional<NumberRepresentation> namedRepresentation = getRepresentationByDisplayName(itemMeta.getDisplayName());

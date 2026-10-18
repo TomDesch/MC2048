@@ -29,7 +29,6 @@ import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import io.stealingdapenta.mc2048.config.PlayerConfigField;
-import io.stealingdapenta.mc2048.MC2048;
 import io.stealingdapenta.mc2048.persistence.PlayerDataService;
 
 
@@ -38,7 +37,12 @@ public class HighScoreManager {
     private static final String ERROR_FETCHING_FILES = "Something went wrong fetching the player files. Returning empty list.";
     private static final String DOT_YML = ".yml";
     private static final String PLAYER_NAME_KEY = "Player Name";
+    private final Logger logger;
     private volatile Map<UUID, PlayerScore> cachedHighScores = Map.of();
+
+    public HighScoreManager(Logger logger) {
+        this.logger = Objects.requireNonNull(logger, "logger");
+    }
 
     public ItemStack getHighScoresItem() {
         return (new ItemBuilder(HIGH_SCORE_ITEM_MATERIAL.getMaterialValue())).setDisplayName(HIGH_SCORE_ITEM_NAME.getFormattedValue())
@@ -214,10 +218,7 @@ public class HighScoreManager {
     }
 
     private void logWarning(String message) {
-        Logger activeLogger = MC2048.logger != null
-            ? MC2048.logger
-            : Logger.getLogger(HighScoreManager.class.getName());
-        activeLogger.warning(message);
+        logger.warning(message);
     }
 
     private record PlayerScore(String playerName, int score) {

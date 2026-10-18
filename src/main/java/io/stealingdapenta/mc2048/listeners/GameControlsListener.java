@@ -1,6 +1,5 @@
 package io.stealingdapenta.mc2048.listeners;
 
-import static io.stealingdapenta.mc2048.MC2048.logger;
 import static io.stealingdapenta.mc2048.config.ConfigKey.GAME_GUI_FILLER_ANIMATION;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MSG_GAME_OVER;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MSG_GAME_PAUSED;
@@ -8,11 +7,11 @@ import static io.stealingdapenta.mc2048.config.ConfigKey.MSG_INVALID_MOVE;
 import static io.stealingdapenta.mc2048.config.ConfigKey.MSG_UNDID_LAST_MOVE;
 import static io.stealingdapenta.mc2048.config.ConfigKey.TITLE_GAME_OVER;
 import static io.stealingdapenta.mc2048.config.ConfigKey.TITLE_GAME_OVER_SUB;
-import static io.stealingdapenta.mc2048.utils.MessageSender.MESSAGE_SENDER;
 
 import io.stealingdapenta.mc2048.GameManager;
 import io.stealingdapenta.mc2048.config.ConfigKey;
 import io.stealingdapenta.mc2048.utils.InventoryUtil;
+import io.stealingdapenta.mc2048.utils.MessageSender;
 import io.stealingdapenta.mc2048.utils.StringUtil;
 import io.stealingdapenta.mc2048.utils.data.ActiveGame;
 import io.stealingdapenta.mc2048.utils.data.ButtonAction;
@@ -26,16 +25,26 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.InventoryView;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class GameControlsListener implements Listener {
 
     private final InventoryUtil inventoryUtil;
     private final GameManager gameManager;
+    private final JavaPlugin plugin;
+    private final MessageSender messageSender;
 
-    public GameControlsListener(InventoryUtil inventoryUtil, GameManager gameManager) {
+    public GameControlsListener(
+        JavaPlugin plugin,
+        InventoryUtil inventoryUtil,
+        GameManager gameManager,
+        MessageSender messageSender
+    ) {
+        this.plugin = plugin;
         this.inventoryUtil = inventoryUtil;
         this.gameManager = gameManager;
+        this.messageSender = messageSender;
     }
 
     // NOTE: We intentionally don't parse actions from display names.
@@ -81,7 +90,9 @@ public class GameControlsListener implements Listener {
                 handleHelpWindowAction(player, action);
             }
         } else {
-            logger.warning("The inventory is an MC2048 window, yet not recognized: %s".formatted(clickedInventoryView.toString()));
+            plugin.getLogger().warning(
+                "The inventory is an MC2048 window, yet not recognized: %s"
+                    .formatted(clickedInventoryView));
         }
     }
 
@@ -189,7 +200,7 @@ public class GameControlsListener implements Listener {
         }
 
         if (tickDelay == -1 || ButtonAction.UNDO.equals(action)) {
-            MESSAGE_SENDER.sendMessage(player, MSG_UNDID_LAST_MOVE);
+            messageSender.sendMessage(player, MSG_UNDID_LAST_MOVE);
             inventoryUtil.updateUndoButton(activeGame);
             gameManager.persistGame(activeGame);
             activeGame.setLock(false);
@@ -224,20 +235,20 @@ public class GameControlsListener implements Listener {
                                     doGameOver(activeGame);
                                 });
                             }
-                        }.runTaskLater(inventoryUtil.javaPlugin, endDelay);
+                        }.runTaskLater(plugin, endDelay);
                     } else if (activeGame.isCloseRequested()) {
-                        MESSAGE_SENDER.sendMessage(activeGame.getPlayer(), MSG_GAME_PAUSED);
+                        messageSender.sendMessage(activeGame.getPlayer(), MSG_GAME_PAUSED);
                         gameManager.pauseGame(activeGame);
                     } else {
                         activeGame.setLock(false);
                     }
                 }
-            }.runTaskLater(inventoryUtil.javaPlugin, caclualtedDelay);
+            }.runTaskLater(plugin, caclualtedDelay);
         }
     }
 
     private void invalidMoveMessage(Player player) {
-        MESSAGE_SENDER.sendMessage(player, MSG_INVALID_MOVE);
+        messageSender.sendMessage(player, MSG_INVALID_MOVE);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -267,7 +278,7 @@ public class GameControlsListener implements Listener {
             return;
         }
 
-        MESSAGE_SENDER.sendMessage(player, MSG_GAME_PAUSED);
+        messageSender.sendMessage(player, MSG_GAME_PAUSED);
         gameManager.pauseGame(activeGame);
     }
 
@@ -276,14 +287,14 @@ public class GameControlsListener implements Listener {
         ActiveGame activeGame = gameManager.getActiveGame(player);
         if (activeGame != null && activeGame.isResetConfirmationOpen()) {
             activeGame.setResetConfirmationOpen(false);
-            MESSAGE_SENDER.sendMessage(player, MSG_GAME_PAUSED);
+            messageSender.sendMessage(player, MSG_GAME_PAUSED);
             gameManager.pauseGame(activeGame);
         }
     }
 
     private void doGameOver(ActiveGame activeGame) {
-        MESSAGE_SENDER.sendMessage(activeGame.getPlayer(), MSG_GAME_OVER);
-        MESSAGE_SENDER.sendTitle(activeGame.getPlayer(), TITLE_GAME_OVER.getFormattedValue(), TITLE_GAME_OVER_SUB.getFormattedValue(StringUtil.formatInt(activeGame.getScore()), activeGame.getCurrentPlayTimeFormatted()));
+        messageSender.sendMessage(activeGame.getPlayer(), MSG_GAME_OVER);
+        messageSender.sendTitle(activeGame.getPlayer(), TITLE_GAME_OVER.getFormattedValue(), TITLE_GAME_OVER_SUB.getFormattedValue(StringUtil.formatInt(activeGame.getScore()), activeGame.getCurrentPlayTimeFormatted()));
     }
 
     @EventHandler

@@ -10,15 +10,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.OptionalInt;
 import java.util.UUID;
+import java.util.logging.Logger;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 class HighScoreManagerTest {
 
+    private static final Logger LOGGER = Logger.getLogger(HighScoreManagerTest.class.getName());
+
     @Test
     void recordScoreWithMultiplePlayersSortsScoresInMemory() {
-        HighScoreManager manager = new HighScoreManager();
+        HighScoreManager manager = new HighScoreManager(LOGGER);
 
         UUID alex = UUID.randomUUID();
         UUID steve = UUID.randomUUID();
@@ -32,7 +35,7 @@ class HighScoreManagerTest {
 
     @Test
     void recordScoreWithChangedPlayerNameReplacesStaleName() {
-        HighScoreManager manager = new HighScoreManager();
+        HighScoreManager manager = new HighScoreManager(LOGGER);
         UUID playerId = UUID.randomUUID();
 
         manager.recordScore(playerId, "OldName", 128);
@@ -43,7 +46,7 @@ class HighScoreManagerTest {
 
     @Test
     void getPlayerPositionWithEmptyCacheReturnsUnranked() {
-        HighScoreManager manager = new HighScoreManager();
+        HighScoreManager manager = new HighScoreManager(LOGGER);
 
         OptionalInt position = manager.getPlayerPosition(UUID.randomUUID(), "Alex");
 
@@ -56,7 +59,7 @@ class HighScoreManagerTest {
         writePlayerFile(directory.resolve(validId + ".yml"), "Alex", 512);
         writePlayerFile(directory.resolve("not-a-uuid.yml"), "Invalid", 1024);
         Files.writeString(directory.resolve(UUID.randomUUID() + ".yml"), "high-score: [unclosed");
-        HighScoreManager manager = new HighScoreManager();
+        HighScoreManager manager = new HighScoreManager(LOGGER);
 
         manager.refresh(directory.toFile());
 

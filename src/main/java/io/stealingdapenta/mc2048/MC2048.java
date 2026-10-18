@@ -3,7 +3,6 @@ package io.stealingdapenta.mc2048;
 import static io.stealingdapenta.mc2048.commands.Command.HELP;
 import static io.stealingdapenta.mc2048.commands.Command.RELOAD;
 import static io.stealingdapenta.mc2048.config.ConfigurationFileManager.CONFIGURATION_FILE_MANAGER;
-import static io.stealingdapenta.mc2048.utils.MessageSender.MESSAGE_SENDER;
 
 import io.stealingdapenta.mc2048.commands.Command;
 import io.stealingdapenta.mc2048.commands.GameCommand;
@@ -16,9 +15,9 @@ import io.stealingdapenta.mc2048.persistence.PlayerDataService;
 import io.stealingdapenta.mc2048.persistence.PlayerDataStore;
 import io.stealingdapenta.mc2048.utils.HighScoreManager;
 import io.stealingdapenta.mc2048.utils.InventoryUtil;
+import io.stealingdapenta.mc2048.utils.MessageSender;
 import java.time.Duration;
 import java.util.Objects;
-import java.util.logging.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -27,42 +26,32 @@ public class MC2048 extends JavaPlugin {
 
     private static final String PLUGIN_ENABLED = "MC2048 plugin enabled.";
     private static final String PLUGIN_DISABLED = "MC2048 plugin disabled.";
-    public static Logger logger;
-    private static MC2048 instance = null;
-
 
     private HighScoreManager highScoreManager;
     private GameManager gameManager;
     private PlayerDataService playerDataService;
+    private MessageSender messageSender;
 
     @Override
     public void onEnable() {
-        // todo
-        // 1. pause feature: pause the game upon close instead of ending it
-        // 2. PAPI support
-        // 3. A reward system for reaching a certain score
-        // 4. Sounds for successful and unsuccessful moves (customisable sound effects)
-        // 5. Opportunity to COMPLETELY change the high score / top / score lines
-
-        instance = this;
-        logger = getLogger();
-
-        CONFIGURATION_FILE_MANAGER.loadConfig();
+        CONFIGURATION_FILE_MANAGER.loadConfig(this);
+        messageSender = new MessageSender(this);
         playerDataService = new PlayerDataService(new PlayerDataStore(
             getDataFolder().toPath().resolve("mc2048"),
             () -> ConfigKey.SPEED_BUTTON_SPEED_DEFAULT.getIntValue()
         ));
-        highScoreManager = new HighScoreManager();
+        highScoreManager = new HighScoreManager(getLogger());
         InventoryUtil inventoryUtil = new InventoryUtil(this, highScoreManager);
-        gameManager = new GameManager(this, inventoryUtil, highScoreManager, playerDataService);
-        GameControlsListener gameControlsListener = new GameControlsListener(inventoryUtil, gameManager);
-        GameCommand gameCommand = new GameCommand(gameManager);
-        HighScoreCommand highScoreCommand = new HighScoreCommand(highScoreManager);
-        ReloadConfigCommand reloadConfigCommand = new ReloadConfigCommand(gameManager);
-        HelpCommand helpCommand = new HelpCommand(gameManager);
+        gameManager = new GameManager(this, inventoryUtil, highScoreManager, playerDataService, messageSender);
+        GameControlsListener gameControlsListener =
+            new GameControlsListener(this, inventoryUtil, gameManager, messageSender);
+        GameCommand gameCommand = new GameCommand(gameManager, messageSender);
+        HighScoreCommand highScoreCommand = new HighScoreCommand(highScoreManager, messageSender);
+        ReloadConfigCommand reloadConfigCommand =
+            new ReloadConfigCommand(this, gameManager, messageSender);
+        HelpCommand helpCommand = new HelpCommand(gameManager, messageSender);
         highScoreManager.refreshAsync(playerDataService);
 
-        // Register Commands
         Objects.requireNonNull(getCommand(Command._2048.getCommandName()))
                .setExecutor(gameCommand);
         Objects.requireNonNull(getCommand(Command.TOP.getCommandName()))
@@ -72,11 +61,10 @@ public class MC2048 extends JavaPlugin {
         Objects.requireNonNull(getCommand(HELP.getCommandName()))
                .setExecutor(helpCommand);
 
-        // Register Events
         Bukkit.getPluginManager()
-              .registerEvents(gameControlsListener, getInstance());
+              .registerEvents(gameControlsListener, this);
 
-        logger.info(ChatColor.GOLD + PLUGIN_ENABLED);
+        getLogger().info(ChatColor.GOLD + PLUGIN_ENABLED);
     }
 
     @Override
@@ -95,11 +83,9 @@ public class MC2048 extends JavaPlugin {
                         + " pending tasks.");
             }
         }
-        MESSAGE_SENDER.close();
-        logger.info(ChatColor.GOLD + PLUGIN_DISABLED);
-    }
-
-    public static MC2048 getInstance() {
-        return instance;
+        if (messageSender != null) {
+            messageSender.close();
+        }
+        getLogger().info(ChatColor.GOLD + PLUGIN_DISABLED);
     }
 }

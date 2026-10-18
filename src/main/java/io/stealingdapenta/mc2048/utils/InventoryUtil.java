@@ -1,6 +1,5 @@
 package io.stealingdapenta.mc2048.utils;
 
-import static io.stealingdapenta.mc2048.MC2048.logger;
 import static io.stealingdapenta.mc2048.config.ConfigKey.GAME_GUI_FILLER_ANIMATION_MATERIAL;
 import static io.stealingdapenta.mc2048.config.ConfigKey.GAME_GUI_FILLER_ANIMATION_MATERIAL_CMD;
 import static io.stealingdapenta.mc2048.config.ConfigKey.GAME_GUI_FILLER_MATERIAL;
@@ -102,6 +101,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
+import java.util.logging.Logger;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.entity.Player;
@@ -115,7 +115,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 public class InventoryUtil {
 
-    public final MC2048 javaPlugin;
+    private final MC2048 javaPlugin;
     private final HighScoreManager highScoreManager;
 
     public static final int INVENTORY_ROWS = 6;
@@ -136,7 +136,7 @@ public class InventoryUtil {
         this.highScoreManager = highScoreManager;
     }
 
-    public static ItemStack getPlayerSkullItem(Player player) {
+    public static ItemStack getPlayerSkullItem(Player player, Logger logger) {
         ItemStack playerHead = setCustomModelDataTo((new ItemBuilder(PLAYER_ITEM_MATERIAL.getMaterialValue())).create(), PLAYER_ITEM_MATERIAL_CMD);
         SkullMeta skullMeta = (SkullMeta) playerHead.getItemMeta();
         if (Objects.isNull(skullMeta)) {
@@ -152,7 +152,7 @@ public class InventoryUtil {
 
     public void showEndAnimation(Inventory inventory, long delay) {
         if (inventory.getSize() != REQUIRED_SIZE) {
-            logger.warning(WRONG_SIZE);
+            javaPlugin.getLogger().warning(WRONG_SIZE);
             return;
         }
 
@@ -260,7 +260,7 @@ public class InventoryUtil {
 
     private void fillEmptySlots(Inventory inventory) {
         if (inventory.getSize() != REQUIRED_SIZE) {
-            logger.warning(WRONG_SIZE);
+            javaPlugin.getLogger().warning(WRONG_SIZE);
             return;
         }
 
@@ -278,7 +278,7 @@ public class InventoryUtil {
 
     private void fillSides(Inventory inventory) {
         if (inventory.getSize() != REQUIRED_SIZE) {
-            logger.warning(WRONG_SIZE);
+            javaPlugin.getLogger().warning(WRONG_SIZE);
             return;
         }
 
@@ -709,7 +709,7 @@ public class InventoryUtil {
         }
         return Arrays.stream(board)
                      .flatMap(Arrays::stream)
-                     .map(item -> item == null ? 0 : NumberRepresentation.getScoreFromItem(item))
+                     .map(item -> item == null ? 0 : NumberRepresentation.getScoreFromItem(item, javaPlugin.getLogger()))
                      .toList();
     }
 
@@ -799,7 +799,8 @@ public class InventoryUtil {
         for (int row = 0; row < ROW_AND_COLUMN_SIZE; row++) {
             for (int column = 0; column < ROW_AND_COLUMN_SIZE; column++) {
                 ItemStack item = itemBoard[row][column];
-                values[row][column] = item == null ? 0 : NumberRepresentation.getScoreFromItem(item);
+                values[row][column] =
+                    item == null ? 0 : NumberRepresentation.getScoreFromItem(item, javaPlugin.getLogger());
             }
         }
         return values;
@@ -817,7 +818,7 @@ public class InventoryUtil {
     }
 
     private ItemStack getHelpGUIPlayerStatsHead(Player player, PlayerData playerData) {
-        return (new ItemBuilder(getPlayerSkullItem(player))).addLore(PLAYER_ITEM_LORE_GAMES_PLAYED.getFormattedValue(StringUtil.formatLong(playerData.attempts())))
+        return (new ItemBuilder(getPlayerSkullItem(player, javaPlugin.getLogger()))).addLore(PLAYER_ITEM_LORE_GAMES_PLAYED.getFormattedValue(StringUtil.formatLong(playerData.attempts())))
                                                             .addLore(PLAYER_ITEM_LORE_TOTAL_PLAYTIME.getFormattedValue(makeSecondsATimestamp(playerData.playtime())))
                                                             .addLore(PLAYER_ITEM_LORE_HIGH_SCORE.getFormattedValue(StringUtil.formatLong(playerData.highScore())))
                                                             .addLore(PLAYER_ITEM_LORE_AVERAGE_SCORE.getFormattedValue(StringUtil.formatLong(Math.round(playerData.averageScore()))))

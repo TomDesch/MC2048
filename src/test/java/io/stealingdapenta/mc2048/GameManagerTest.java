@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 import io.stealingdapenta.mc2048.persistence.PlayerDataService;
 import io.stealingdapenta.mc2048.utils.HighScoreManager;
 import io.stealingdapenta.mc2048.utils.InventoryUtil;
+import io.stealingdapenta.mc2048.utils.MessageSender;
 import io.stealingdapenta.mc2048.utils.data.ActiveGame;
 import java.lang.reflect.Field;
 import java.util.Map;
@@ -36,7 +37,8 @@ class GameManagerTest {
             plugin,
             inventoryUtil,
             mock(HighScoreManager.class),
-            playerDataService
+            playerDataService,
+            mock(MessageSender.class)
         );
         player = mock(Player.class);
         activeGame = mock(ActiveGame.class);
